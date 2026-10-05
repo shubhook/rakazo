@@ -54,6 +54,13 @@ describe("consent grants", () => {
       expect.objectContaining({ where: expect.objectContaining({ id: { in: ["bot"] } }) }),
     );
   });
+  it("discloses Claude Code when the runtime supplies the default model", async () => {
+    const { deps, actor } = setup();
+    deps.env.agentRuntime = "claude-code";
+    const status = await aiConsentStatus(deps, actor, { uses: ["model"] });
+    expect(status.recipients.map((recipient) => recipient.name)).toEqual(["Claude Code"]);
+    expect(status.recipients[0]?.privacyUrl).toBe("https://www.anthropic.com/legal/privacy");
+  });
   it("discloses only the selected voice provider before a voice action", async () => {
     const { deps, actor } = setup();
     vi.mocked(deps.prisma.spaceVoicePreference.findMany).mockResolvedValue([

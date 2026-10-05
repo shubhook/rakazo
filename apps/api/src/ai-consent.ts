@@ -2,6 +2,8 @@ import { createHash } from "node:crypto";
 import { ORPCError } from "@orpc/server";
 import {
   aiRecipient,
+  CLAUDE_CODE_DEFAULT_MODEL,
+  CLAUDE_CODE_PROVIDER,
   cloudAgentsEnabled,
   parseModelSecret,
   selectConfiguredModel,
@@ -80,7 +82,9 @@ export async function aiConsentStatus(
   if (modelsEnabled) {
     const deployment = deps.env.deploymentModelKey
       ? { provider: deps.env.defaultProvider, model: deps.env.defaultModel }
-      : null;
+      : deps.env.agentRuntime === CLAUDE_CODE_PROVIDER
+        ? { provider: CLAUDE_CODE_PROVIDER, model: CLAUDE_CODE_DEFAULT_MODEL }
+        : null;
     const selected = await Promise.all(
       (target ? bots : [null, ...bots]).map(async (bot) => {
         const overrideCredential =
