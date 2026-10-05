@@ -18,6 +18,7 @@ describe("model vision gating for computer tools", () => {
   it("treats catalog text-only models as unable to see", () => {
     expect(modelAcceptsImageInput("openrouter", "deepseek/deepseek-v4-flash-0731")).toBe(false);
     expect(modelAcceptsImageInput("openrouter", "deepseek/deepseek-v4-pro")).toBe(false);
+    expect(modelAcceptsImageInput("claude-code", "sonnet")).toBe(true);
   });
 
   it("treats catalog vision models as able to see", () => {

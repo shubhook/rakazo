@@ -6,7 +6,9 @@ loadRootEnv();
 
 import {
   ChatSdkMessagingSurface,
+  CLAUDE_CODE_PROVIDER,
   CodexCatalogCache,
+  createAgentRuntime,
   createBackgroundJobHandlers,
   createCloudAgentConnection,
   createConnectorStack,
@@ -33,16 +35,15 @@ import {
   McpOAuthBroker,
   messagingEnvFromProcess,
   messagingPlatformsFromEnv,
-  PiAgentRuntime,
   PipedreamConnector,
   PostgresRealtimeFanout,
   pipedreamConfigFromEnv,
+  probeClaudeCode,
   reconcileCloudAgents,
   reconcileComputerUpdates,
   resolveDeploymentModel,
   resolvePiSessionRoot,
   resolveSandboxProvider,
-  ScriptedAgentRuntime,
   SpaceMemoryProviderResolver,
   sandboxProviderOptionsFromEnv,
 } from "@rakazo/adapters";
@@ -80,10 +81,20 @@ async function main() {
     runSecretWriter: createRunSecretWriter(secrets),
   });
   const dataDir = process.env.DATA_DIR ?? "./data";
-  const runtime =
-    process.env.AGENT_RUNTIME === "scripted"
-      ? new ScriptedAgentRuntime()
-      : new PiAgentRuntime({ sessionRoot: resolvePiSessionRoot(dataDir) });
+  const runtimeKind = process.env.AGENT_RUNTIME ?? "pi";
+  const runtime = createAgentRuntime(runtimeKind, { sessionRoot: resolvePiSessionRoot(dataDir) });
+  if (runtimeKind === CLAUDE_CODE_PROVIDER) {
+    void probeClaudeCode().then((status) => {
+      if (!status.installed) logger.warn("Claude Code is not installed on this machine");
+      else if (!status.loggedIn) logger.warn("Claude Code is not signed in on this machine");
+      else
+        logger.info("Claude Code ready", {
+          version: status.version,
+          authMethod: status.authMethod,
+          subscriptionType: status.subscriptionType,
+        });
+    });
+  }
   // Same resolver the API uses, so both processes agree on provider, model and key.
   const { key: deploymentModelKey } = resolveDeploymentModel();
   const sandboxProvider = resolveSandboxProvider(process.env);

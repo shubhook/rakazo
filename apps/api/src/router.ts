@@ -89,6 +89,7 @@ import {
   resolveBotWorkspaceCwd,
   resolveBotWorkspacePath,
   revokeScreenControl,
+  runtimeProvidesDefaultModel,
   sanitizeComposioError,
   savePushToken,
   scheduleComputerControlExpiry,
@@ -5740,7 +5741,8 @@ async function modelSetup(deps: RouterDeps, actor: Actor) {
   return {
     credential,
     settings,
-    needsModel: deps.env.agentRuntime !== "scripted" && !credential && !hasDeployment,
+    needsModel:
+      !runtimeProvidesDefaultModel(deps.env.agentRuntime) && !credential && !hasDeployment,
   };
 }
 

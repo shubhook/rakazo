@@ -1,5 +1,6 @@
 export * from "./agent-connections.js";
 export * from "./agent-environment.js";
+export * from "./agent-runtime-factory.js";
 export * from "./ai-consent.js";
 export * from "./artifacts.js";
 export * from "./auto-review.js";
@@ -24,6 +25,8 @@ export * from "./builtin-tools.js";
 export * from "./cartesia-voice.js";
 export * from "./chat-sdk-surface.js";
 export * from "./child-bots.js";
+export * from "./claude-code-cli.js";
+export * from "./claude-code-runtime.js";
 export * from "./cloud-agent-emulator.js";
 export * from "./cloud-agent-factory.js";
 export * from "./cloud-agent-poll.js";

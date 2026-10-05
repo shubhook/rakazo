@@ -64,6 +64,7 @@ import {
   type PiSessionHandle,
   type PiSessionRecorder,
 } from "./pi-session.js";
+import { interactiveToolPause } from "./runtime-interactive-tools.js";
 import type { FinishedShellCommand } from "./shell-command-stream.js";
 import { deliverFinishedShells } from "./shell-command-stream.js";
 import { textContentArg } from "./tool-text.js";
@@ -749,7 +750,7 @@ function stableToolNameHash(name: string): string {
   return (hash >>> 0).toString(36);
 }
 
-function toHistory(
+export function toHistory(
   history: AgentRunRequest["history"],
   prompt: string,
   sourceMessageId?: string | null,
@@ -782,7 +783,7 @@ function toHistory(
     });
 }
 
-function withoutSteeringMessages(
+export function withoutSteeringMessages(
   history: AgentRunRequest["history"],
   steering: AgentSteeringMessage[],
 ): AgentRunRequest["history"] {
@@ -965,41 +966,12 @@ function toAgentTool(tool: ConnectorTool, host: ToolHost, exposedName: string): 
       let failure: unknown;
       try {
         result = await (async () => {
-          if (tool.name === "request_takeover") {
+          const pause = interactiveToolPause(tool.name, args);
+          if (pause) {
             host.pausePending = true;
-            host.queue.push({
-              type: "takeover",
-              reason: String(args.reason ?? "I need you on the screen."),
-            });
+            host.queue.push(pause.event);
             return {
-              content: [{ type: "text", text: "Takeover requested." }],
-              details: args,
-              terminate: true,
-            };
-          }
-          if (tool.name === "ask_user") {
-            const options = Array.isArray(args.options)
-              ? args.options.map((option) => String(option).trim())
-              : [];
-            if (
-              options.length < 2 ||
-              options.length > 4 ||
-              options.some((option) => option.length === 0 || option.length > 80) ||
-              new Set(options).size !== options.length
-            ) {
-              throw new Error("ask_user requires two to four unique, non-empty options");
-            }
-            host.pausePending = true;
-            host.queue.push({
-              type: "ask",
-              text: String(args.question ?? "What should I use?"),
-              actions: options.map((label, index) => ({
-                id: `choice-${index + 1}`,
-                label,
-              })),
-            });
-            return {
-              content: [{ type: "text", text: "Waiting for the user's choice." }],
+              content: [{ type: "text", text: pause.text }],
               details: args,
               terminate: true,
             };
@@ -1551,7 +1523,7 @@ function isComputerScreenshotMessage(
   );
 }
 
-function isAgentToolExecutionResult(result: unknown): result is AgentToolExecutionResult {
+export function isAgentToolExecutionResult(result: unknown): result is AgentToolExecutionResult {
   if (
     !result ||
     typeof result !== "object" ||
@@ -1708,7 +1680,7 @@ export function jsonField(spec: unknown): ReturnType<typeof Type.String> {
   return Type.String(options);
 }
 
-function summarizeToolResult(result: unknown) {
+export function summarizeToolResult(result: unknown) {
   try {
     const text = JSON.stringify(result);
     if (!text) return "ok";
@@ -1771,7 +1743,7 @@ function redactActivityUrl(value: unknown): string {
   }
 }
 
-function sanitizeError(message: string) {
+export function sanitizeError(message: string) {
   return sanitizeSensitiveText(message);
 }
 
@@ -1802,7 +1774,7 @@ function sanitizeProviderError(provider: string, message: string): string {
   return sanitized;
 }
 
-interface EventQueue {
+export interface EventQueue {
   push(event: AgentRuntimeEvent): void;
   fail(error: Error): void;
   close(): void;
@@ -1920,7 +1892,7 @@ function createGate(max: number) {
   };
 }
 
-function createQueue(): EventQueue {
+export function createQueue(): EventQueue {
   const items: AgentRuntimeEvent[] = [];
   let wake: (() => void) | undefined;
   let closed = false;

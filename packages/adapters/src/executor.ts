@@ -2592,7 +2592,9 @@ const BOT_DIRECTORY_LIMIT = 40;
 const MISSING_MODEL_MESSAGE = "Connect a model in Settings before running bots.";
 
 function runtimeFallbackModel(runtime: AgentRuntime) {
-  return runtime.describe().capabilities.scripted ? { provider: "scripted", id: "scripted" } : null;
+  const capabilities = runtime.describe().capabilities;
+  if (capabilities.defaultModel) return capabilities.defaultModel;
+  return capabilities.scripted ? { provider: "scripted", id: "scripted" } : null;
 }
 
 export interface ExecutorDeps {

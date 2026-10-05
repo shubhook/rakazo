@@ -1,5 +1,6 @@
 import { createHash } from "node:crypto";
 import type { AiDataUse, AiRecipient } from "@rakazo/contracts";
+import { CLAUDE_CODE_PROVIDER } from "./claude-code-cli.js";
 import { localBaseUrl } from "./pi-local-provider.js";
 import { listPiCatalog } from "./pi-models.js";
 import { voiceCatalogEntry } from "./voice-factory.js";
@@ -10,6 +11,7 @@ const PRIVACY_URLS: Record<string, string> = {
   openai: "https://openai.com/policies/privacy-policy/",
   "openai-codex": "https://openai.com/policies/privacy-policy/",
   anthropic: "https://www.anthropic.com/legal/privacy",
+  [CLAUDE_CODE_PROVIDER]: "https://www.anthropic.com/legal/privacy",
   google: "https://policies.google.com/privacy",
   "vercel-ai-gateway": "https://vercel.com/legal/privacy-policy",
   elevenlabs: "https://elevenlabs.io/privacy-policy",
@@ -53,5 +55,6 @@ function recipientName(provider: string, use: AiDataUse) {
   if (use === "voice") return voiceCatalogEntry(provider)?.name ?? provider;
   if (use === "memory") return provider === "supermemory" ? "Supermemory" : provider;
   if (provider === "cursor") return "Cursor";
+  if (provider === CLAUDE_CODE_PROVIDER) return "Claude Code";
   return listPiCatalog().find((entry) => entry.provider === provider)?.providerName ?? provider;
 }
