@@ -33,11 +33,12 @@ describe("Pi model catalog", () => {
     expect(grok?.signIn).toBe("device-code");
     const claude = catalog.find((entry) => entry.provider === "anthropic");
     expect(claude).toMatchObject({
-      signIn: "auth-url",
-      authHint: "Claude Pro/Max / key",
-      oauthLabel: "Sign in with Claude Pro/Max",
-      billing: "",
+      auth: "api-key",
+      subscription: false,
+      billing: "Uses your Anthropic API key. Rakazo does not pay for model usage.",
     });
+    expect(claude?.signIn).toBeUndefined();
+    expect(claude?.oauthLabel).toBeUndefined();
     expect(scriptedCatalogEntry.provider).toBe("scripted");
   });
 

@@ -331,6 +331,11 @@ For provider configuration and health checks, see the [provider setup guide](./s
 
 ## Claude Code runtime
 
+This is the only way to run Rakazo on a Claude Pro or Max subscription. Anthropic only allows those
+subscriptions inside Claude Code, so Rakazo has no Claude sign-in of its own. It refuses
+subscription tokens (`sk-ant-oat…`) pasted as an Anthropic key, and Claude sign-ins saved by
+older versions stop working. An Anthropic API key still works on either runtime.
+
 `AGENT_RUNTIME=claude-code` runs bots through the Claude Code CLI installed on the worker's machine,
 using that CLI's own sign-in. Rakazo never reads or stores the Claude credential. Install the CLI
 and run `claude auth login` as the user the worker runs as; set `CLAUDE_CONFIG_DIR` in the worker
@@ -338,7 +343,8 @@ environment to use a different Claude login. The worker logs whether the CLI is 
 signed in at startup.
 
 Runs without a connected model use Claude Code (`sonnet`); models people connect in settings keep
-running on Pi. The CLI's own tools, settings, hooks, and MCP servers are disabled for bot runs, so
+running on Pi. A bot whose default is a Claude sign-in saved by an older version uses Claude Code
+instead. The CLI's own tools, settings, hooks, and MCP servers are disabled for bot runs, so
 shell, files, browser, and approvals still go through Rakazo. The published images do not include
 the CLI, so use a source checkout where the worker runs on your machine. Use this only on a
 personal deployment: everyone on the deployment would share your Claude subscription.

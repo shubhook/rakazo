@@ -1413,9 +1413,9 @@ describe("model credential persistence", () => {
       status: "connected" as const,
       value: await persist({
         status: "connected",
-        provider: "anthropic",
+        provider: "openai-codex",
         modelId: "null",
-        label: "Anthropic",
+        label: "ChatGPT",
         credential: {
           type: "oauth",
           access: "access-token",
@@ -1437,7 +1437,7 @@ describe("model credential persistence", () => {
     expect(persisted.update.modelId).toBe(persisted.create.modelId);
     await expect(response.json()).resolves.toEqual({
       json: expect.objectContaining({
-        provider: "anthropic",
+        provider: "openai-codex",
         modelId: persisted.create.modelId,
       }),
     });
@@ -1479,6 +1479,50 @@ describe("model credential persistence", () => {
     expect(upsert).not.toHaveBeenCalled();
   });
 
+  it("refuses a Claude subscription token pasted as an Anthropic key", async () => {
+    const { upsert, deps, handler } = persistDeps();
+
+    const response = await call(handler, "models/connect", {
+      provider: "anthropic",
+      apiKey: "sk-ant-oat01-subscription-token",
+    });
+
+    expect(response.status).toBe(400);
+    await expect(response.json()).resolves.toEqual({
+      json: expect.objectContaining({
+        code: "BAD_REQUEST",
+        message:
+          "Claude subscriptions only work through Claude Code. Connect an Anthropic API key instead.",
+      }),
+    });
+    expect(deps.secrets.put).not.toHaveBeenCalled();
+    expect(upsert).not.toHaveBeenCalled();
+  });
+
+  it("refuses to save a Claude subscription sign-in", async () => {
+    const { upsert, finish, deps, handler } = persistDeps();
+    finish.mockImplementation(async (_loginId, _actor, persist) => ({
+      status: "connected" as const,
+      value: await persist({
+        status: "connected",
+        provider: "anthropic",
+        credential: {
+          type: "oauth",
+          access: "access-token",
+          refresh: "refresh-token",
+          expires: Date.now() + 60_000,
+        },
+        signal: new AbortController().signal,
+      }),
+    }));
+
+    const response = await call(handler, "models/finishOAuth", { loginId: "login-1" });
+
+    expect(response.status).toBe(400);
+    expect(deps.secrets.put).not.toHaveBeenCalled();
+    expect(upsert).not.toHaveBeenCalled();
+  });
+
   it("still accepts an API key for other providers", async () => {
     const { deps, handler } = persistDeps();
 
@@ -1497,7 +1541,6 @@ describe("model credential persistence", () => {
   it.each([
     ["github-copilot", "GitHub Copilot"],
     ["openai-codex", "OpenAI Codex"],
-    ["anthropic", "Anthropic"],
   ])("labels a %s subscription sign-in with its own provider name", async (provider, label) => {
     const { finish, deps, handler } = persistDeps();
     finish.mockImplementation(async (_loginId, _actor, persist) => ({

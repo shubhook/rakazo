@@ -176,6 +176,7 @@ import {
 } from "./browser-tools.js";
 import { agentConnectionTools, builtinAgentTools, sharedMemorySaveError } from "./builtin-tools.js";
 import { archiveSpawnedBot, spawnBot } from "./child-bots.js";
+import { CLAUDE_CODE_PROVIDER } from "./claude-code-cli.js";
 import { type CloudAgentConnection, cloudAgentsEnabled } from "./cloud-agent-factory.js";
 import { executeCloudAgentTool } from "./cloud-agent-service.js";
 import { validCloudAgentArgs } from "./cloud-agent-tools.js";
@@ -262,6 +263,7 @@ import type { CodexLiveCatalog } from "./pi-codex-catalog.js";
 import { codexLiveListsModel } from "./pi-codex-catalog.js";
 import { toOAuthCredential } from "./pi-credentials.js";
 import {
+  AnthropicSubscriptionError,
   isRetiredModelCredentialError,
   matchesFailedOAuthSecret,
   parseModelSecret,
@@ -2996,14 +2998,28 @@ export function createRunExecutor(deps: ExecutorDeps) {
       }
       if (!provider || !id) throw new Error(MISSING_MODEL_MESSAGE);
       // The key is resolved for the provider that won above, not before it is known.
-      const resolved = await resolveModelKey(
-        deps,
-        scope.userId,
-        scope.spaceId,
-        credential,
-        provider,
-        id,
-      );
+      let resolved: Awaited<ReturnType<typeof resolveModelKey>>;
+      try {
+        resolved = await resolveModelKey(
+          deps,
+          scope.userId,
+          scope.spaceId,
+          credential,
+          provider,
+          id,
+        );
+      } catch (error) {
+        // A Claude subscription saved before sign-in was removed must not reach Pi.
+        // Under Claude Code the run uses the CLI's own login instead.
+        if (!(error instanceof AnthropicSubscriptionError)) throw error;
+        const claudeCode = runtimeFallbackModel(deps.runtime);
+        if (claudeCode?.provider !== CLAUDE_CODE_PROVIDER) throw error;
+        return {
+          provider: claudeCode.provider,
+          id: claudeCode.id,
+          thinkingLevel: thinkingLevel ?? null,
+        };
+      }
       return {
         provider,
         id,

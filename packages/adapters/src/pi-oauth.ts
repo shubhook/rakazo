@@ -17,13 +17,41 @@ import {
 } from "@rakazo/contracts";
 import type { PrismaClient } from "@rakazo/db";
 import { getLogger } from "@rakazo/logging";
-import { createManualAnthropicOAuthLogin } from "./pi-anthropic-oauth.js";
 import type { EncryptedSecretStore } from "./secrets.js";
 
 export const CHATGPT_OAUTH_PROVIDER = "openai-codex";
 export const COPILOT_OAUTH_PROVIDER = "github-copilot";
 export const XAI_OAUTH_PROVIDER = "xai";
-export const ANTHROPIC_OAUTH_PROVIDER = "anthropic";
+export const ANTHROPIC_PROVIDER = "anthropic";
+
+/**
+ * Anthropic only permits Claude subscriptions inside Claude Code, so Rakazo never
+ * signs in to one or calls Claude with a subscription token. AGENT_RUNTIME=claude-code
+ * reaches the subscription through the CLI's own login instead.
+ */
+export const ANTHROPIC_SUBSCRIPTION_MESSAGE =
+  "Claude subscriptions only work through Claude Code. Connect an Anthropic API key instead.";
+
+export class AnthropicSubscriptionError extends Error {
+  constructor() {
+    super(ANTHROPIC_SUBSCRIPTION_MESSAGE);
+    this.name = "AnthropicSubscriptionError";
+  }
+}
+
+/** Claude subscription OAuth access tokens; API keys are `sk-ant-api…`. */
+export function isAnthropicSubscriptionToken(value: string | undefined): boolean {
+  return value?.trim().startsWith("sk-ant-oat") === true;
+}
+
+/** A stored Anthropic credential that is a Claude subscription rather than an API key. */
+export function isAnthropicSubscriptionSecret(provider: string, secret: StoredModelSecret) {
+  if (provider !== ANTHROPIC_PROVIDER) return false;
+  return (
+    secret.kind === "oauth" ||
+    (secret.kind === "api_key" && isAnthropicSubscriptionToken(secret.key))
+  );
+}
 
 export const SUBSCRIPTION_SIGN_IN_PROVIDERS: Record<
   string,
@@ -47,13 +75,6 @@ export const SUBSCRIPTION_SIGN_IN_PROVIDERS: Record<
     loginLabel: "Sign in with SuperGrok or X Premium",
     hint: "SuperGrok / key",
     billing: "Sign in with SuperGrok or X Premium, or paste an xAI API key. Rakazo does not pay.",
-  },
-  [ANTHROPIC_OAUTH_PROVIDER]: {
-    mode: "auth-url",
-    loginLabel: "Sign in with Claude Pro/Max",
-    hint: "Claude Pro/Max / key",
-    // Button + "Or paste an API key" already explain the choices; no extra paragraph.
-    billing: "",
   },
 };
 
@@ -504,6 +525,7 @@ export function codexComputeResidency(accessToken: string | undefined): string |
 }
 
 export function loadProviderOAuth(providerId: string): OAuthAuth | undefined {
+  if (providerId === ANTHROPIC_PROVIDER) return undefined;
   return providerCatalog().getProvider(providerId)?.auth.oauth;
 }
 
@@ -532,6 +554,9 @@ export async function resolveModelAuth(
   opts?: ResolveModelOpts,
 ): Promise<{ secret: StoredModelSecret; apiKey: string }> {
   const parsed = parseModelSecret(plaintext);
+  // Every stored credential reaches a model through here, so a subscription
+  // connected before sign-in was removed can neither refresh nor run.
+  if (isAnthropicSubscriptionSecret(provider, parsed)) throw new AnthropicSubscriptionError();
   if (parsed.kind === "api_key") return { secret: parsed, apiKey: parsed.key };
   if (parsed.kind === "openai_compatible") {
     return { secret: parsed, apiKey: parsed.apiKey ?? "" };
@@ -766,7 +791,7 @@ export class PiOAuthLogins {
   }): Promise<PiOAuthBegin> {
     if (!SUBSCRIPTION_SIGN_IN_PROVIDERS[input.provider]) {
       throw new Error(
-        "In-app subscription sign-in is only available for ChatGPT Plus/Pro, Claude Pro/Max, GitHub Copilot, and SuperGrok.",
+        "In-app subscription sign-in is only available for ChatGPT Plus/Pro, GitHub Copilot, and SuperGrok.",
       );
     }
     if (input.signal?.aborted) {
@@ -1112,8 +1137,8 @@ function defaultLogin(
   type: "oauth",
   interaction: AuthInteraction,
 ): Promise<Credential> {
-  if (providerId === ANTHROPIC_OAUTH_PROVIDER) {
-    return createManualAnthropicOAuthLogin()(interaction);
+  if (providerId === ANTHROPIC_PROVIDER) {
+    return Promise.reject(new AnthropicSubscriptionError());
   }
   return builtinModels().login(providerId, type, interaction);
 }

@@ -30,6 +30,7 @@ import type {
   RemoteConnectorDependencies,
 } from "@rakazo/adapters";
 import {
+  ANTHROPIC_SUBSCRIPTION_MESSAGE,
   acquireComputerExecutionLease,
   applyCodexLiveCatalog,
   applyTeachingDesktopInput,
@@ -59,6 +60,7 @@ import {
   forgetBotSecret,
   getBotSecretMetadata,
   hasActiveComputerControl,
+  isAnthropicSubscriptionSecret,
   isAutoReviewCheckerConfigured,
   isComputerScreenUnavailable,
   isSandboxGoneError,
@@ -6056,6 +6058,9 @@ async function persistModelCredential(
   codexCatalog: CodexLiveCatalog,
 ) {
   throwIfAborted(input.signal);
+  if (isAnthropicSubscriptionSecret(input.provider, parseModelSecret(input.plaintext))) {
+    throw new ORPCError("BAD_REQUEST", { message: ANTHROPIC_SUBSCRIPTION_MESSAGE });
+  }
   const requestedModelId = usableModelId(input.modelId);
   const authError = requestedModelId
     ? validateModelAuthAvailability(input.provider, requestedModelId, input.plaintext)

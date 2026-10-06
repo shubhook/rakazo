@@ -19,7 +19,7 @@ import {
   userTurnInstructions,
   withRecentTurnImages,
 } from "./executor.js";
-import { serializeModelSecret } from "./pi-oauth.js";
+import { AnthropicSubscriptionError, serializeModelSecret } from "./pi-oauth.js";
 
 describe("tool completion audit", () => {
   it("records result metadata without persisting tool contents", () => {
@@ -2011,6 +2011,47 @@ description: Prepare standup notes
         where: expect.objectContaining({ credential: { provider: "xai" } }),
       }),
     );
+  });
+
+  it.each([
+    ["Claude Code", { provider: "claude-code", id: "sonnet" }],
+    ["Pi", undefined],
+  ])("keeps a saved Claude subscription off Pi under %s", async (_name, defaultModel) => {
+    const prisma = {
+      bot: { findFirst: vi.fn(async () => null) },
+      spaceModelPreference: {
+        findFirst: vi.fn(async () =>
+          modelPreference({
+            provider: "anthropic",
+            secretId: "secret-claude",
+            modelId: "claude-sonnet-4-5",
+            isDefault: true,
+          }),
+        ),
+      },
+      userModelCredential: { findFirst: vi.fn(async () => null) },
+      deploymentSettings: { findUnique: vi.fn(async () => null) },
+      secret: {
+        findFirst: vi.fn(async () => ({ id: "secret-claude", ciphertext: "cipher" })),
+        findUnique: vi.fn(async () => null),
+      },
+    } as unknown as PrismaClient;
+    const executor = createRunExecutor({
+      prisma,
+      runtime: { describe: () => ({ capabilities: defaultModel ? { defaultModel } : {} }) },
+      secretStore: { load: vi.fn(() => "sk-ant-oat01-subscription"), put: vi.fn() },
+    } as unknown as Parameters<typeof createRunExecutor>[0]);
+
+    const resolving = executor.resolveModel({ userId: "user-1", spaceId: "ws-1" });
+
+    if (defaultModel) {
+      const model = await resolving;
+      expect(model).toMatchObject(defaultModel);
+      expect(model.apiKey).toBeUndefined();
+      expect(model.oauth).toBeUndefined();
+    } else {
+      await expect(resolving).rejects.toThrow(AnthropicSubscriptionError);
+    }
   });
 
   it("resolves an explicit subagent model within the active user and space", async () => {

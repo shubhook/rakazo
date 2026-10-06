@@ -3,8 +3,11 @@ import type { ModelCredentialFailedState, ModelCredentialRetireReason } from "@r
 import type { PrismaClient } from "@rakazo/db";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import {
+  ANTHROPIC_PROVIDER,
+  AnthropicSubscriptionError,
   CHATGPT_OAUTH_PROVIDER,
   COPILOT_OAUTH_PROVIDER,
+  isAnthropicSubscriptionSecret,
   isRetiredModelCredentialError,
   kickModelCredentialRefresh,
   matchesFailedOAuthSecret,
@@ -365,6 +368,37 @@ describe("terminalOAuthRefreshErrorMarker", () => {
     let shallow: Error = new Error('(400) {"error":"invalid_grant"}');
     for (let i = 0; i < 3; i += 1) shallow = new Error(`layer ${i}`, { cause: shallow });
     expect(terminalOAuthRefreshErrorMarker(shallow)).toBe("invalid_grant");
+  });
+});
+
+describe("Claude subscription credentials", () => {
+  const subscriptionSecrets = [
+    serializeModelSecret({ kind: "oauth", credential: oauthCred() }),
+    "sk-ant-oat01-subscription-token",
+    "  sk-ant-oat01-subscription-token\n",
+  ];
+
+  it.each(subscriptionSecrets)("refuses %j without refreshing it", async (plaintext) => {
+    const oauth = { refresh: vi.fn(), toAuth: vi.fn() };
+    await expect(resolveModelAuth(plaintext, ANTHROPIC_PROVIDER, { oauth })).rejects.toThrow(
+      AnthropicSubscriptionError,
+    );
+    expect(oauth.refresh).not.toHaveBeenCalled();
+  });
+
+  it("still runs an Anthropic API key and other providers' subscriptions", async () => {
+    await expect(resolveModelAuth("sk-ant-api03-key", ANTHROPIC_PROVIDER)).resolves.toMatchObject({
+      apiKey: "sk-ant-api03-key",
+    });
+    expect(
+      isAnthropicSubscriptionSecret(CHATGPT_OAUTH_PROVIDER, {
+        kind: "oauth",
+        credential: oauthCred(),
+      }),
+    ).toBe(false);
+    expect(
+      isAnthropicSubscriptionSecret("openrouter", { kind: "api_key", key: "sk-ant-oat01-x" }),
+    ).toBe(false);
   });
 });
 
@@ -1138,14 +1172,22 @@ describe("PiOAuthLogins", () => {
     const logins = new PiOAuthLogins();
     await expect(
       logins.begin({ userId: "u", spaceId: "w", provider: "openrouter" }),
-    ).rejects.toThrow(/ChatGPT Plus\/Pro, Claude Pro\/Max, GitHub Copilot, and SuperGrok/);
+    ).rejects.toThrow(/ChatGPT Plus\/Pro, GitHub Copilot, and SuperGrok/);
   });
 
-  it("runs the anthropic auth-url flow via submitted code", async () => {
+  it("never starts a Claude subscription sign-in", async () => {
+    const login = vi.fn(async () => oauthCred());
+    await expect(
+      new PiOAuthLogins(login).begin({ userId: "u", spaceId: "w", provider: ANTHROPIC_PROVIDER }),
+    ).rejects.toThrow(/ChatGPT Plus\/Pro, GitHub Copilot, and SuperGrok/);
+    expect(login).not.toHaveBeenCalled();
+  });
+
+  it("runs an auth-url flow via submitted code", async () => {
     const logins = new PiOAuthLogins(async (_provider, _type, interaction) => {
       interaction.notify({
         type: "auth_url",
-        url: "https://claude.ai/oauth/authorize?code=true",
+        url: "https://auth.example.com/authorize?code=true",
         instructions: "open",
       });
       const pasted = await interaction.prompt({
@@ -1153,15 +1195,15 @@ describe("PiOAuthLogins", () => {
         message: "paste",
       });
       expect(pasted).toBe("pasted-code#state");
-      return oauthCred({ access: "claude-access" });
+      return oauthCred({ access: "pasted-access" });
     });
     const started = await logins.begin({
       userId: "u",
       spaceId: "w",
-      provider: "anthropic",
+      provider: CHATGPT_OAUTH_PROVIDER,
     });
     expect(started.mode).toBe("auth-url");
-    expect(started.verificationUri).toContain("claude.ai/oauth/authorize");
+    expect(started.verificationUri).toContain("auth.example.com/authorize");
     expect("userCode" in started).toBe(false);
 
     expect(() =>
@@ -1181,7 +1223,7 @@ describe("PiOAuthLogins", () => {
     await flushMicrotasks();
     const done = await logins.complete(started.loginId, { userId: "u", spaceId: "w" });
     expect(done.status).toBe("connected");
-    if (done.status === "connected") expect(done.credential.access).toBe("claude-access");
+    if (done.status === "connected") expect(done.credential.access).toBe("pasted-access");
   });
 
   it("rejects submit for a login that is not waiting for a code", async () => {
@@ -1215,7 +1257,7 @@ describe("PiOAuthLogins", () => {
     const logins = new PiOAuthLogins(async (_provider, _type, interaction) => {
       interaction.notify({
         type: "auth_url",
-        url: "https://claude.ai/oauth/authorize?code=true",
+        url: "https://auth.example.com/authorize?code=true",
         instructions: "open",
       });
       try {
@@ -1228,7 +1270,7 @@ describe("PiOAuthLogins", () => {
     const started = await logins.begin({
       userId: "u",
       spaceId: "w",
-      provider: "anthropic",
+      provider: CHATGPT_OAUTH_PROVIDER,
     });
 
     await logins.cancel(started.loginId, { userId: "u", spaceId: "w" });
@@ -1243,7 +1285,7 @@ describe("PiOAuthLogins", () => {
     const logins = new PiOAuthLogins(async (_provider, _type, interaction) => {
       interaction.notify({
         type: "auth_url",
-        url: "https://claude.ai/oauth/authorize?code=true",
+        url: "https://auth.example.com/authorize?code=true",
       });
       try {
         await interaction.prompt({
@@ -1259,7 +1301,7 @@ describe("PiOAuthLogins", () => {
     const started = await logins.begin({
       userId: "u",
       spaceId: "w",
-      provider: "anthropic",
+      provider: CHATGPT_OAUTH_PROVIDER,
     });
 
     promptAbort.abort(new Error("Callback completed elsewhere"));
@@ -1276,7 +1318,7 @@ describe("PiOAuthLogins", () => {
     });
 
     await expect(
-      logins.begin({ userId: "u", spaceId: "w", provider: "anthropic" }),
+      logins.begin({ userId: "u", spaceId: "w", provider: CHATGPT_OAUTH_PROVIDER }),
     ).rejects.toThrow(/must use HTTPS/);
   });
 
