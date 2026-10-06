@@ -3,7 +3,7 @@ import { builtinModels } from "@earendil-works/pi-ai/providers/all";
 import type { ModelOAuthSignInMode, ThinkingLevel } from "@rakazo/contracts";
 import { supplementPiModels } from "./pi-current-models.js";
 import { LOCAL_PROVIDER_ID, registerLocalProvider } from "./pi-local-provider.js";
-import { SUBSCRIPTION_SIGN_IN_PROVIDERS } from "./pi-oauth.js";
+import { ANTHROPIC_PROVIDER, SUBSCRIPTION_SIGN_IN_PROVIDERS } from "./pi-oauth.js";
 import {
   OPENAI_COMPATIBLE_PROVIDER_ID,
   registerOpenAiCompatibleCatalog,
@@ -41,12 +41,14 @@ function buildPiCatalog(): PiCatalogEntry[] {
   const entries: PiCatalogEntry[] = [];
   for (const provider of models.getProviders()) {
     const apiKey = Boolean(provider.auth.apiKey);
-    const oauth = Boolean(provider.auth.oauth);
+    // Claude subscriptions stay inside Claude Code, so Anthropic is API-key only here.
+    const oauth = Boolean(provider.auth.oauth) && provider.id !== ANTHROPIC_PROVIDER;
     const auth: PiCatalogAuth = apiKey && oauth ? "both" : oauth ? "oauth" : "api-key";
     const signInMeta = SUBSCRIPTION_SIGN_IN_PROVIDERS[provider.id];
-    const oauthLabel =
-      signInMeta?.loginLabel ?? provider.auth.oauth?.loginLabel ?? provider.auth.oauth?.name;
-    const subscription = Boolean(provider.auth.oauth?.isSubscription);
+    const oauthLabel = oauth
+      ? (signInMeta?.loginLabel ?? provider.auth.oauth?.loginLabel ?? provider.auth.oauth?.name)
+      : undefined;
+    const subscription = oauth && Boolean(provider.auth.oauth?.isSubscription);
     const billing = catalogBilling(provider.id, provider.name, {
       apiKey,
       oauth,

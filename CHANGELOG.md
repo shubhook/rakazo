@@ -41,6 +41,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Removed
 
+- Sign in with Claude Pro/Max. Anthropic only allows Claude subscriptions inside Claude Code, so Rakazo no longer signs in to Claude or calls it with a subscription token. A Claude sign-in saved earlier stops working, and a subscription token (`sk-ant-oat…`) pasted as an Anthropic key is refused. Anthropic API keys still work. To run on a Claude subscription, use `AGENT_RUNTIME=claude-code`; under it, a bot whose default was a saved Claude sign-in runs on Claude Code instead.
 - Nonfunctional Grant folder picker in the desktop app.
 
 ### Messaging upgrade notes
