@@ -12,6 +12,7 @@ import {
   Menu,
   net,
   type Session,
+  safeStorage,
   session,
   shell,
 } from "electron";
@@ -22,6 +23,7 @@ import {
 } from "./auto-update.js";
 import { openBrowserAuth } from "./browser-auth.js";
 import { DOCKER_INSTALL_LINKS, isDesktopSetupLink, runDocker } from "./docker-cli.js";
+import { LocalAccountStore, localAccountOrigin } from "./local-account.js";
 import { requestLocalSettings } from "./local-settings.js";
 import {
   LocalStackController,
@@ -138,6 +140,14 @@ function windowFrom(event: Electron.IpcMainInvokeEvent) {
 
 function fromMainWindow(event: Electron.IpcMainInvokeEvent) {
   return mainWindow !== null && windowFrom(event) === mainWindow;
+}
+
+/** The local server origin an app window's own page may hold an account for, if any. */
+function localAccountRequestOrigin(event: Electron.IpcMainInvokeEvent) {
+  const win = windowFrom(event);
+  if (win === null || event.senderFrame !== event.sender.mainFrame) return null;
+  const origin = localAccountOrigin(appWindowTargets.get(win));
+  return origin !== null && safeOrigin(event.senderFrame.url) === origin ? origin : null;
 }
 
 /** Dock/taskbar icon for unpackaged launches; packaged builds get theirs from electron-builder. */
@@ -1139,6 +1149,26 @@ app.whenReady().then(async () => {
       );
     },
   );
+  const localAccounts = new LocalAccountStore(userDataDir, {
+    // Linux without a keyring falls back to a fixed key; treat that as no encryption.
+    available: () =>
+      safeStorage.isEncryptionAvailable() &&
+      (process.platform !== "linux" || safeStorage.getSelectedStorageBackend() !== "basic_text"),
+    encrypt: (plain) => safeStorage.encryptString(plain),
+    decrypt: (cipher) => safeStorage.decryptString(cipher),
+  });
+  ipcMain.handle("desktop.localAccount.read", async (event) => {
+    const origin = localAccountRequestOrigin(event);
+    if (origin === null || !localAccounts.available()) return null;
+    return { account: await localAccounts.read(origin) };
+  });
+  ipcMain.handle("desktop.localAccount.ensure", (event) => {
+    const origin = localAccountRequestOrigin(event);
+    if (origin === null || !localAccounts.available()) {
+      throw new Error("This server needs a normal sign-in.");
+    }
+    return localAccounts.ensure(origin);
+  });
   ipcMain.handle("desktop.platform", () => process.platform);
   ipcMain.handle("desktop.window.close", (event) => {
     windowFrom(event)?.close();
