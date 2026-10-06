@@ -5,6 +5,8 @@ import { Eye, EyeOff } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { authClient } from "../lib/auth";
+import { desktopBridge } from "../lib/desktop";
+import { type LocalAccountAuth, resumeLocalAccount, startLocalAccount } from "../lib/local-account";
 import { clearSpaceSelection } from "../lib/rpc";
 
 type AuthMode = "in" | "up" | "forgot";
@@ -323,6 +325,110 @@ export function PasswordResetPage() {
           </Link>
         </>
       )}
+    </AuthFrame>
+  );
+}
+
+const localAccountAuth: LocalAccountAuth = {
+  signIn: (account) => authClient.signIn.email(account),
+  signUp: (account) => authClient.signUp.email(account),
+  rename: (name) => authClient.updateUser({ name }),
+};
+
+/** Opens the normal email sign-in even when the desktop app could sign in for the person. */
+export const EMAIL_SIGN_IN_PATH = "/sign-in?with=email";
+
+/**
+ * A server on this computer needs no sign-in: the desktop app holds the account,
+ * so the person only gives a name the first time. Anywhere else, `fallback` renders.
+ */
+export function LocalAccountPage({
+  fallback,
+  destination,
+}: {
+  fallback: React.ReactNode;
+  destination: string;
+}) {
+  const { t } = useLingui();
+  const navigate = useNavigate();
+  const bridge = desktopBridge()?.localAccount;
+  const [state, setState] = useState<"checking" | "unavailable" | "name">(
+    bridge ? "checking" : "unavailable",
+  );
+  const [name, setName] = useState("");
+  const [error, setError] = useState<string | null>(null);
+  const [pending, setPending] = useState(false);
+
+  useEffect(() => {
+    if (!bridge) return;
+    let active = true;
+    void resumeLocalAccount(bridge, localAccountAuth).then((resume) => {
+      if (!active) return;
+      // Signed in: the session update reroutes this page, so it stays blank until then.
+      if (resume === "signed-in") clearSpaceSelection();
+      else setState(resume === "unavailable" ? "unavailable" : "name");
+    });
+    return () => {
+      active = false;
+    };
+  }, [bridge]);
+
+  if (state === "unavailable" || !bridge) return fallback;
+  if (state === "checking") return <div className="h-full bg-background" />;
+
+  async function submit(event: React.FormEvent) {
+    event.preventDefault();
+    const trimmed = name.trim();
+    if (!bridge || !trimmed) return;
+    setPending(true);
+    setError(null);
+    try {
+      const result = await startLocalAccount(bridge, trimmed, localAccountAuth);
+      if (!result.ok) {
+        setError(result.message ?? t`Could not continue`);
+        return;
+      }
+      clearSpaceSelection();
+      navigate(result.created ? "/onboarding" : destination);
+    } catch {
+      setError(t`Could not reach the server`);
+    } finally {
+      setPending(false);
+    }
+  }
+
+  return (
+    <AuthFrame onSubmit={submit} title={<Trans>What should we call you?</Trans>}>
+      <div className="w-full">
+        <Label htmlFor="name" className="sr-only">
+          <Trans>Name</Trans>
+        </Label>
+        <Input
+          id="name"
+          name="name"
+          autoComplete="name"
+          autoFocus
+          required
+          maxLength={100}
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          placeholder={t`Your name`}
+          className={fieldClass}
+        />
+      </div>
+      {error ? (
+        <p role="alert" className="mt-3 w-full text-sm text-destructive">
+          {error}
+        </p>
+      ) : null}
+      <Button type="submit" size="lg" disabled={pending || !name.trim()} className={submitClass}>
+        {pending ? <Trans>Working…</Trans> : <Trans>Continue</Trans>}
+      </Button>
+      <p className="mt-8 text-muted-foreground">
+        <Link to={EMAIL_SIGN_IN_PATH} className="font-medium text-foreground">
+          <Trans>Sign in with email</Trans>
+        </Link>
+      </p>
     </AuthFrame>
   );
 }

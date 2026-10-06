@@ -20,6 +20,9 @@ import { ShellPage } from "./pages/Shell";
 const AuthPage = lazy(() =>
   import("./pages/Auth").then((module) => ({ default: module.AuthPage })),
 );
+const LocalAccountPage = lazy(() =>
+  import("./pages/Auth").then((module) => ({ default: module.LocalAccountPage })),
+);
 const PasswordResetPage = lazy(() =>
   import("./pages/Auth").then((module) => ({ default: module.PasswordResetPage })),
 );
@@ -42,6 +45,7 @@ function SessionApp() {
   const [searchParams] = useSearchParams();
   const signInDestination =
     searchParams.get("next") === "/integrations/setup" ? "/integrations/setup" : "/app";
+  const emailSignIn = searchParams.get("with") === "email";
   const session = authClient.useSession();
   const gate = sessionGate(session);
   const [holdingUnreachable, setHoldingUnreachable] = useState(false);
@@ -75,11 +79,29 @@ function SessionApp() {
     <div className="h-full" data-rakazo-app-state="ready">
       <Suspense fallback={<div className="h-full bg-background" />}>
         <Routes>
-          <Route path="/" element={user ? <Navigate to="/app" replace /> : <WelcomePage />} />
+          <Route
+            path="/"
+            element={
+              user ? (
+                <Navigate to="/app" replace />
+              ) : (
+                <LocalAccountPage fallback={<WelcomePage />} destination="/app" />
+              )
+            }
+          />
           <Route
             path="/sign-in"
             element={
-              user ? <Navigate to={signInDestination} replace /> : <AuthPage key="in" mode="in" />
+              user ? (
+                <Navigate to={signInDestination} replace />
+              ) : emailSignIn ? (
+                <AuthPage key="in" mode="in" />
+              ) : (
+                <LocalAccountPage
+                  fallback={<AuthPage key="in" mode="in" />}
+                  destination={signInDestination}
+                />
+              )
             }
           />
           <Route

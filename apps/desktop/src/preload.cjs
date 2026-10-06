@@ -6,6 +6,10 @@ contextBridge.exposeInMainWorld("rakazoDesktop", {
     request: (pathname, body) =>
       ipcRenderer.invoke("desktop.localSettings.request", pathname, body),
   },
+  localAccount: {
+    read: () => ipcRenderer.invoke("desktop.localAccount.read"),
+    ensure: () => ipcRenderer.invoke("desktop.localAccount.ensure"),
+  },
   window: {
     close: () => ipcRenderer.invoke("desktop.window.close"),
     minimize: () => ipcRenderer.invoke("desktop.window.minimize"),

@@ -36,10 +36,25 @@ export interface RakazoDesktopOAuthCallback {
   state?: string;
 }
 
+/** Sign-in the desktop app holds for a server on this computer, so the person never types one. */
+export interface RakazoDesktopLocalAccount {
+  email: string;
+  password: string;
+}
+
 export interface RakazoDesktop {
   /** Only the isolated local settings window is authorized to call this bridge. */
   localSettings?: {
     request: (pathname: string, body: string) => Promise<{ status: number; body: string }>;
+  };
+  /**
+   * Only the app window, and only for a server on this computer with OS encryption available.
+   * `read` resolves null when that does not hold; `account` is null until `ensure` first runs.
+   * Optional for older desktops.
+   */
+  localAccount?: {
+    read: () => Promise<{ account: RakazoDesktopLocalAccount | null } | null>;
+    ensure: () => Promise<RakazoDesktopLocalAccount>;
   };
   platform: string;
   window: {
