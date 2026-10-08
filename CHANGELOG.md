@@ -22,6 +22,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Changed
 
+- Bots run on Claude Code by default. `AGENT_RUNTIME` now defaults to `claude-code`; set `AGENT_RUNTIME=pi` to keep running bots on a model connected in settings. The published Docker images still set `pi`, since they do not include the Claude Code CLI.
+- First-run onboarding no longer asks for a model provider, model, thinking level, or API key. On Claude Code it shows the deployment owner whether the CLI is installed and signed in. The desktop app can run the install or `claude auth login` for a server on the same computer once the person presses Run; a browser shows the command to copy. Onboarding skips this step when Claude Code is already ready.
 - Message bubbles in the web/PWA transcript use more of a wide window's width (70%/74% caps raised to 84%/88%, still leaving room for the hover-actions gutter), instead of leaving a quarter to a third of a long message's row empty.
 - Every run's system instructions now state the current date and time (UTC), so bots judge deadlines, recency and scheduling from the real present instead of guessing it from training data or quoted timestamps.
 - Connect Slack, WhatsApp Business Cloud, or Telegram DMs to a bot from Messaging settings, alongside iMessage/SMS. Each app can use a different bot. Group conversations remain iMessage-only.

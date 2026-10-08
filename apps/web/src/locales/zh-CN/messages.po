@@ -24,13 +24,11 @@ msgstr "{0, plural, one {# 个模型} other {# 个模型}}"
 
 #. placeholder {0}: Math.ceil(oauth.expiresInSeconds / 60)
 #: src/pages/ModelSettingsOverlay.tsx
-#: src/pages/Onboarding.tsx
 msgid "{0, plural, one {Waiting for sign-in — the code expires in about # minute.} other {Waiting for sign-in — the code expires in about # minutes.}}"
 msgstr ""
 
 #. placeholder {0}: Math.ceil(oauth.expiresInSeconds / 60)
 #: src/pages/ModelSettingsOverlay.tsx
-#: src/pages/Onboarding.tsx
 msgid "{0, plural, one {Waiting for sign-in — the link expires in about # minute.} other {Waiting for sign-in — the link expires in about # minutes.}}"
 msgstr ""
 
@@ -172,7 +170,6 @@ msgstr "什么都做一点"
 
 #. placeholder {0}: oauth.verificationUri.replace(/^https:\/\//, "")
 #: src/pages/ModelSettingsOverlay.tsx
-#: src/pages/Onboarding.tsx
 msgid "A sign-in tab opened at <0>{0}</0>. Enter this code there — this window keeps waiting:"
 msgstr ""
 
@@ -274,6 +271,10 @@ msgstr "请填写 HTTPS 服务器 URL。"
 msgid "Add another"
 msgstr ""
 
+#: src/pages/shell/bot-credentials.tsx
+msgid "Add credential"
+msgstr ""
+
 #: src/pages/PluginsOverlay.tsx
 msgid "Add Executor"
 msgstr "添加 Executor"
@@ -335,7 +336,6 @@ msgstr "正在添加…"
 #: src/pages/AccountSettingsOverlay.tsx
 #: src/pages/McpServersOverlay.tsx
 #: src/pages/ModelSettingsOverlay.tsx
-#: src/pages/Onboarding.tsx
 #: src/pages/PluginsOverlay.tsx
 #: src/pages/RoutineSchedule.tsx
 #: src/pages/shell/bot-panel.tsx
@@ -429,98 +429,6 @@ msgstr "回答"
 msgid "Answered"
 msgstr "已回答"
 
-#: src/pages/shell/bot-credentials.tsx
-msgid "Add credential"
-msgstr ""
-
-#: src/pages/shell/bot-credentials.tsx
-msgid "Basic auth"
-msgstr ""
-
-#: src/pages/shell/bot-credentials.tsx
-msgid "Basic auth ({username})"
-msgstr ""
-
-#: src/pages/shell/bot-credentials.tsx
-msgid "Could not load credentials."
-msgstr ""
-
-#: src/pages/shell/bot-credentials.tsx
-msgid "Could not remove the credential"
-msgstr ""
-
-#: src/pages/shell/bot-credentials.tsx
-msgid "Could not save the credential"
-msgstr ""
-
-#: src/pages/shell/bot-credentials.tsx
-msgid "Credentials"
-msgstr ""
-
-#: src/pages/shell/bot-credentials.tsx
-msgid "Custom header"
-msgstr ""
-
-#: src/pages/shell/bot-credentials.tsx
-msgid "Enter a username and password"
-msgstr ""
-
-#: src/pages/shell/bot-credentials.tsx
-msgid "Header \"{header}\""
-msgstr ""
-
-#: src/pages/shell/bot-credentials.tsx
-msgid "Keys and passwords this bot can use, each for one site only. Values are encrypted and never shown again."
-msgstr ""
-
-#: src/pages/shell/bot-credentials.tsx
-msgid "Lowercase letters, numbers, hyphens and underscores, starting with a letter."
-msgstr ""
-
-#: src/pages/shell/bot-credentials.tsx
-msgid "No credentials saved for this bot."
-msgstr ""
-
-#: src/pages/shell/bot-credentials.tsx
-msgid "Remove {secretName}? This bot will no longer be able to use it."
-msgstr ""
-
-#: src/pages/shell/bot-credentials.tsx
-msgid "Replace value"
-msgstr ""
-
-#: src/pages/shell/bot-credentials.tsx
-msgid "Save credential"
-msgstr ""
-
-#: src/pages/shell/bot-credentials.tsx
-msgid "Save new value"
-msgstr ""
-
-#: src/pages/shell/bot-credentials.tsx
-msgid "Site"
-msgstr ""
-
-#: src/pages/shell/bot-credentials.tsx
-msgid "These saved settings can't be read. Remove it and add it again."
-msgstr ""
-
-#: src/pages/shell/bot-credentials.tsx
-msgid "Type"
-msgstr ""
-
-#: src/pages/shell/bot-credentials.tsx
-msgid "Updated {updated}"
-msgstr ""
-
-#: src/pages/shell/bot-credentials.tsx
-msgid "Value"
-msgstr ""
-
-#: src/pages/shell/bot-credentials.tsx
-msgid "Website login"
-msgstr ""
-
 #. placeholder {0}: selectedAskActionLabel(answer, actions)
 #: src/components/AskCard.tsx
 msgid "Answered: {0}"
@@ -538,7 +446,6 @@ msgstr "API 已恢复，但更新未完成。请查看宿主日志。"
 #: src/components/integrations/IntegrationSetup.tsx
 #: src/lib/localized-provider-hint.ts
 #: src/pages/ModelSettingsOverlay.tsx
-#: src/pages/Onboarding.tsx
 #: src/pages/VoiceSettingsOverlay.tsx
 msgid "API key"
 msgstr "API 密钥"
@@ -646,7 +553,6 @@ msgid "Attachment"
 msgstr "附件"
 
 #: src/pages/ModelSettingsOverlay.tsx
-#: src/pages/Onboarding.tsx
 msgid "Authorization code or callback URL"
 msgstr "授权码或回调 URL"
 
@@ -696,8 +602,17 @@ msgstr "返回登录"
 msgid "Base URL"
 msgstr "Base URL"
 
+#: src/pages/shell/bot-credentials.tsx
+msgid "Basic auth"
+msgstr ""
+
+#: src/pages/shell/bot-credentials.tsx
+msgid "Basic auth ({username})"
+msgstr ""
+
 #: src/pages/memory-providers/SerenitySettingsForm.tsx
 #: src/pages/PluginsOverlay.tsx
+#: src/pages/shell/bot-credentials.tsx
 msgid "Bearer token"
 msgstr "Bearer token"
 
@@ -768,8 +683,9 @@ msgstr "无法连接服务器。"
 #: src/pages/Artifacts.tsx
 #: src/pages/KnowledgeSection.tsx
 #: src/pages/ModelSettingsOverlay.tsx
-#: src/pages/Onboarding.tsx
+#: src/pages/OnboardingAgent.tsx
 #: src/pages/PluginsOverlay.tsx
+#: src/pages/shell/bot-credentials.tsx
 #: src/pages/shell/dialogs.tsx
 msgid "Cancel"
 msgstr "取消"
@@ -827,6 +743,10 @@ msgstr "聊天应用、群组频道和 Agent 连接。"
 msgid "Chat Settings"
 msgstr "聊天设置"
 
+#: src/pages/OnboardingAgent.tsx
+msgid "Check again"
+msgstr ""
+
 #: src/components/SoftwareUpdateSection.tsx
 msgid "Check failed"
 msgstr "检查失败"
@@ -846,6 +766,7 @@ msgstr "请查看邮箱"
 
 #: src/components/DesktopUpdates.tsx
 #: src/components/SoftwareUpdateSection.tsx
+#: src/pages/OnboardingAgent.tsx
 msgid "Checking…"
 msgstr "正在检查…"
 
@@ -1060,10 +981,6 @@ msgstr "确认密码"
 msgid "Connect"
 msgstr "连接"
 
-#: src/pages/Onboarding.tsx
-msgid "Connect a model"
-msgstr "连接模型"
-
 #: src/pages/ModelSettingsOverlay.tsx
 msgid "Connect API key"
 msgstr "连接 API 密钥"
@@ -1087,6 +1004,10 @@ msgstr "连接此提供方，作为你的个人模型。"
 #: src/pages/PluginsOverlay.tsx
 msgid "Connect Treg"
 msgstr "连接 Treg"
+
+#: src/pages/OnboardingAgent.tsx
+msgid "Connect your agent"
+msgstr ""
 
 #: src/components/integrations/IntegrationSetup.tsx
 #: src/pages/McpOAuthCallback.tsx
@@ -1132,12 +1053,12 @@ msgid "Connection to {0} is still pending. You can close this and check again."
 msgstr "与 {0} 的连接仍在等待。可以关闭此窗口稍后再看。"
 
 #: src/pages/ModelSettingsOverlay.tsx
-#: src/pages/Onboarding.tsx
 msgid "Context limit"
 msgstr "上下文限制"
 
 #: src/components/integrations/IntegrationSetup.tsx
-#: src/pages/Onboarding.tsx
+#: src/pages/Auth.tsx
+#: src/pages/OnboardingAgent.tsx
 msgid "Continue"
 msgstr "继续"
 
@@ -1150,12 +1071,12 @@ msgid "Continue with email"
 msgstr "使用邮箱继续"
 
 #: src/pages/ModelSettingsOverlay.tsx
-#: src/pages/Onboarding.tsx
+#: src/pages/OnboardingAgent.tsx
 msgid "Copied"
 msgstr ""
 
 #: src/pages/ModelSettingsOverlay.tsx
-#: src/pages/Onboarding.tsx
+#: src/pages/OnboardingAgent.tsx
 #: src/pages/Shell.tsx
 msgid "Copy"
 msgstr "复制"
@@ -1183,6 +1104,10 @@ msgstr "无法修改密码"
 #: src/pages/ModelSettingsOverlay.tsx
 msgid "Could not change the default model"
 msgstr "无法更改默认模型"
+
+#: src/pages/OnboardingAgent.tsx
+msgid "Could not check Claude Code"
+msgstr ""
 
 #: src/components/teach/TeachComputerOverlay.tsx
 msgid "Could not check teaching status. Refresh the view to continue."
@@ -1344,6 +1269,10 @@ msgstr ""
 msgid "Could not load commands"
 msgstr ""
 
+#: src/pages/shell/bot-credentials.tsx
+msgid "Could not load credentials."
+msgstr ""
+
 #: src/components/integrations/IntegrationSetup.tsx
 #: src/pages/PluginsOverlay.tsx
 msgid "Could not load integrations"
@@ -1407,7 +1336,6 @@ msgid "Could not reach the server"
 msgstr "无法连接服务器"
 
 #: src/pages/ModelSettingsOverlay.tsx
-#: src/pages/Onboarding.tsx
 msgid "Could not reach this model server"
 msgstr "无法访问此模型服务器"
 
@@ -1426,6 +1354,10 @@ msgstr "无法移除群组"
 #: src/components/ApprovalRulesSettings.tsx
 msgid "Could not remove rule"
 msgstr "无法移除规则"
+
+#: src/pages/shell/bot-credentials.tsx
+msgid "Could not remove the credential"
+msgstr ""
 
 #: src/pages/PluginsOverlay.tsx
 msgid "Could not rename connection"
@@ -1451,6 +1383,10 @@ msgstr "无法撤销连接"
 msgid "Could not run routine"
 msgstr "无法运行例行任务"
 
+#: src/pages/OnboardingAgent.tsx
+msgid "Could not run the command"
+msgstr ""
+
 #: src/pages/ExternalConversationSettings.tsx
 #: src/pages/KnowledgeSection.tsx
 #: src/pages/shell/bot-panel.tsx
@@ -1464,10 +1400,6 @@ msgstr "无法保存自动审核"
 #: src/pages/GroupPanel.tsx
 msgid "Could not save group"
 msgstr "无法保存群组"
-
-#: src/pages/Onboarding.tsx
-msgid "Could not save model"
-msgstr "无法保存模型"
 
 #: src/pages/Shell.tsx
 msgid "Could not save routine"
@@ -1492,6 +1424,10 @@ msgstr "无法保存该语音模型"
 #: src/pages/VoiceSettingsOverlay.tsx
 msgid "Could not save that voice"
 msgstr "无法保存该语音"
+
+#: src/pages/shell/bot-credentials.tsx
+msgid "Could not save the credential"
+msgstr ""
 
 #: src/pages/shell/message-cards.tsx
 msgid "Could not save this choice"
@@ -1625,6 +1561,10 @@ msgstr "凭据"
 msgid "credential saved"
 msgstr "凭据已保存"
 
+#: src/pages/shell/bot-credentials.tsx
+msgid "Credentials"
+msgstr ""
+
 #: src/pages/PluginsOverlay.tsx
 msgid "Credentials are encrypted and never sent to the model."
 msgstr "凭据已加密，不会发送给模型。"
@@ -1640,6 +1580,10 @@ msgstr "Cron 表达式"
 #: src/pages/AccountSettingsOverlay.tsx
 msgid "Current password"
 msgstr "当前密码"
+
+#: src/pages/shell/bot-credentials.tsx
+msgid "Custom header"
+msgstr ""
 
 #: src/pages/shell/dialogs.tsx
 msgid "Customer support"
@@ -1670,7 +1614,6 @@ msgid "Decline"
 msgstr "拒绝"
 
 #: src/pages/ModelSettingsOverlay.tsx
-#: src/pages/Onboarding.tsx
 msgid "Default"
 msgstr "默认"
 
@@ -1680,9 +1623,7 @@ msgstr "默认"
 msgid "Default ({0})"
 msgstr ""
 
-#. placeholder {0}: thinkingLevelLabel("medium")
 #. placeholder {0}: thinkingLevelLabel(defaultThinkingLevel)
-#: src/pages/Onboarding.tsx
 #: src/pages/shell/bot-panel.tsx
 msgid "Default ({0})"
 msgstr "默认（{0}）"
@@ -1895,18 +1836,19 @@ msgstr "邮箱"
 msgid "Engage when... Ignore..."
 msgstr ""
 
+#: src/pages/shell/bot-credentials.tsx
+msgid "Enter a username and password"
+msgstr ""
+
 #: src/pages/ModelSettingsOverlay.tsx
-#: src/pages/Onboarding.tsx
 msgid "Enter a whole number from 1 to {MAX_MODEL_CONTEXT_WINDOW} for the context limit."
 msgstr "请输入 1 到 {MAX_MODEL_CONTEXT_WINDOW} 之间的整数作为上下文限制。"
 
 #: src/pages/ModelSettingsOverlay.tsx
-#: src/pages/Onboarding.tsx
 msgid "Enter a whole number from 1 to {MAX_MODEL_MAX_TOKENS} for maximum output tokens."
 msgstr "请输入 1 到 {MAX_MODEL_MAX_TOKENS} 之间的整数作为最大输出 token 数。"
 
 #: src/pages/ModelSettingsOverlay.tsx
-#: src/pages/Onboarding.tsx
 msgid "Enter a whole number from 1 to 1000 for the image limit."
 msgstr "请输入 1 到 1000 之间的整数作为图像限制。"
 
@@ -1970,15 +1912,14 @@ msgstr "从 CRM 导出本周名单并放到共享文件夹"
 msgid "External conversation"
 msgstr ""
 
+#: src/pages/ModelSettingsOverlay.tsx
+msgid "Extra high"
+msgstr "极高"
+
 #. js-lingui-explicit-id
 #: src/lib/model-catalog.ts
 msgid "Extra high"
 msgstr ""
-
-#: src/pages/ModelSettingsOverlay.tsx
-#: src/pages/Onboarding.tsx
-msgid "Extra high"
-msgstr "极高"
 
 #: src/components/CloudAgentCard.tsx
 msgid "failed"
@@ -2022,18 +1963,15 @@ msgid "Filters"
 msgstr ""
 
 #: src/pages/ModelSettingsOverlay.tsx
-#: src/pages/Onboarding.tsx
 msgid "Find models"
 msgstr "查找模型"
 
 #: src/pages/ModelSettingsOverlay.tsx
-#: src/pages/Onboarding.tsx
 msgid "Finding…"
 msgstr "正在查找…"
 
 #. placeholder {0}: new URL(oauth.verificationUri).hostname
 #: src/pages/ModelSettingsOverlay.tsx
-#: src/pages/Onboarding.tsx
 msgid "Finish signing in at <0>{0}</0>. The final page may not load; paste its URL or code here."
 msgstr "在 <0>{0}</0> 完成登录。最后一页可能无法加载；把 URL 或代码粘贴到这里。"
 
@@ -2119,8 +2057,13 @@ msgstr "请挂断，然后输入屏幕上的代码。"
 msgid "header"
 msgstr "请求头"
 
+#: src/pages/shell/bot-credentials.tsx
+msgid "Header \"{header}\""
+msgstr ""
+
 #: src/pages/McpServersOverlay.tsx
 #: src/pages/PluginsOverlay.tsx
+#: src/pages/shell/bot-credentials.tsx
 msgid "Header name"
 msgstr "请求头名称"
 
@@ -2148,15 +2091,14 @@ msgstr "隐藏密码"
 msgid "Hide transcript"
 msgstr "隐藏文字记录"
 
+#: src/pages/ModelSettingsOverlay.tsx
+msgid "High"
+msgstr "高"
+
 #. js-lingui-explicit-id
 #: src/lib/model-catalog.ts
 msgid "High"
 msgstr ""
-
-#: src/pages/ModelSettingsOverlay.tsx
-#: src/pages/Onboarding.tsx
-msgid "High"
-msgstr "高"
 
 #: src/pages/RoutineSchedule.tsx
 msgid "hour"
@@ -2206,6 +2148,10 @@ msgstr "沿用默认"
 #: src/components/teach/SkillDraftCard.tsx
 msgid "Inputs"
 msgstr "输入"
+
+#: src/pages/OnboardingAgent.tsx
+msgid "Install"
+msgstr ""
 
 #: src/pages/memory-providers/SupermemorySettingsForm.tsx
 msgid "Instance API key"
@@ -2284,6 +2230,10 @@ msgstr "保留记忆"
 #: src/pages/RoutineEditor.tsx
 msgid "key"
 msgstr "密钥"
+
+#: src/pages/shell/bot-credentials.tsx
+msgid "Keys and passwords this bot can use, each for one site only. Values are encrypted and never shown again."
+msgstr ""
 
 #: src/pages/KnowledgeSection.tsx
 msgid "Knowledge"
@@ -2399,15 +2349,18 @@ msgstr ""
 msgid "Log out"
 msgstr "退出登录"
 
+#: src/pages/ModelSettingsOverlay.tsx
+msgid "Low"
+msgstr "低"
+
 #. js-lingui-explicit-id
 #: src/lib/model-catalog.ts
 msgid "Low"
 msgstr ""
 
-#: src/pages/ModelSettingsOverlay.tsx
-#: src/pages/Onboarding.tsx
-msgid "Low"
-msgstr "低"
+#: src/pages/shell/bot-credentials.tsx
+msgid "Lowercase letters, numbers, hyphens and underscores, starting with a letter."
+msgstr ""
 
 #: src/components/ComputerUpdateProgress.tsx
 msgid "Make sure nothing is still running on this computer."
@@ -2441,27 +2394,24 @@ msgstr "标为已读"
 msgid "Mark as Unread"
 msgstr "标为未读"
 
+#: src/pages/ModelSettingsOverlay.tsx
+msgid "Max"
+msgstr "最大"
+
 #. js-lingui-explicit-id
 #: src/lib/model-catalog.ts
 msgid "Max"
 msgstr ""
-
-#: src/pages/ModelSettingsOverlay.tsx
-#: src/pages/Onboarding.tsx
-msgid "Max"
-msgstr "最大"
 
 #: src/pages/Artifacts.tsx
 msgid "Maximize"
 msgstr ""
 
 #: src/pages/ModelSettingsOverlay.tsx
-#: src/pages/Onboarding.tsx
 msgid "Maximum images per request"
 msgstr "每次请求的最大图像数"
 
 #: src/pages/ModelSettingsOverlay.tsx
-#: src/pages/Onboarding.tsx
 msgid "Maximum output tokens"
 msgstr "最大输出 token 数"
 
@@ -2473,15 +2423,14 @@ msgstr ""
 msgid "MCP servers"
 msgstr "MCP 服务器"
 
+#: src/pages/ModelSettingsOverlay.tsx
+msgid "Medium"
+msgstr "中"
+
 #. js-lingui-explicit-id
 #: src/lib/model-catalog.ts
 msgid "Medium"
 msgstr ""
-
-#: src/pages/ModelSettingsOverlay.tsx
-#: src/pages/Onboarding.tsx
-msgid "Medium"
-msgstr "中"
 
 #: src/pages/GroupPanel.tsx
 msgid "Members ({GROUP_MEMBER_MIN}–{GROUP_MEMBER_MAX})"
@@ -2551,15 +2500,18 @@ msgstr "消息"
 msgid "Microphone failed"
 msgstr "麦克风失败"
 
+#: src/pages/OnboardingAgent.tsx
+msgid "Milo runs your bots on Claude Code."
+msgstr ""
+
+#: src/pages/ModelSettingsOverlay.tsx
+msgid "Minimal"
+msgstr "最低"
+
 #. js-lingui-explicit-id
 #: src/lib/model-catalog.ts
 msgid "Minimal"
 msgstr ""
-
-#: src/pages/ModelSettingsOverlay.tsx
-#: src/pages/Onboarding.tsx
-msgid "Minimal"
-msgstr "最低"
 
 #: src/pages/WindowChrome.tsx
 msgid "Minimize"
@@ -2578,13 +2530,11 @@ msgid "minutes"
 msgstr "分钟"
 
 #: src/pages/ModelSettingsOverlay.tsx
-#: src/pages/Onboarding.tsx
 #: src/pages/shell/bot-panel.tsx
 msgid "Model"
 msgstr "模型"
 
 #: src/pages/ModelSettingsOverlay.tsx
-#: src/pages/Onboarding.tsx
 msgid "Model id"
 msgstr "模型 ID"
 
@@ -2611,7 +2561,6 @@ msgid "Models for the server owner’s default space."
 msgstr ""
 
 #: src/pages/ModelSettingsOverlay.tsx
-#: src/pages/Onboarding.tsx
 msgid "Models from server"
 msgstr "来自服务器的模型"
 
@@ -2643,6 +2592,7 @@ msgstr "静音"
 #: src/pages/Auth.tsx
 #: src/pages/GroupPanel.tsx
 #: src/pages/RoutineEditor.tsx
+#: src/pages/shell/bot-credentials.tsx
 #: src/pages/shell/bot-panel.tsx
 #: src/pages/shell/dialogs.tsx
 msgid "Name"
@@ -2738,6 +2688,10 @@ msgstr ""
 msgid "No chat apps linked yet."
 msgstr "还没有关联聊天应用。"
 
+#: src/pages/shell/bot-credentials.tsx
+msgid "No credentials saved for this bot."
+msgstr ""
+
 #: src/pages/MessagingSettingsOverlay.tsx
 msgid "No group chats yet."
 msgstr "还没有群聊。"
@@ -2815,9 +2769,17 @@ msgstr "暂无"
 msgid "Not in the plugin catalog"
 msgstr "不在插件目录中"
 
+#: src/pages/OnboardingAgent.tsx
+msgid "Not installed"
+msgstr ""
+
 #: src/pages/shell/message-cards.tsx
 msgid "Not now"
 msgstr "暂不"
+
+#: src/pages/OnboardingAgent.tsx
+msgid "Not signed in"
+msgstr ""
 
 #: src/components/ComputerUpdateProgress.tsx
 msgid "Nothing is still running"
@@ -2886,13 +2848,11 @@ msgstr "打开 {0}"
 
 #. placeholder {0}: oauth.verificationUri.replace(/^https:\/\//, "")
 #: src/pages/ModelSettingsOverlay.tsx
-#: src/pages/Onboarding.tsx
 msgid "Open <0>{0}</0> and enter this code:"
 msgstr ""
 
 #. placeholder {0}: new URL(oauth.verificationUri).hostname
 #: src/pages/ModelSettingsOverlay.tsx
-#: src/pages/Onboarding.tsx
 msgid "Open <0>{0}</0> to finish signing in."
 msgstr ""
 
@@ -2913,7 +2873,6 @@ msgid "Open work"
 msgstr "待办"
 
 #: src/pages/ModelSettingsOverlay.tsx
-#: src/pages/Onboarding.tsx
 msgid "OpenAI-compatible server URL"
 msgstr "OpenAI 兼容服务器 URL"
 
@@ -2934,7 +2893,6 @@ msgid "Opening your Space…"
 msgstr "正在打开工作区…"
 
 #: src/pages/ModelSettingsOverlay.tsx
-#: src/pages/Onboarding.tsx
 #: src/pages/VoiceSettingsOverlay.tsx
 msgid "Optional"
 msgstr "可选"
@@ -2947,10 +2905,6 @@ msgstr "可选请求头值"
 msgid "Or connect an API key"
 msgstr "或连接 API 密钥"
 
-#: src/pages/Onboarding.tsx
-msgid "Or paste an API key"
-msgstr "或粘贴 API 密钥"
-
 #: src/pages/AccountSettingsOverlay.tsx
 msgid "Organic"
 msgstr "自然"
@@ -2960,7 +2914,6 @@ msgid "Organization API key"
 msgstr "组织 API 密钥"
 
 #: src/pages/ModelSettingsOverlay.tsx
-#: src/pages/Onboarding.tsx
 msgid "Other model…"
 msgstr "其他模型…"
 
@@ -2975,6 +2928,7 @@ msgstr "搁置"
 #: src/components/AskCard.tsx
 #: src/pages/AccountSettingsOverlay.tsx
 #: src/pages/Auth.tsx
+#: src/pages/shell/bot-credentials.tsx
 msgid "Password"
 msgstr "密码"
 
@@ -3046,7 +3000,6 @@ msgid "Protected input"
 msgstr ""
 
 #: src/pages/MemorySettingsOverlay.tsx
-#: src/pages/Onboarding.tsx
 msgid "Provider"
 msgstr "提供方"
 
@@ -3083,8 +3036,11 @@ msgstr "朗读回复"
 msgid "read-only"
 msgstr "只读"
 
+#: src/pages/OnboardingAgent.tsx
+msgid "Ready"
+msgstr ""
+
 #: src/pages/ModelSettingsOverlay.tsx
-#: src/pages/Onboarding.tsx
 msgid "Reasoning effort"
 msgstr "推理强度"
 
@@ -3183,6 +3139,7 @@ msgstr ""
 #: src/components/ApprovalRulesSettings.tsx
 #: src/pages/PluginsOverlay.tsx
 #: src/pages/ScratchpadSection.tsx
+#: src/pages/shell/bot-credentials.tsx
 msgid "Remove"
 msgstr "移除"
 
@@ -3190,6 +3147,10 @@ msgstr "移除"
 #: src/pages/Shell.tsx
 msgid "Remove {0}"
 msgstr "移除 {0}"
+
+#: src/pages/shell/bot-credentials.tsx
+msgid "Remove {secretName}? This bot will no longer be able to use it."
+msgstr ""
 
 #: src/pages/RoutineEditor.tsx
 msgid "Remove Git event"
@@ -3247,6 +3208,10 @@ msgstr "替换 API 密钥"
 msgid "Replace key"
 msgstr "替换密钥"
 
+#: src/pages/shell/bot-credentials.tsx
+msgid "Replace value"
+msgstr ""
+
 #: src/pages/Shell.tsx
 msgid "Reply"
 msgstr "回复"
@@ -3296,6 +3261,10 @@ msgstr "重置你的密码"
 #: src/components/ComputerMaintenanceActions.tsx
 msgid "Resetting…"
 msgstr "正在重置…"
+
+#: src/pages/ResizableSidePanel.tsx
+msgid "Resize panel"
+msgstr "调整面板大小"
 
 #: src/components/DesktopUpdates.tsx
 msgid "Restart to update"
@@ -3356,6 +3325,10 @@ msgstr "例行任务"
 msgid "Routines"
 msgstr "例行任务"
 
+#: src/pages/OnboardingAgent.tsx
+msgid "Run"
+msgstr ""
+
 #: src/pages/RoutineEditor.tsx
 msgid "Run at"
 msgstr "运行时间"
@@ -3400,8 +3373,16 @@ msgstr ""
 msgid "Save"
 msgstr "保存"
 
+#: src/pages/shell/bot-credentials.tsx
+msgid "Save credential"
+msgstr ""
+
 #: src/pages/ModelSettingsOverlay.tsx
 msgid "Save limits"
+msgstr ""
+
+#: src/pages/shell/bot-credentials.tsx
+msgid "Save new value"
 msgstr ""
 
 #: src/components/AskCard.tsx
@@ -3435,6 +3416,7 @@ msgstr ""
 #: src/pages/GroupPanel.tsx
 #: src/pages/ModelSettingsOverlay.tsx
 #: src/pages/RoutineEditor.tsx
+#: src/pages/shell/bot-credentials.tsx
 #: src/pages/shell/dialogs.tsx
 msgid "Saving…"
 msgstr "正在保存…"
@@ -3534,7 +3516,6 @@ msgstr "服务器名称"
 #: src/components/integrations/IntegrationSetup.tsx
 #: src/pages/McpServersOverlay.tsx
 #: src/pages/ModelSettingsOverlay.tsx
-#: src/pages/Onboarding.tsx
 msgid "Server URL"
 msgstr "服务器 URL"
 
@@ -3614,7 +3595,7 @@ msgstr "显示文字记录"
 #: src/lib/localized-provider-hint.ts
 #: src/pages/Auth.tsx
 #: src/pages/ModelSettingsOverlay.tsx
-#: src/pages/Onboarding.tsx
+#: src/pages/OnboardingAgent.tsx
 msgid "Sign in"
 msgstr "登录"
 
@@ -3627,9 +3608,25 @@ msgid "Sign in to Rakazo"
 msgstr "登录 Rakazo"
 
 #: src/pages/Auth.tsx
+msgid "Sign in with email"
+msgstr ""
+
+#: src/pages/Auth.tsx
 #: src/pages/Welcome.tsx
 msgid "Sign up"
 msgstr "注册"
+
+#: src/pages/OnboardingAgent.tsx
+msgid "Sign-in code"
+msgstr ""
+
+#: src/pages/OnboardingAgent.tsx
+msgid "Signed in"
+msgstr ""
+
+#: src/pages/shell/bot-credentials.tsx
+msgid "Site"
+msgstr ""
 
 #. placeholder {0}: skill.name
 #: src/pages/Shell.tsx
@@ -3705,7 +3702,6 @@ msgstr "正在开始"
 #: src/components/teach/TeachComputerOverlay.tsx
 #: src/lib/roster-status.ts
 #: src/pages/ModelSettingsOverlay.tsx
-#: src/pages/Onboarding.tsx
 msgid "Starting…"
 msgstr "正在开始…"
 
@@ -3747,17 +3743,15 @@ msgid "subagent"
 msgstr "子 Agent"
 
 #: src/pages/ModelSettingsOverlay.tsx
-#: src/pages/Onboarding.tsx
+#: src/pages/OnboardingAgent.tsx
 msgid "Submit"
 msgstr "提交"
 
 #: src/pages/ModelSettingsOverlay.tsx
-#: src/pages/Onboarding.tsx
 msgid "Supports images"
 msgstr "支持图片"
 
 #: src/pages/ModelSettingsOverlay.tsx
-#: src/pages/Onboarding.tsx
 msgid "Supports thinking"
 msgstr "支持思考"
 
@@ -3817,12 +3811,19 @@ msgstr "测试运行"
 msgid "The API did not come back. Refresh this page."
 msgstr "API 未恢复。请刷新此页面。"
 
+#: src/pages/OnboardingAgent.tsx
+msgid "The command stopped before it finished."
+msgstr ""
+
 #: src/pages/MemorySettingsOverlay.tsx
 msgid "The selected memory provider is not available in this build."
 msgstr "所选记忆提供方在此构建中不可用。"
 
+#: src/pages/shell/bot-credentials.tsx
+msgid "These saved settings can't be read. Remove it and add it again."
+msgstr ""
+
 #: src/pages/ModelSettingsOverlay.tsx
-#: src/pages/Onboarding.tsx
 #: src/pages/shell/bot-panel.tsx
 msgid "Thinking"
 msgstr "思考"
@@ -3940,6 +3941,10 @@ msgstr "Treg token"
 msgid "Try again"
 msgstr "重试"
 
+#: src/pages/shell/bot-credentials.tsx
+msgid "Type"
+msgstr ""
+
 #: src/components/teach/TeachRecordingChrome.tsx
 msgid "Type without recording"
 msgstr ""
@@ -4011,6 +4016,10 @@ msgstr ""
 msgid "Updated"
 msgstr "已更新"
 
+#: src/pages/shell/bot-credentials.tsx
+msgid "Updated {updated}"
+msgstr ""
+
 #: src/pages/SettingsOverlay.tsx
 msgid "Updates"
 msgstr "更新"
@@ -4045,7 +4054,6 @@ msgid "Use {hostLabel}"
 msgstr "使用 {hostLabel}"
 
 #: src/pages/ModelSettingsOverlay.tsx
-#: src/pages/Onboarding.tsx
 msgid "Use a found model"
 msgstr "使用找到的模型"
 
@@ -4062,7 +4070,12 @@ msgid "Use this model"
 msgstr "使用此模型"
 
 #: src/components/AskCard.tsx
+#: src/pages/shell/bot-credentials.tsx
 msgid "Username"
+msgstr ""
+
+#: src/pages/shell/bot-credentials.tsx
+msgid "Value"
 msgstr ""
 
 #: src/pages/PluginsOverlay.tsx
@@ -4075,6 +4088,11 @@ msgstr "正在校验…"
 
 #: src/pages/Artifacts.tsx
 msgid "Version"
+msgstr ""
+
+#. placeholder {0}: status.version
+#: src/pages/OnboardingAgent.tsx
+msgid "Version {0}"
 msgstr ""
 
 #: src/pages/RoutineRunHistory.tsx
@@ -4108,6 +4126,10 @@ msgstr "等待中…"
 msgid "Webhook"
 msgstr "Webhook"
 
+#: src/pages/shell/bot-credentials.tsx
+msgid "Website login"
+msgstr ""
+
 #: src/pages/RoutineEditor.tsx
 #: src/pages/RoutineSchedule.tsx
 msgid "Weekdays"
@@ -4128,6 +4150,10 @@ msgstr "你要示范什么结果？"
 #: src/pages/RoutineEditor.tsx
 msgid "What should this routine do each time it runs?"
 msgstr "每次运行时，这个例行任务应做什么？"
+
+#: src/pages/Auth.tsx
+msgid "What should we call you?"
+msgstr ""
 
 #: src/pages/shell/bot-panel.tsx
 msgid "What this bot is for"
@@ -4193,7 +4219,3 @@ msgstr "你的名字"
 #: src/pages/Welcome.tsx
 msgid "Your team of always-on agents<0/>that you can give real work to."
 msgstr "你的一支随时在线的 Agent 团队<0/>可以交给它们真正的工作。"
-
-#: src/pages/ResizableSidePanel.tsx
-msgid "Resize panel"
-msgstr "调整面板大小"

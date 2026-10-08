@@ -9,6 +9,7 @@
       "development": "./src/index.ts",
       "default": "./src/index.ts"
     },
+    "./agent-setup": "./src/agent-setup.js",
     "./local-settings": "./src/local-settings.js"
   },
   "scripts": {

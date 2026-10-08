@@ -10,6 +10,16 @@ contextBridge.exposeInMainWorld("rakazoDesktop", {
     read: () => ipcRenderer.invoke("desktop.localAccount.read"),
     ensure: () => ipcRenderer.invoke("desktop.localAccount.ensure"),
   },
+  agentSetup: {
+    run: (action) => ipcRenderer.invoke("desktop.agentSetup.run", action),
+    input: (line) => ipcRenderer.invoke("desktop.agentSetup.input", line),
+    cancel: () => ipcRenderer.invoke("desktop.agentSetup.cancel"),
+    onOutput: (listener) => {
+      const handler = (_event, text) => listener(text);
+      ipcRenderer.on("desktop.agentSetup.output", handler);
+      return () => ipcRenderer.off("desktop.agentSetup.output", handler);
+    },
+  },
   window: {
     close: () => ipcRenderer.invoke("desktop.window.close"),
     minimize: () => ipcRenderer.invoke("desktop.window.minimize"),

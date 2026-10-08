@@ -232,7 +232,7 @@ Optional:
 SIGNUPS_ENABLED=true
 SIGNUP_ALLOWLIST=you@example.com,@company.com
 SANDBOX_PROVIDER=docker   # or none, e2b, daytona, createos, box. Keep fake only for pnpm test.
-AGENT_RUNTIME=pi          # or claude-code (below). Keep scripted only for pnpm test.
+AGENT_RUNTIME=claude-code # default (below), or pi. Keep scripted only for pnpm test.
 WAKEUP_DRIVER=graphile
 SANDBOX_IDLE_MS=600000    # pause the bot computer after 10 minutes idle
 SANDBOX_COMMAND_TIMEOUT_MS=300000 # stop a shell command after 5 minutes
@@ -336,11 +336,13 @@ subscriptions inside Claude Code, so Rakazo has no Claude sign-in of its own. It
 subscription tokens (`sk-ant-oat…`) pasted as an Anthropic key, and Claude sign-ins saved by
 older versions stop working. An Anthropic API key still works on either runtime.
 
-`AGENT_RUNTIME=claude-code` runs bots through the Claude Code CLI installed on the worker's machine,
-using that CLI's own sign-in. Rakazo never reads or stores the Claude credential. Install the CLI
-and run `claude auth login` as the user the worker runs as; set `CLAUDE_CONFIG_DIR` in the worker
-environment to use a different Claude login. The worker logs whether the CLI is installed and
-signed in at startup.
+Claude Code is the default runtime (`AGENT_RUNTIME=claude-code`). Bots run through the Claude Code
+CLI installed on the worker's machine, using that CLI's own sign-in. Rakazo never reads or stores
+the Claude credential. Install the CLI and run `claude auth login` as the user the worker runs as;
+set `CLAUDE_CONFIG_DIR` in the worker environment to use a different Claude login. First-run
+onboarding shows the deployment owner whether the CLI is installed and signed in, and the desktop
+app can run both steps for a server on the same computer. The worker also logs the CLI state at
+startup. The API checks the CLI on its own machine, so run the API and worker on the same machine.
 
 Every bot runs on Claude Code (`sonnet`), so the apps hide model sign-in and the model pickers.
 Models connected before switching runtimes are kept but not used. Pi still serves a model the

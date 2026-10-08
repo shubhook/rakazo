@@ -18,6 +18,7 @@ import {
   runJobKey,
 } from "@rakazo/adapter-kit";
 import type {
+  ClaudeCodeStatus,
   CloudAgentConnection,
   CodexLiveCatalog,
   ComposioProvider,
@@ -39,6 +40,7 @@ import {
   buildMcpCredentialBlob,
   buildModelConnectPlaintext,
   CHATGPT_OAUTH_PROVIDER,
+  CLAUDE_CODE_PROVIDER,
   CodexCatalogCache,
   ComputerBusyError,
   cancelComputerRunWork,
@@ -80,6 +82,7 @@ import {
   planLiveConnectionSync,
   prepareApiInstall,
   prepareGraphqlInstall,
+  probeClaudeCode,
   probeOpenAiCompatibleModels,
   provisionComputer,
   queueComputerUpdate,
@@ -534,6 +537,8 @@ export interface RouterDeps {
     secretId: string,
     provider: string,
   ) => void;
+  /** Reads the agent CLI's install and sign-in state; defaults to the real CLI. */
+  probeClaudeCode?: () => Promise<ClaudeCodeStatus>;
   integrationSettings?: IntegrationProviderSettings;
   composio?: ComposioProvider;
   mcpOAuth?: McpOAuthBroker;
@@ -4028,6 +4033,22 @@ export function createRouter(deps: RouterDeps) {
           input.connectorId,
         );
         return { ok: true as const };
+      }),
+    },
+    agent: {
+      status: authed.agent.status.handler(async ({ context }) => {
+        // Only the owner can install or sign in the CLI on the server's machine.
+        if (deps.env.agentRuntime !== CLAUDE_CODE_PROVIDER || !context.actor.isDeploymentOwner) {
+          return null;
+        }
+        const status = await (deps.probeClaudeCode ?? probeClaudeCode)();
+        return {
+          agent: CLAUDE_CODE_PROVIDER,
+          installed: status.installed,
+          version: status.version ?? null,
+          loggedIn: status.loggedIn,
+          platform: process.platform,
+        };
       }),
     },
     integrationSetup: {

@@ -15,6 +15,7 @@ import {
   AgentSecretSchema,
   AgentSkillCatalogEntrySchema,
   AgentSkillSchema,
+  AgentStatusSchema,
   AppBootstrapSchema,
   ArtifactSchema,
   ArtifactVersionSchema,
@@ -686,6 +687,10 @@ export const appContract = {
         z.object({ botId: Id, provider: z.string(), connectorId: z.string().default("composio") }),
       )
       .output(z.object({ ok: z.literal(true) })),
+  },
+  agent: {
+    /** Null unless bots run on an agent CLI and the caller owns the deployment. */
+    status: oc.output(AgentStatusSchema.nullable()),
   },
   integrationSetup: {
     get: oc.output(IntegrationSetupStateSchema),
