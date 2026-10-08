@@ -516,8 +516,8 @@ export interface AgentRuntimeCapabilities {
   compaction: boolean;
   tools: boolean;
   scripted: boolean;
-  /** Model a run uses when no credential or deployment model is configured. */
-  defaultModel?: { provider: string; id: string };
+  /** The only model this runtime runs; connected and deployment models are not used. */
+  model?: { provider: string; id: string };
 }
 
 export interface VoiceInfo {

@@ -399,67 +399,43 @@ export default function BotSettingsScreen() {
             onValueChange={setAutoSpeak}
           />
         </View>
-        <Pressable
-          accessibilityRole="button"
-          accessibilityLabel={t("Advanced")}
-          accessibilityState={{ expanded: advancedOpen }}
-          onPress={() => setAdvancedOpen((open) => !open)}
-          style={{
-            marginTop: 20,
-            minHeight: 44,
-            flexDirection: "row",
-            alignItems: "center",
-            justifyContent: "space-between",
-          }}
-        >
-          <Text style={{ color: tokens.mutedForeground, fontSize: 14 }}>{t("Advanced")}</Text>
-          <Text style={{ color: tokens.mutedForeground, fontSize: 18 }}>
-            {advancedOpen ? "⌃" : "⌄"}
-          </Text>
-        </Pressable>
-        {advancedOpen ? (
-          <View>
-            <Text
-              style={{
-                color: tokens.mutedForeground,
-                marginTop: 8,
-                marginBottom: 8,
-                fontSize: 14,
-              }}
-            >
-              {t("Model")}
-            </Text>
+        {/* Advanced only picks a model, which the agent runtime may supply itself. */}
+        {me?.modelManaged ? null : (
+          <>
             <Pressable
               accessibilityRole="button"
-              accessibilityLabel={t("Model")}
-              onPress={openModelPicker}
+              accessibilityLabel={t("Advanced")}
+              accessibilityState={{ expanded: advancedOpen }}
+              onPress={() => setAdvancedOpen((open) => !open)}
               style={{
-                borderWidth: 1,
-                borderColor: tokens.border,
-                backgroundColor: tokens.muted,
-                borderRadius: 11,
-                paddingVertical: 12,
-                paddingHorizontal: 16,
+                marginTop: 20,
+                minHeight: 44,
+                flexDirection: "row",
+                alignItems: "center",
+                justifyContent: "space-between",
               }}
             >
-              <Text style={{ color: tokens.foreground }}>{selectedModelLabel}</Text>
+              <Text style={{ color: tokens.mutedForeground, fontSize: 14 }}>{t("Advanced")}</Text>
+              <Text style={{ color: tokens.mutedForeground, fontSize: 18 }}>
+                {advancedOpen ? "⌃" : "⌄"}
+              </Text>
             </Pressable>
-            {thinkingOptions.length ? (
-              <>
+            {advancedOpen ? (
+              <View>
                 <Text
                   style={{
                     color: tokens.mutedForeground,
-                    marginTop: 16,
+                    marginTop: 8,
                     marginBottom: 8,
                     fontSize: 14,
                   }}
                 >
-                  {t("Thinking")}
+                  {t("Model")}
                 </Text>
                 <Pressable
                   accessibilityRole="button"
-                  accessibilityLabel={t("Thinking")}
-                  onPress={openThinkingPicker}
+                  accessibilityLabel={t("Model")}
+                  onPress={openModelPicker}
                   style={{
                     borderWidth: 1,
                     borderColor: tokens.border,
@@ -469,17 +445,46 @@ export default function BotSettingsScreen() {
                     paddingHorizontal: 16,
                   }}
                 >
-                  <Text style={{ color: tokens.foreground }}>{selectedThinkingLabel}</Text>
+                  <Text style={{ color: tokens.foreground }}>{selectedModelLabel}</Text>
                 </Pressable>
-              </>
+                {thinkingOptions.length ? (
+                  <>
+                    <Text
+                      style={{
+                        color: tokens.mutedForeground,
+                        marginTop: 16,
+                        marginBottom: 8,
+                        fontSize: 14,
+                      }}
+                    >
+                      {t("Thinking")}
+                    </Text>
+                    <Pressable
+                      accessibilityRole="button"
+                      accessibilityLabel={t("Thinking")}
+                      onPress={openThinkingPicker}
+                      style={{
+                        borderWidth: 1,
+                        borderColor: tokens.border,
+                        backgroundColor: tokens.muted,
+                        borderRadius: 11,
+                        paddingVertical: 12,
+                        paddingHorizontal: 16,
+                      }}
+                    >
+                      <Text style={{ color: tokens.foreground }}>{selectedThinkingLabel}</Text>
+                    </Pressable>
+                  </>
+                ) : null}
+                {modelMetaError ? (
+                  <Text style={{ color: tokens.mutedForeground, marginTop: 12, fontSize: 13 }}>
+                    {modelMetaError}
+                  </Text>
+                ) : null}
+              </View>
             ) : null}
-            {modelMetaError ? (
-              <Text style={{ color: tokens.mutedForeground, marginTop: 12, fontSize: 13 }}>
-                {modelMetaError}
-              </Text>
-            ) : null}
-          </View>
-        ) : null}
+          </>
+        )}
         {error ? <Text style={{ color: tokens.destructive, marginTop: 16 }}>{error}</Text> : null}
         <Pressable
           onPress={() => void save()}

@@ -415,15 +415,17 @@ export default function Account() {
           </View>
         ) : null}
 
-        <Pressable
-          accessibilityRole="button"
-          disabled={pending}
-          onPress={() => router.push("/models")}
-          style={({ pressed }) => [styles.settingsButton, pressed && styles.pressed]}
-        >
-          <Text style={styles.settingsTitle}>{t("Models")}</Text>
-          <Text style={styles.chevron}>›</Text>
-        </Pressable>
+        {me?.modelManaged ? null : (
+          <Pressable
+            accessibilityRole="button"
+            disabled={pending}
+            onPress={() => router.push("/models")}
+            style={({ pressed }) => [styles.settingsButton, pressed && styles.pressed]}
+          >
+            <Text style={styles.settingsTitle}>{t("Models")}</Text>
+            <Text style={styles.chevron}>›</Text>
+          </Pressable>
+        )}
 
         <Pressable
           accessibilityRole="button"

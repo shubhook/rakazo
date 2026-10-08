@@ -176,7 +176,6 @@ import {
 } from "./browser-tools.js";
 import { agentConnectionTools, builtinAgentTools, sharedMemorySaveError } from "./builtin-tools.js";
 import { archiveSpawnedBot, spawnBot } from "./child-bots.js";
-import { CLAUDE_CODE_PROVIDER } from "./claude-code-cli.js";
 import { type CloudAgentConnection, cloudAgentsEnabled } from "./cloud-agent-factory.js";
 import { executeCloudAgentTool } from "./cloud-agent-service.js";
 import { validCloudAgentArgs } from "./cloud-agent-tools.js";
@@ -263,7 +262,6 @@ import type { CodexLiveCatalog } from "./pi-codex-catalog.js";
 import { codexLiveListsModel } from "./pi-codex-catalog.js";
 import { toOAuthCredential } from "./pi-credentials.js";
 import {
-  AnthropicSubscriptionError,
   isRetiredModelCredentialError,
   matchesFailedOAuthSecret,
   parseModelSecret,
@@ -2594,9 +2592,7 @@ const BOT_DIRECTORY_LIMIT = 40;
 const MISSING_MODEL_MESSAGE = "Connect a model in Settings before running bots.";
 
 function runtimeFallbackModel(runtime: AgentRuntime) {
-  const capabilities = runtime.describe().capabilities;
-  if (capabilities.defaultModel) return capabilities.defaultModel;
-  return capabilities.scripted ? { provider: "scripted", id: "scripted" } : null;
+  return runtime.describe().capabilities.scripted ? { provider: "scripted", id: "scripted" } : null;
 }
 
 export interface ExecutorDeps {
@@ -2964,6 +2960,8 @@ export function createRunExecutor(deps: ExecutorDeps) {
       spaceId: string;
       botId?: string;
     }): Promise<AgentRunRequest["model"]> {
+      const runtimeModel = deps.runtime.describe().capabilities.model;
+      if (runtimeModel) return { ...runtimeModel, thinkingLevel: null };
       const override = scope.botId
         ? await deps.prisma.bot.findFirst({
             where: {
@@ -2998,28 +2996,14 @@ export function createRunExecutor(deps: ExecutorDeps) {
       }
       if (!provider || !id) throw new Error(MISSING_MODEL_MESSAGE);
       // The key is resolved for the provider that won above, not before it is known.
-      let resolved: Awaited<ReturnType<typeof resolveModelKey>>;
-      try {
-        resolved = await resolveModelKey(
-          deps,
-          scope.userId,
-          scope.spaceId,
-          credential,
-          provider,
-          id,
-        );
-      } catch (error) {
-        // A Claude subscription saved before sign-in was removed must not reach Pi.
-        // Under Claude Code the run uses the CLI's own login instead.
-        if (!(error instanceof AnthropicSubscriptionError)) throw error;
-        const claudeCode = runtimeFallbackModel(deps.runtime);
-        if (claudeCode?.provider !== CLAUDE_CODE_PROVIDER) throw error;
-        return {
-          provider: claudeCode.provider,
-          id: claudeCode.id,
-          thinkingLevel: thinkingLevel ?? null,
-        };
-      }
+      const resolved = await resolveModelKey(
+        deps,
+        scope.userId,
+        scope.spaceId,
+        credential,
+        provider,
+        id,
+      );
       return {
         provider,
         id,
@@ -3522,13 +3506,16 @@ export function createRunExecutor(deps: ExecutorDeps) {
         }
         const runDeployment = deps.deploymentModelKey ? resolveDeploymentModel() : null;
         const runtimeFallback = runtimeFallbackModel(deps.runtime);
-        const selected = selectConfiguredModel({
-          bot,
-          overrideCredential,
-          defaultCredential,
-          settings,
-          deployment: runDeployment,
-        });
+        const runtimeModel = deps.runtime.describe().capabilities.model;
+        const selected = runtimeModel
+          ? { ...runtimeModel, credential: null, thinkingLevel: null }
+          : selectConfiguredModel({
+              bot,
+              overrideCredential,
+              defaultCredential,
+              settings,
+              deployment: runDeployment,
+            });
         const { credential, thinkingLevel } = selected;
         const runModelProvider = selected.provider ?? runtimeFallback?.provider;
         const runModelId = selected.id ?? runtimeFallback?.id;

@@ -91,6 +91,7 @@ import {
   resolveBotWorkspaceCwd,
   resolveBotWorkspacePath,
   revokeScreenControl,
+  runtimeModel,
   runtimeProvidesDefaultModel,
   sanitizeComposioError,
   savePushToken,
@@ -5721,12 +5722,17 @@ async function meDto(deps: RouterDeps, actor: Actor): Promise<Me> {
     spaceId: actor.spaceId,
     isDeploymentOwner: actor.isDeploymentOwner,
     needsModel: setup.needsModel,
+    modelManaged: Boolean(setup.runtimeModel),
     defaultProvider:
+      setup.runtimeModel?.provider ??
       setup.credential?.provider ??
       setup.settings?.defaultModelProvider ??
       deps.env.defaultProvider,
     defaultModel:
-      setup.credential?.defaultModel ?? setup.settings?.defaultModelId ?? deps.env.defaultModel,
+      setup.runtimeModel?.id ??
+      setup.credential?.defaultModel ??
+      setup.settings?.defaultModelId ??
+      deps.env.defaultModel,
     computerHost: computerHostFor(setup.settings?.computerHost, deps.env.sandboxProvider),
     canChooseHostComputer: actor.isDeploymentOwner && deps.env.sandboxProvider === "docker",
     sandboxProvider: deps.env.sandboxProvider,
@@ -5743,6 +5749,7 @@ async function modelSetup(deps: RouterDeps, actor: Actor) {
   return {
     credential,
     settings,
+    runtimeModel: runtimeModel(deps.env.agentRuntime),
     needsModel:
       !runtimeProvidesDefaultModel(deps.env.agentRuntime) && !credential && !hasDeployment,
   };

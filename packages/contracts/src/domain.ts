@@ -1224,6 +1224,8 @@ export const MeSchema = z.object({
   spaceId: Id,
   isDeploymentOwner: z.boolean(),
   needsModel: z.boolean(),
+  /** The agent runtime supplies the only model, so there is nothing to connect or pick. */
+  modelManaged: z.boolean(),
   defaultProvider: z.string().nullable(),
   defaultModel: z.string().nullable(),
   computerHost: z.enum(["docker", "this-mac"]).nullable(),

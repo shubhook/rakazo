@@ -21,6 +21,9 @@ import {
 } from "./executor.js";
 import { AnthropicSubscriptionError, serializeModelSecret } from "./pi-oauth.js";
 
+/** A runtime that runs whichever model the person connected. */
+const connectedModelRuntime = { describe: () => ({ capabilities: {} }) };
+
 describe("tool completion audit", () => {
   it("records result metadata without persisting tool contents", () => {
     const payload = toolCompletionAuditPayload({
@@ -1991,6 +1994,7 @@ description: Prepare standup notes
       secret: { findFirst: vi.fn(async () => null), findUnique: vi.fn(async () => null) },
     } as unknown as PrismaClient;
     const executor = createRunExecutor({
+      runtime: connectedModelRuntime,
       prisma,
       secretStore: { load: vi.fn(), put: vi.fn() },
     } as unknown as Parameters<typeof createRunExecutor>[0]);
@@ -2013,10 +2017,27 @@ description: Prepare standup notes
     );
   });
 
-  it.each([
-    ["Claude Code", { provider: "claude-code", id: "sonnet" }],
-    ["Pi", undefined],
-  ])("keeps a saved Claude subscription off Pi under %s", async (_name, defaultModel) => {
+  it("runs the runtime's own model over a connected one", async () => {
+    const prisma = {
+      bot: { findFirst: vi.fn(async () => null) },
+      spaceModelPreference: { findFirst: vi.fn(async () => null) },
+      userModelCredential: { findFirst: vi.fn(async () => null) },
+      deploymentSettings: { findUnique: vi.fn(async () => null) },
+    } as unknown as PrismaClient;
+    const model = { provider: "claude-code", id: "sonnet" };
+    const executor = createRunExecutor({
+      prisma,
+      runtime: { describe: () => ({ capabilities: { model } }) },
+    } as unknown as Parameters<typeof createRunExecutor>[0]);
+
+    await expect(
+      executor.resolveModel({ userId: "user-1", spaceId: "ws-1", botId: "bot-1" }),
+    ).resolves.toEqual({ ...model, thinkingLevel: null });
+    expect(prisma.bot.findFirst).not.toHaveBeenCalled();
+    expect(prisma.spaceModelPreference.findFirst).not.toHaveBeenCalled();
+  });
+
+  it("keeps a saved Claude subscription off Pi", async () => {
     const prisma = {
       bot: { findFirst: vi.fn(async () => null) },
       spaceModelPreference: {
@@ -2038,20 +2059,13 @@ description: Prepare standup notes
     } as unknown as PrismaClient;
     const executor = createRunExecutor({
       prisma,
-      runtime: { describe: () => ({ capabilities: defaultModel ? { defaultModel } : {} }) },
+      runtime: { describe: () => ({ capabilities: {} }) },
       secretStore: { load: vi.fn(() => "sk-ant-oat01-subscription"), put: vi.fn() },
     } as unknown as Parameters<typeof createRunExecutor>[0]);
 
-    const resolving = executor.resolveModel({ userId: "user-1", spaceId: "ws-1" });
-
-    if (defaultModel) {
-      const model = await resolving;
-      expect(model).toMatchObject(defaultModel);
-      expect(model.apiKey).toBeUndefined();
-      expect(model.oauth).toBeUndefined();
-    } else {
-      await expect(resolving).rejects.toThrow(AnthropicSubscriptionError);
-    }
+    await expect(executor.resolveModel({ userId: "user-1", spaceId: "ws-1" })).rejects.toThrow(
+      AnthropicSubscriptionError,
+    );
   });
 
   it("resolves an explicit subagent model within the active user and space", async () => {
@@ -2171,6 +2185,7 @@ description: Prepare standup notes
       },
     } as unknown as PrismaClient;
     const executor = createRunExecutor({
+      runtime: connectedModelRuntime,
       prisma,
       secretStore: { load: vi.fn(() => plaintext), put: vi.fn() },
     } as unknown as Parameters<typeof createRunExecutor>[0]);
@@ -2224,6 +2239,7 @@ description: Prepare standup notes
       },
     ]);
     const executor = createRunExecutor({
+      runtime: connectedModelRuntime,
       prisma,
       secretStore: { load: vi.fn(() => plaintext), put: vi.fn() },
       codexCatalog: { read },
@@ -2280,6 +2296,7 @@ description: Prepare standup notes
       },
     } as unknown as PrismaClient;
     const executor = createRunExecutor({
+      runtime: connectedModelRuntime,
       prisma,
       secretStore: { load: vi.fn(() => plaintext), put: vi.fn() },
       codexCatalog: { read: vi.fn(async () => []) },
@@ -2322,6 +2339,7 @@ description: Prepare standup notes
       },
     } as unknown as PrismaClient;
     const executor = createRunExecutor({
+      runtime: connectedModelRuntime,
       prisma,
       secretStore: { load: vi.fn(() => plaintext), put: vi.fn() },
     } as unknown as Parameters<typeof createRunExecutor>[0]);
@@ -2377,6 +2395,7 @@ description: Prepare standup notes
       },
     } as unknown as PrismaClient;
     const executor = createRunExecutor({
+      runtime: connectedModelRuntime,
       prisma,
       secretStore: { load: vi.fn(() => plaintext), put: vi.fn() },
     } as unknown as Parameters<typeof createRunExecutor>[0]);
@@ -2431,6 +2450,7 @@ description: Prepare standup notes
       secret: { findFirst: vi.fn(async () => null), findUnique: vi.fn(async () => null) },
     } as unknown as PrismaClient;
     const executor = createRunExecutor({
+      runtime: connectedModelRuntime,
       prisma,
       secretStore: { load: vi.fn(), put: vi.fn() },
       deploymentModelKey: "deployment-openrouter-key",
@@ -2474,6 +2494,7 @@ description: Prepare standup notes
       secret: { findFirst: vi.fn(async () => null), findUnique: vi.fn(async () => null) },
     } as unknown as PrismaClient;
     const executor = createRunExecutor({
+      runtime: connectedModelRuntime,
       prisma,
       secretStore: { load: vi.fn(), put: vi.fn() },
       // PI_DEFAULT_PROVIDER is unset here, so this key belongs to OpenRouter.
@@ -2510,6 +2531,7 @@ description: Prepare standup notes
       secret: { findFirst: vi.fn(async () => null), findUnique: vi.fn(async () => null) },
     } as unknown as PrismaClient;
     const executor = createRunExecutor({
+      runtime: connectedModelRuntime,
       prisma,
       secretStore: { load: vi.fn(), put: vi.fn() },
     } as unknown as Parameters<typeof createRunExecutor>[0]);

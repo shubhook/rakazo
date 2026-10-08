@@ -37,6 +37,7 @@ export function SettingsOverlay({
   avatarStyle,
   onAvatarStyleChange,
   isDeploymentOwner = false,
+  modelManaged = false,
   sandboxProvider,
   messagingEnabled = false,
   onOpenMessaging,
@@ -52,6 +53,7 @@ export function SettingsOverlay({
   avatarStyle: AvatarStyle;
   onAvatarStyleChange: (style: AvatarStyle) => Promise<void>;
   isDeploymentOwner?: boolean;
+  modelManaged?: boolean;
   sandboxProvider?: string | null;
   messagingEnabled?: boolean;
   onOpenMessaging?: () => void;
@@ -81,7 +83,7 @@ export function SettingsOverlay({
 
   const navItems: NavItem[] = [
     { id: "general", label: t`General`, icon: Settings },
-    { id: "models", label: t`Models`, icon: Cpu },
+    ...(modelManaged ? [] : [{ id: "models" as const, label: t`Models`, icon: Cpu }]),
     { id: "memory", label: t`Memory`, icon: Brain },
     { id: "voice", label: t`Voice`, icon: Volume2 },
     { id: "usage", label: t`Usage`, icon: Gauge },
@@ -214,7 +216,7 @@ export function SettingsOverlay({
               {section === "updates" ? (
                 <UpdatesSettingsPanel isDeploymentOwner={isDeploymentOwner} />
               ) : null}
-              {section === "models" ? (
+              {section === "models" && !modelManaged ? (
                 <ModelSettingsOverlay embedded onClose={requestClose} />
               ) : null}
               {section === "memory" ? (

@@ -217,6 +217,33 @@ describe("model setup gate", () => {
     });
   });
 
+  it("reports Claude Code as the only model under its runtime", async () => {
+    const { actor, handler } = modelGateDeps({ agentRuntime: "claude-code" });
+
+    const response = await call(handler, actor, "me", null);
+
+    expect(response.status).toBe(200);
+    await expect(response.json()).resolves.toEqual({
+      json: expect.objectContaining({
+        needsModel: false,
+        modelManaged: true,
+        defaultProvider: "claude-code",
+        defaultModel: "sonnet",
+      }),
+    });
+  });
+
+  it("leaves model setup to people on the Pi runtime", async () => {
+    const { actor, handler } = modelGateDeps({ agentRuntime: "pi" });
+
+    const response = await call(handler, actor, "me", null);
+
+    expect(response.status).toBe(200);
+    await expect(response.json()).resolves.toEqual({
+      json: expect.objectContaining({ modelManaged: false }),
+    });
+  });
+
   it("accepts a deployment model key as model configuration", async () => {
     const { actor, handler } = modelGateDeps({
       agentRuntime: "pi",

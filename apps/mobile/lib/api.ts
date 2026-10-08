@@ -820,6 +820,7 @@ export type MobileMe = Pick<
   | "defaultProvider"
   | "defaultModel"
   | "needsModel"
+  | "modelManaged"
   | "avatarStyle"
   | "isDeploymentOwner"
 >;

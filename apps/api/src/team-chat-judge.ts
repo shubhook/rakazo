@@ -195,6 +195,8 @@ export class ModelTeamChatEngagementJudge implements TeamChatEngagementJudge {
       oauth?: AgentRunModel["oauth"];
     };
   } | null> {
+    const runtimeModel = this.deps.runtime.describe().capabilities.model;
+    if (runtimeModel) return { model: runtimeModel };
     const settings = await this.deps.prisma.deploymentSettings.findUnique({
       where: { id: "default" },
     });
