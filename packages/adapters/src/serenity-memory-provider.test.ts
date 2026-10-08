@@ -1,4 +1,4 @@
-import type { AdapterContext } from "@rakazo/adapter-kit";
+import type { AdapterContext } from "@milo/adapter-kit";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import {
   classifySerenityConnectionSettings,

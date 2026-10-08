@@ -1,14 +1,6 @@
 import { Trans, useLingui } from "@lingui/react/macro";
-import type { AgentSkill, AgentSkillCatalogEntry, MemoryDocument } from "@rakazo/contracts";
-import {
-  Button,
-  Skeleton,
-  Tabs,
-  TabsContent,
-  TabsList,
-  TabsTrigger,
-  Textarea,
-} from "@rakazo/ui-web";
+import type { AgentSkill, AgentSkillCatalogEntry, MemoryDocument } from "@milo/contracts";
+import { Button, Skeleton, Tabs, TabsContent, TabsList, TabsTrigger, Textarea } from "@milo/ui-web";
 import { useEffect, useRef, useState } from "react";
 import { downloadArtifactBytes } from "../lib/artifact-open";
 import { rpc } from "../lib/rpc";

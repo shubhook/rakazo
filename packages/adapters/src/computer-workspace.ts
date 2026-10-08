@@ -7,10 +7,10 @@ import type {
   ComputerRef,
   PortableFile,
   SandboxProvider,
-} from "@rakazo/adapter-kit";
-import type { ComputerMode } from "@rakazo/contracts";
-import { parseScreenLeaseId } from "@rakazo/core";
-import type { PrismaClient } from "@rakazo/db";
+} from "@milo/adapter-kit";
+import type { ComputerMode } from "@milo/contracts";
+import { parseScreenLeaseId } from "@milo/core";
+import type { PrismaClient } from "@milo/db";
 import { normalizeWorkspacePath, teamBotWorkspaceDirectory } from "./computer-support.js";
 import { LocalAgentHomeStore } from "./home.js";
 

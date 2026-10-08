@@ -35,7 +35,7 @@ describe("Pi model catalog", () => {
     expect(claude).toMatchObject({
       auth: "api-key",
       subscription: false,
-      billing: "Uses your Anthropic API key. Rakazo does not pay for model usage.",
+      billing: "Uses your Anthropic API key. Milo does not pay for model usage.",
     });
     expect(claude?.signIn).toBeUndefined();
     expect(claude?.oauthLabel).toBeUndefined();

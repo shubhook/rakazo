@@ -1,5 +1,5 @@
+import type { Routine } from "@milo/contracts";
 import { expect, test } from "@playwright/test";
-import type { Routine } from "@rakazo/contracts";
 import { activeBotId, captureScreenshot, completeOnboarding, rpc, signup } from "./helpers";
 
 test("Slack message trigger uses the mounted messaging provider and persists", async ({

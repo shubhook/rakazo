@@ -1,4 +1,4 @@
-import { tokensForAppearance } from "@rakazo/ui-tokens";
+import { tokensForAppearance } from "@milo/ui-tokens";
 import { useMemo, useSyncExternalStore } from "react";
 import { type ColorValue, Platform, PlatformColor } from "react-native";
 import {

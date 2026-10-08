@@ -1,4 +1,4 @@
-import type { RakazoDesktopLocalAccount } from "@rakazo/contracts";
+import type { RakazoDesktopLocalAccount } from "@milo/contracts";
 import { describe, expect, it, vi } from "vitest";
 import { type LocalAccountAuth, resumeLocalAccount, startLocalAccount } from "./local-account";
 

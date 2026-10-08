@@ -1,4 +1,4 @@
-import { plainTextFromMarkdown } from "@rakazo/core";
+import { plainTextFromMarkdown } from "@milo/core";
 
 const MAX_PREVIEW_WORDS = 12;
 

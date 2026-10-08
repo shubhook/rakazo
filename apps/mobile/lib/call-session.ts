@@ -9,7 +9,7 @@ import {
   isInterimCallBargeIn,
   latestSpokenCallReply,
   spokenMemory,
-} from "@rakazo/core";
+} from "@milo/core";
 import type { AudioRecorder } from "expo-audio";
 import { File } from "expo-file-system";
 import { useSyncExternalStore } from "react";

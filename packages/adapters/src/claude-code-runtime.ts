@@ -2,7 +2,6 @@ import type { ChildProcess } from "node:child_process";
 import { mkdtemp, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import type { CallToolResult } from "@modelcontextprotocol/sdk/types.js";
 import type {
   AdapterContext,
   AgentInputImage,
@@ -11,8 +10,9 @@ import type {
   AgentRuntimeEvent,
   AgentSteeringMessage,
   AgentToolCompletion,
-} from "@rakazo/adapter-kit";
-import { getLogger } from "@rakazo/logging";
+} from "@milo/adapter-kit";
+import { getLogger } from "@milo/logging";
+import type { CallToolResult } from "@modelcontextprotocol/sdk/types.js";
 import { isToolPauseResult } from "./approval-effect.js";
 import { builtinAgentTools } from "./builtin-tools.js";
 import {
@@ -64,8 +64,8 @@ const running = new Map<string, { controller: AbortController; work: Promise<voi
 
 /**
  * Runs a bot turn through the person's own Claude Code CLI. The CLI owns its
- * login (keychain or config dir); Rakazo never sees or stores that credential.
- * Rakazo's tools reach the CLI over a per-run loopback MCP server, and the
+ * login (keychain or config dir); Milo never sees or stores that credential.
+ * Milo's tools reach the CLI over a per-run loopback MCP server, and the
  * CLI's built-in tools are disabled, so the executor still owns every effect.
  */
 export class ClaudeCodeAgentRuntime implements AgentRuntime {
@@ -323,7 +323,7 @@ export class ClaudeCodeAgentRuntime implements AgentRuntime {
       if (exit.error) {
         throw new Error(
           (exit.error as NodeJS.ErrnoException).code === "ENOENT"
-            ? "Claude Code is not installed on the machine running Rakazo."
+            ? "Claude Code is not installed on the machine running Milo."
             : exit.error.message,
         );
       }
@@ -365,11 +365,11 @@ export class ClaudeCodeAgentRuntime implements AgentRuntime {
 }
 
 function systemPromptFor(request: AgentRunRequest): string {
-  const base = request.instructions || "You are a Rakazo bot. Be concise.";
+  const base = request.instructions || "You are a Milo bot. Be concise.";
   return `${base}\n\nRakazo tools are available as mcp__${CLAUDE_CODE_TOOL_SERVER}__<tool name>.`;
 }
 
-/** Earlier turns become one transcript message; Rakazo stays the source of truth. */
+/** Earlier turns become one transcript message; Milo stays the source of truth. */
 function initialContent(
   request: AgentRunRequest,
   steering: AgentSteeringMessage[],

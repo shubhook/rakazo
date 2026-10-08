@@ -1,5 +1,5 @@
+import type { Bot, Routine } from "@milo/contracts";
 import { expect, type Page, test } from "@playwright/test";
-import type { Bot, Routine } from "@rakazo/contracts";
 import { activeBotId, captureScreenshot, completeOnboarding, rpc, signup } from "./helpers";
 
 async function addScheduleTrigger(page: Page, freq: string) {

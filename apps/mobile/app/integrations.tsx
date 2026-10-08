@@ -1,4 +1,4 @@
-import type { CapabilityInstall, Connection, ConnectionCatalogItem } from "@rakazo/contracts";
+import type { CapabilityInstall, Connection, ConnectionCatalogItem } from "@milo/contracts";
 import {
   abortableDelay,
   buildFeaturedConnectorTiles,
@@ -6,7 +6,7 @@ import {
   EMPTY_PLUGIN_CATALOG_MESSAGE,
   filterConnectionCatalogItems,
   humanizeToolName,
-} from "@rakazo/core";
+} from "@milo/core";
 import { useEffect, useMemo, useRef, useState } from "react";
 import {
   ActivityIndicator,

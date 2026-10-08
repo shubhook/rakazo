@@ -1,5 +1,5 @@
 {
-  "name": "@rakazo/api",
+  "name": "@milo/api",
   "version": "0.1.0",
   "license": "Apache-2.0",
   "type": "module",
@@ -12,14 +12,14 @@
   "dependencies": {
     "@hono/node-server": "2.1.1",
     "@orpc/server": "1.15.0",
-    "@rakazo/adapter-kit": "workspace:*",
-    "@rakazo/adapters": "workspace:*",
-    "@rakazo/auth": "workspace:*",
-    "@rakazo/contracts": "workspace:*",
-    "@rakazo/core": "workspace:*",
-    "@rakazo/db": "workspace:*",
-    "@rakazo/logging": "workspace:*",
-    "@rakazo/memory": "workspace:*",
+    "@milo/adapter-kit": "workspace:*",
+    "@milo/adapters": "workspace:*",
+    "@milo/auth": "workspace:*",
+    "@milo/contracts": "workspace:*",
+    "@milo/core": "workspace:*",
+    "@milo/db": "workspace:*",
+    "@milo/logging": "workspace:*",
+    "@milo/memory": "workspace:*",
     "hono": "4.13.7"
   },
   "devDependencies": {

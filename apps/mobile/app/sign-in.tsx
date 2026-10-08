@@ -1,4 +1,4 @@
-import type { IntegrationSetupState } from "@rakazo/contracts";
+import type { IntegrationSetupState } from "@milo/contracts";
 import { Redirect, useLocalSearchParams, useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 import {
@@ -166,9 +166,9 @@ export default function SignIn() {
                 {resetSent
                   ? t("Check your email")
                   : mode === "in"
-                    ? t("Sign in to Rakazo")
+                    ? t("Sign in to Milo")
                     : mode === "up"
-                      ? t("Sign up for Rakazo")
+                      ? t("Sign up for Milo")
                       : t("Reset your password")}
               </Text>
               {resetSent ? (
@@ -457,7 +457,7 @@ function ServerSheet({
           <Text
             style={{ color: tokens.mutedForeground, marginTop: 28, fontSize: 15, lineHeight: 22 }}
           >
-            {t("Enter your Rakazo server address.")}
+            {t("Enter your Milo server address.")}
           </Text>
           <TextInput
             autoCapitalize="none"

@@ -1,4 +1,4 @@
-import { type ColorTokens, darkTokens, type ResolvedAppearance } from "@rakazo/ui-tokens";
+import { type ColorTokens, darkTokens, type ResolvedAppearance } from "@milo/ui-tokens";
 import Markdown, {
   createMarkdownIt,
   MarkdownStream,

@@ -1,6 +1,6 @@
 import { useLingui } from "@lingui/react/macro";
-import { ATTACHMENT_MAX_BYTES } from "@rakazo/contracts";
-import { Button } from "@rakazo/ui-web";
+import { ATTACHMENT_MAX_BYTES } from "@milo/contracts";
+import { Button } from "@milo/ui-web";
 import { ArrowLeft, Download, File, Folder, Upload } from "lucide-react";
 import { type DragEvent, useCallback, useEffect, useRef, useState } from "react";
 import { decodeArtifactBase64, downloadArtifactBytes } from "../../lib/artifact-open";

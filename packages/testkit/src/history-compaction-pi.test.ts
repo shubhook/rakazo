@@ -1,5 +1,5 @@
-import { PiAgentRuntime } from "@rakazo/adapters";
-import type { PrismaClient } from "@rakazo/db";
+import { PiAgentRuntime } from "@milo/adapters";
+import type { PrismaClient } from "@milo/db";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { compactHistory } from "../../adapters/src/history-compaction.js";
 import { startModelEmulator } from "./model-emulator.js";

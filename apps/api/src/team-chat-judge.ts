@@ -4,7 +4,7 @@ import type {
   AgentRuntime,
   ModelCredentialFailedState,
   ModelCredentialRetireReason,
-} from "@rakazo/adapter-kit";
+} from "@milo/adapter-kit";
 import {
   type EncryptedSecretStore,
   formatCurrentTimeInstruction,
@@ -12,10 +12,10 @@ import {
   resolveModelAuth,
   serializeModelSecret,
   toOAuthCredential,
-} from "@rakazo/adapters";
-import type { PrismaClient } from "@rakazo/db";
-import { findDefaultModelCredential, findModelCredential, retireModelCredential } from "@rakazo/db";
-import { getLogger } from "@rakazo/logging";
+} from "@milo/adapters";
+import type { PrismaClient } from "@milo/db";
+import { findDefaultModelCredential, findModelCredential, retireModelCredential } from "@milo/db";
+import { getLogger } from "@milo/logging";
 
 const MAX_RULES_CHARS = 4_000;
 const MAX_MESSAGES = 20;

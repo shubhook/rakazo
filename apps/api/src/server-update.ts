@@ -5,8 +5,8 @@ import type {
   ServerUpdateRequest,
   ServerUpdateRun,
   ServerUpdateStatus,
-} from "@rakazo/contracts";
-import { ServerUpdateRunSchema } from "@rakazo/contracts";
+} from "@milo/contracts";
+import { ServerUpdateRunSchema } from "@milo/contracts";
 import {
   DEFAULT_UPDATE_BRANCH,
   detectRestartSupervisor,
@@ -17,8 +17,8 @@ import {
   readBoundedResponseBytes,
   resolveInstallKind,
   restartSupervisorAdvice,
-} from "@rakazo/core";
-import { outgoingCorrelationHeaders } from "@rakazo/logging";
+} from "@milo/core";
+import { outgoingCorrelationHeaders } from "@milo/logging";
 
 const PRODUCT_VERSION = "0.1.0";
 const STATE_TIMEOUT_MS = 15_000;

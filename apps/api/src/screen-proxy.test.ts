@@ -1,5 +1,5 @@
-import { SCREEN_TARGET_ENDPOINT } from "@rakazo/core/node/screen-capability";
-import type { PrismaClient } from "@rakazo/db";
+import { SCREEN_TARGET_ENDPOINT } from "@milo/core/node/screen-capability";
+import type { PrismaClient } from "@milo/db";
 import { Hono } from "hono";
 import { describe, expect, it, vi } from "vitest";
 import { addScreenProxyCapability, mountScreenTarget } from "./screen-proxy.js";

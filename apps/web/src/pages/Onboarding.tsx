@@ -1,6 +1,6 @@
 import { Trans, useLingui } from "@lingui/react/macro";
-import type { AgentStatus, IntegrationSetupState } from "@rakazo/contracts";
-import { Button } from "@rakazo/ui-web";
+import type { AgentStatus, IntegrationSetupState } from "@milo/contracts";
+import { Button } from "@milo/ui-web";
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { IntegrationSetup } from "../components/integrations/IntegrationSetup";

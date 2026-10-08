@@ -2,12 +2,8 @@ import { randomUUID } from "node:crypto";
 import { constants } from "node:fs";
 import { mkdir, open, unlink } from "node:fs/promises";
 import path from "node:path";
-import type {
-  AdapterContext,
-  NotificationMessage,
-  NotificationProvider,
-} from "@rakazo/adapter-kit";
-import { getLogger } from "@rakazo/logging";
+import type { AdapterContext, NotificationMessage, NotificationProvider } from "@milo/adapter-kit";
+import { getLogger } from "@milo/logging";
 import { combineSignals } from "./connector-safety.js";
 import { readBodyCapped, withAbort } from "./web-ssrf.js";
 

@@ -1,4 +1,4 @@
-import { DEFAULT_MODEL_MAX_TOKENS } from "@rakazo/contracts";
+import { DEFAULT_MODEL_MAX_TOKENS } from "@milo/contracts";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import {
   billedPromptTokens,

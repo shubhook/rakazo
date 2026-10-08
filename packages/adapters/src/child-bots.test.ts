@@ -9,9 +9,9 @@ import type {
   CommandRequest,
   JobPublisher,
   SandboxProvider,
-} from "@rakazo/adapter-kit";
-import { browserProfilePathForScreen } from "@rakazo/core/node/desktop-runtime";
-import type { createRepos, PrismaClient } from "@rakazo/db";
+} from "@milo/adapter-kit";
+import { browserProfilePathForScreen } from "@milo/core/node/desktop-runtime";
+import type { createRepos, PrismaClient } from "@milo/db";
 import { describe, expect, it, vi } from "vitest";
 import {
   archiveBot,
@@ -110,7 +110,7 @@ describe("spawned bot creation", () => {
       title: "",
       threadId: "thread-2",
     });
-    const createReposSpy = vi.spyOn(await import("@rakazo/db"), "createRepos").mockReturnValue({
+    const createReposSpy = vi.spyOn(await import("@milo/db"), "createRepos").mockReturnValue({
       createBot,
     } as unknown as ReturnType<typeof createRepos>);
 

@@ -1,6 +1,6 @@
 import { spawn } from "node:child_process";
 import path from "node:path";
-import { agentSetupCommand } from "@rakazo/contracts/agent-setup";
+import { agentSetupCommand } from "@milo/contracts/agent-setup";
 import { describe, expect, it, vi } from "vitest";
 import {
   AgentSetupRunner,

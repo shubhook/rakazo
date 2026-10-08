@@ -8,12 +8,12 @@ import type {
   ModelCredential,
   ThinkingLevel,
   VoiceInfo,
-} from "@rakazo/contracts";
+} from "@milo/contracts";
 import {
   BOT_DESCRIPTION_MAX_LENGTH,
   BOT_NAME_MAX_LENGTH,
   BOT_TITLE_MAX_LENGTH,
-} from "@rakazo/contracts";
+} from "@milo/contracts";
 import {
   Button,
   Input,
@@ -22,7 +22,7 @@ import {
   Switch,
   Textarea,
   Toggle,
-} from "@rakazo/ui-web";
+} from "@milo/ui-web";
 import { X } from "lucide-react";
 import { lazy, Suspense, useEffect, useId, useRef, useState } from "react";
 import { botProfilePatch } from "../../lib/bot-profile-patch";

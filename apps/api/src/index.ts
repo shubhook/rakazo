@@ -1,11 +1,11 @@
 import type { Socket } from "node:net";
-import { loadRootEnv } from "@rakazo/core/node/load-root-env";
+import { loadRootEnv } from "@milo/core/node/load-root-env";
 
 loadRootEnv();
 
 import { serve } from "@hono/node-server";
-import { SERVICE_NAMES } from "@rakazo/logging";
-import { createRootLogger } from "@rakazo/logging/axiom";
+import { SERVICE_NAMES } from "@milo/logging";
+import { createRootLogger } from "@milo/logging/axiom";
 import { createApp } from "./app.js";
 import { loadEnv } from "./env.js";
 

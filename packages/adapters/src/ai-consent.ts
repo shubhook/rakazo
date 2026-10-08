@@ -1,5 +1,5 @@
 import { createHash } from "node:crypto";
-import type { AiDataUse, AiRecipient } from "@rakazo/contracts";
+import type { AiDataUse, AiRecipient } from "@milo/contracts";
 import { CLAUDE_CODE_PROVIDER } from "./claude-code-cli.js";
 import { localBaseUrl } from "./pi-local-provider.js";
 import { listPiCatalog } from "./pi-models.js";

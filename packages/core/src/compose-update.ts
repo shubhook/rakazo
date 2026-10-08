@@ -41,7 +41,7 @@ export const COMPOSE_PROJECT_NAME_OVERRIDE_ENV = "RAKAZO_COMPOSE_PROJECT_NAME";
 /**
  * The services a recreate replaces. `updater` is deliberately absent: it is the process running
  * the update, and recreating it would kill the run half way through. `postgres` and `caddy` are
- * absent because neither uses the Rakazo image.
+ * absent because neither uses the Milo image.
  */
 export const RECREATED_SERVICES = ["api", "worker", "web"] as const;
 
@@ -362,7 +362,7 @@ export const COMPOSE_MANUAL_UPGRADE_COMMANDS = COMPOSE_PULL_UPGRADE_COMMANDS;
 /** Exact host commands from docs/self-host.md for source / `pnpm dev` installs. */
 export const SOURCE_MANUAL_UPGRADE_COMMANDS = [
   "git pull",
-  "pnpm --filter @rakazo/db migrate",
+  "pnpm --filter @milo/db migrate",
   "# Restart the API and worker processes",
 ] as const;
 

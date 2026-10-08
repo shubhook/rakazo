@@ -65,5 +65,5 @@ test("a desktop on a local server asks only for a name and signs itself back in"
 
   await page.context().clearCookies();
   await page.goto("/sign-in?with=email");
-  await expect(page.getByRole("heading", { name: "Sign in to Rakazo" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Sign in to Milo" })).toBeVisible();
 });

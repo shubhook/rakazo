@@ -6,7 +6,7 @@ import type {
   SemanticMemoryResponse,
   SemanticMemoryResult,
   SemanticMemorySaveRequest,
-} from "@rakazo/adapter-kit";
+} from "@milo/adapter-kit";
 import {
   deleteSupermemoryContainer,
   parseSupermemoryBaseUrl,

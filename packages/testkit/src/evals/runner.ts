@@ -1,9 +1,9 @@
 import { randomUUID } from "node:crypto";
-import { type AgentRuntime, type JobPublisher, runJobKey } from "@rakazo/adapter-kit";
-import { MessagingTeamChatEmulator } from "@rakazo/adapters";
-import type { ModelConnectInput, RunStatus } from "@rakazo/contracts";
-import { ACTIVE_RUN_STATUSES, isTerminal } from "@rakazo/core";
-import type { createDb } from "@rakazo/db";
+import { type AgentRuntime, type JobPublisher, runJobKey } from "@milo/adapter-kit";
+import { MessagingTeamChatEmulator } from "@milo/adapters";
+import type { ModelConnectInput, RunStatus } from "@milo/contracts";
+import { ACTIVE_RUN_STATUSES, isTerminal } from "@milo/core";
+import type { createDb } from "@milo/db";
 import { discardBotIntroRun } from "../discard-bot-intro.js";
 import { sessionCookieHeader } from "../index.js";
 import type { EvalCase, Evidence } from "./cases.js";

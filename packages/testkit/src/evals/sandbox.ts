@@ -1,10 +1,5 @@
-import type {
-  AdapterContext,
-  CommandRequest,
-  ComputerRef,
-  ProcessEvent,
-} from "@rakazo/adapter-kit";
-import { FakeSandboxProvider } from "@rakazo/adapters";
+import type { AdapterContext, CommandRequest, ComputerRef, ProcessEvent } from "@milo/adapter-kit";
+import { FakeSandboxProvider } from "@milo/adapters";
 
 /** A model must not receive successful shell results for commands the fixture never ran. */
 export class EvalSandboxProvider extends FakeSandboxProvider {

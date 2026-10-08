@@ -1,6 +1,6 @@
-import type { Actor, MessageBlock } from "@rakazo/contracts";
-import type { Prisma, PrismaClient, ThreadEvents } from "@rakazo/db";
-import { appendEventInTransaction, IsolationError, withTransactionRetry } from "@rakazo/db";
+import type { Actor, MessageBlock } from "@milo/contracts";
+import type { Prisma, PrismaClient, ThreadEvents } from "@milo/db";
+import { appendEventInTransaction, IsolationError, withTransactionRetry } from "@milo/db";
 import { requireBotThread } from "./bot-thread.js";
 
 /** Dependencies for resolving pending MCP approval cards in a bot's threads. */

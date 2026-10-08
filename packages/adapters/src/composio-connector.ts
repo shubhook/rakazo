@@ -8,8 +8,8 @@ import type {
   ConnectorProvider,
   ConnectorTool,
   ManagedConnectorProvider,
-} from "@rakazo/adapter-kit";
-import { getLogger } from "@rakazo/logging";
+} from "@milo/adapter-kit";
+import { getLogger } from "@milo/logging";
 import {
   composioToolkitDirectory,
   mergeCatalogWithConnected,

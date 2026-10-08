@@ -1,12 +1,12 @@
 import { timingSafeEqual } from "node:crypto";
-import type { RPCHandler } from "@orpc/server/fetch";
-import type { Actor } from "@rakazo/contracts";
+import type { Actor } from "@milo/contracts";
 import {
   isLocalSettingsProcedure,
   LOCAL_SETTINGS_RPC,
   LOCAL_SETTINGS_TOKEN_HEADER,
-} from "@rakazo/contracts";
-import { type PrismaClient, requireMembership } from "@rakazo/db";
+} from "@milo/contracts";
+import { type PrismaClient, requireMembership } from "@milo/db";
+import type { RPCHandler } from "@orpc/server/fetch";
 import type { Hono } from "hono";
 
 export function validLocalSettingsToken(

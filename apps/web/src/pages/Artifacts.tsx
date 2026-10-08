@@ -1,7 +1,7 @@
 import { Trans, useLingui } from "@lingui/react/macro";
-import { ChatMarkdown } from "@rakazo/chat-ui/web";
-import type { Artifact, ArtifactVersion, Bot } from "@rakazo/contracts";
-import { isAttachmentImageMimeType } from "@rakazo/contracts";
+import { ChatMarkdown } from "@milo/chat-ui/web";
+import type { Artifact, ArtifactVersion, Bot } from "@milo/contracts";
+import { isAttachmentImageMimeType } from "@milo/contracts";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -17,7 +17,7 @@ import {
   NativeSelectOption,
   parseBotAvatar,
   resolvePersonaColorDef,
-} from "@rakazo/ui-web";
+} from "@milo/ui-web";
 import {
   ChevronLeft,
   Download,

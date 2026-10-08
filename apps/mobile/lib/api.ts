@@ -10,8 +10,8 @@ import type {
   ModelCredential,
   Space,
   SpaceNavigation,
-} from "@rakazo/contracts";
-import type { ThreadHistory } from "@rakazo/core";
+} from "@milo/contracts";
+import type { ThreadHistory } from "@milo/core";
 import {
   aiConsentTarget,
   aiDataUsesForProcedure,
@@ -28,7 +28,7 @@ import {
   takeLiveMessage,
   updateCloudAgentMessages,
   upsertMessageById,
-} from "@rakazo/core";
+} from "@milo/core";
 import * as SecureStore from "expo-secure-store";
 import { promptAiConsent } from "./ai-consent";
 import { getCachedAvatarStyle, saveAvatarStyle } from "./avatar-style";

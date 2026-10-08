@@ -1,5 +1,5 @@
-import { ATTACHMENT_MAX_BYTES } from "@rakazo/contracts";
-import { inferAttachmentMimeType } from "@rakazo/core";
+import { ATTACHMENT_MAX_BYTES } from "@milo/contracts";
+import { inferAttachmentMimeType } from "@milo/core";
 import * as DocumentPicker from "expo-document-picker";
 import { File } from "expo-file-system";
 import * as ImagePicker from "expo-image-picker";

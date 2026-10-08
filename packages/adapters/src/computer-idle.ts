@@ -5,9 +5,9 @@ import {
   computerSleepJob,
   type JobPublisher,
   type SandboxProvider,
-} from "@rakazo/adapter-kit";
-import { ACTIVE_RUN_STATUSES } from "@rakazo/core";
-import type { PrismaClient, ThreadEvents } from "@rakazo/db";
+} from "@milo/adapter-kit";
+import { ACTIVE_RUN_STATUSES } from "@milo/core";
+import type { PrismaClient, ThreadEvents } from "@milo/db";
 import { expireComputerControl, hasActiveComputerControl } from "./computer-control.js";
 import { toComputerRef } from "./computer-lifecycle.js";
 import { checkpointComputerWorkspace } from "./computer-workspace.js";
