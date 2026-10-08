@@ -8,11 +8,14 @@ import { ModelSettingsOverlay } from "./ModelSettingsOverlay";
 export function LocalSettingsPage() {
   const [section, setSection] = useState<"models" | "integrations" | null>(null);
   const [ready, setReady] = useState(false);
+  const [modelManaged, setModelManaged] = useState(false);
   const [error, setError] = useState(false);
   useEffect(() => {
-    void rpc.integrationSetup
-      .get()
-      .then(() => setReady(true))
+    void Promise.all([rpc.integrationSetup.get(), rpc.me()])
+      .then(([, me]) => {
+        setModelManaged(me.modelManaged);
+        setReady(true);
+      })
       .catch(() => setError(true));
   }, []);
   return (
@@ -32,9 +35,11 @@ export function LocalSettingsPage() {
         {ready ? (
           <>
             <nav className="flex gap-2">
-              <Button variant="outline" onClick={() => setSection("models")}>
-                <Trans>Models</Trans>
-              </Button>
+              {modelManaged ? null : (
+                <Button variant="outline" onClick={() => setSection("models")}>
+                  <Trans>Models</Trans>
+                </Button>
+              )}
               <Button
                 variant="outline"
                 onClick={() => setSection(section === "integrations" ? null : "integrations")}

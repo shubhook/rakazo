@@ -10,6 +10,7 @@ import { describe, expect, it, vi } from "vitest";
 import {
   ClaudeCodeRoutingRuntime,
   createAgentRuntime,
+  runtimeModel,
   runtimeProvidesDefaultModel,
 } from "./agent-runtime-factory.js";
 import {
@@ -320,7 +321,7 @@ describe("runtime selection", () => {
 
     expect(claude.run).toHaveBeenCalledTimes(1);
     expect(pi.run).toHaveBeenCalledTimes(1);
-    expect(runtime.describe().capabilities.defaultModel).toEqual({
+    expect(runtime.describe().capabilities.model).toEqual({
       provider: "claude-code",
       id: "sonnet",
     });
@@ -330,7 +331,9 @@ describe("runtime selection", () => {
     expect(runtimeProvidesDefaultModel("claude-code")).toBe(true);
     expect(runtimeProvidesDefaultModel("scripted")).toBe(true);
     expect(runtimeProvidesDefaultModel("pi")).toBe(false);
-    expect(createAgentRuntime("pi").describe().capabilities.defaultModel).toBeUndefined();
+    expect(runtimeModel("claude-code")).toEqual({ provider: "claude-code", id: "sonnet" });
+    expect(runtimeModel("pi")).toBeNull();
+    expect(createAgentRuntime("pi").describe().capabilities.model).toBeUndefined();
     expect(createAgentRuntime("claude-code").describe().id).toBe("claude-code");
   });
 });

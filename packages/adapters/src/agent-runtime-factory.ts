@@ -15,7 +15,17 @@ import { ScriptedAgentRuntime } from "./scripted-runtime.js";
 
 /** Runtimes that can run without a stored model credential or deployment key. */
 export function runtimeProvidesDefaultModel(kind: string): boolean {
-  return kind === "scripted" || kind === CLAUDE_CODE_PROVIDER;
+  return kind === "scripted" || runtimeModel(kind) !== null;
+}
+
+/**
+ * Claude Code runs every bot through the CLI's own sign-in, so people never
+ * connect or pick a model.
+ */
+export function runtimeModel(kind: string): { provider: string; id: string } | null {
+  return kind === CLAUDE_CODE_PROVIDER
+    ? { provider: CLAUDE_CODE_PROVIDER, id: CLAUDE_CODE_DEFAULT_MODEL }
+    : null;
 }
 
 export function createAgentRuntime(
@@ -29,8 +39,8 @@ export function createAgentRuntime(
 }
 
 /**
- * The deployment default runs through the local Claude Code CLI, while a model
- * the person explicitly connected keeps running on Pi with that connection.
+ * Bots run through the local Claude Code CLI. Pi still serves models the
+ * deployment configures for side work, such as an Auto Review checker.
  */
 export class ClaudeCodeRoutingRuntime implements AgentRuntime {
   constructor(
@@ -45,7 +55,7 @@ export class ClaudeCodeRoutingRuntime implements AgentRuntime {
       id: CLAUDE_CODE_PROVIDER,
       capabilities: {
         ...pi.capabilities,
-        defaultModel: { provider: CLAUDE_CODE_PROVIDER, id: CLAUDE_CODE_DEFAULT_MODEL },
+        model: { provider: CLAUDE_CODE_PROVIDER, id: CLAUDE_CODE_DEFAULT_MODEL },
       },
     };
   }

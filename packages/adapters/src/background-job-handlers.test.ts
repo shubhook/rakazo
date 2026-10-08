@@ -20,6 +20,8 @@ vi.mock("./messaging-delivery.js", () => ({
   mirrorMessagingOutbound: vi.fn(async () => undefined),
 }));
 
+const connectedModelRuntime = { describe: () => ({ capabilities: {} }) };
+
 describe("createBackgroundJobHandlers", () => {
   it("delivers directly when shutdown rejects a completed run's mirror job", async () => {
     const enqueueError = new Error("Background job publisher is closing");
@@ -107,8 +109,9 @@ describe("createBackgroundJobHandlers", () => {
     } as unknown as PrismaClient;
     const executor = createRunExecutor({
       prisma,
+      runtime: connectedModelRuntime,
       deploymentModelKey: "deployment-key",
-    } as Parameters<typeof createRunExecutor>[0]);
+    } as unknown as Parameters<typeof createRunExecutor>[0]);
 
     await expect(
       executor.resolveModel({ userId: "user-1", spaceId: "workspace-1" }),
@@ -135,7 +138,8 @@ describe("createBackgroundJobHandlers", () => {
     } as unknown as PrismaClient;
     const executor = createRunExecutor({
       prisma,
-    } as Parameters<typeof createRunExecutor>[0]);
+      runtime: connectedModelRuntime,
+    } as unknown as Parameters<typeof createRunExecutor>[0]);
 
     await expect(
       executor.resolveModel({ userId: "user-1", spaceId: "workspace-1" }),

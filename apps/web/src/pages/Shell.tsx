@@ -4410,6 +4410,7 @@ export function ShellPage() {
             initialSection={settingsSection}
             avatarStyle={bootstrapMe?.avatarStyle ?? "robot"}
             isDeploymentOwner={bootstrapMe?.isDeploymentOwner === true}
+            modelManaged={bootstrapMe?.modelManaged === true}
             sandboxProvider={bootstrapMe?.sandboxProvider}
             messagingEnabled={messagingSurfaceEnabled}
             onOpenMessaging={() => {
