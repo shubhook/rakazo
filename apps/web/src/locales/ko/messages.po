@@ -24,13 +24,11 @@ msgstr "{0, plural, one {모델 #개} other {모델 #개}}"
 
 #. placeholder {0}: Math.ceil(oauth.expiresInSeconds / 60)
 #: src/pages/ModelSettingsOverlay.tsx
-#: src/pages/Onboarding.tsx
 msgid "{0, plural, one {Waiting for sign-in — the code expires in about # minute.} other {Waiting for sign-in — the code expires in about # minutes.}}"
 msgstr ""
 
 #. placeholder {0}: Math.ceil(oauth.expiresInSeconds / 60)
 #: src/pages/ModelSettingsOverlay.tsx
-#: src/pages/Onboarding.tsx
 msgid "{0, plural, one {Waiting for sign-in — the link expires in about # minute.} other {Waiting for sign-in — the link expires in about # minutes.}}"
 msgstr ""
 
@@ -172,7 +170,6 @@ msgstr ""
 
 #. placeholder {0}: oauth.verificationUri.replace(/^https:\/\//, "")
 #: src/pages/ModelSettingsOverlay.tsx
-#: src/pages/Onboarding.tsx
 msgid "A sign-in tab opened at <0>{0}</0>. Enter this code there — this window keeps waiting:"
 msgstr ""
 
@@ -274,6 +271,10 @@ msgstr "HTTPS 서버 URL을 입력하세요."
 msgid "Add another"
 msgstr ""
 
+#: src/pages/shell/bot-credentials.tsx
+msgid "Add credential"
+msgstr ""
+
 #: src/pages/PluginsOverlay.tsx
 msgid "Add Executor"
 msgstr "Executor 추가"
@@ -335,7 +336,6 @@ msgstr "추가 중…"
 #: src/pages/AccountSettingsOverlay.tsx
 #: src/pages/McpServersOverlay.tsx
 #: src/pages/ModelSettingsOverlay.tsx
-#: src/pages/Onboarding.tsx
 #: src/pages/PluginsOverlay.tsx
 #: src/pages/RoutineSchedule.tsx
 #: src/pages/shell/bot-panel.tsx
@@ -429,98 +429,6 @@ msgstr "답변"
 msgid "Answered"
 msgstr "응답함"
 
-#: src/pages/shell/bot-credentials.tsx
-msgid "Add credential"
-msgstr ""
-
-#: src/pages/shell/bot-credentials.tsx
-msgid "Basic auth"
-msgstr ""
-
-#: src/pages/shell/bot-credentials.tsx
-msgid "Basic auth ({username})"
-msgstr ""
-
-#: src/pages/shell/bot-credentials.tsx
-msgid "Could not load credentials."
-msgstr ""
-
-#: src/pages/shell/bot-credentials.tsx
-msgid "Could not remove the credential"
-msgstr ""
-
-#: src/pages/shell/bot-credentials.tsx
-msgid "Could not save the credential"
-msgstr ""
-
-#: src/pages/shell/bot-credentials.tsx
-msgid "Credentials"
-msgstr ""
-
-#: src/pages/shell/bot-credentials.tsx
-msgid "Custom header"
-msgstr ""
-
-#: src/pages/shell/bot-credentials.tsx
-msgid "Enter a username and password"
-msgstr ""
-
-#: src/pages/shell/bot-credentials.tsx
-msgid "Header \"{header}\""
-msgstr ""
-
-#: src/pages/shell/bot-credentials.tsx
-msgid "Keys and passwords this bot can use, each for one site only. Values are encrypted and never shown again."
-msgstr ""
-
-#: src/pages/shell/bot-credentials.tsx
-msgid "Lowercase letters, numbers, hyphens and underscores, starting with a letter."
-msgstr ""
-
-#: src/pages/shell/bot-credentials.tsx
-msgid "No credentials saved for this bot."
-msgstr ""
-
-#: src/pages/shell/bot-credentials.tsx
-msgid "Remove {secretName}? This bot will no longer be able to use it."
-msgstr ""
-
-#: src/pages/shell/bot-credentials.tsx
-msgid "Replace value"
-msgstr ""
-
-#: src/pages/shell/bot-credentials.tsx
-msgid "Save credential"
-msgstr ""
-
-#: src/pages/shell/bot-credentials.tsx
-msgid "Save new value"
-msgstr ""
-
-#: src/pages/shell/bot-credentials.tsx
-msgid "Site"
-msgstr ""
-
-#: src/pages/shell/bot-credentials.tsx
-msgid "These saved settings can't be read. Remove it and add it again."
-msgstr ""
-
-#: src/pages/shell/bot-credentials.tsx
-msgid "Type"
-msgstr ""
-
-#: src/pages/shell/bot-credentials.tsx
-msgid "Updated {updated}"
-msgstr ""
-
-#: src/pages/shell/bot-credentials.tsx
-msgid "Value"
-msgstr ""
-
-#: src/pages/shell/bot-credentials.tsx
-msgid "Website login"
-msgstr ""
-
 #. placeholder {0}: selectedAskActionLabel(answer, actions)
 #: src/components/AskCard.tsx
 msgid "Answered: {0}"
@@ -538,7 +446,6 @@ msgstr "API가 다시 작동하지만 업데이트가 완료되지 않았습니�
 #: src/components/integrations/IntegrationSetup.tsx
 #: src/lib/localized-provider-hint.ts
 #: src/pages/ModelSettingsOverlay.tsx
-#: src/pages/Onboarding.tsx
 #: src/pages/VoiceSettingsOverlay.tsx
 msgid "API key"
 msgstr "API 키"
@@ -646,7 +553,6 @@ msgid "Attachment"
 msgstr "첨부 파일"
 
 #: src/pages/ModelSettingsOverlay.tsx
-#: src/pages/Onboarding.tsx
 msgid "Authorization code or callback URL"
 msgstr "인증 코드 또는 돌아온 페이지 주소"
 
@@ -696,8 +602,17 @@ msgstr "로그인으로 돌아가기"
 msgid "Base URL"
 msgstr "서버 주소"
 
+#: src/pages/shell/bot-credentials.tsx
+msgid "Basic auth"
+msgstr ""
+
+#: src/pages/shell/bot-credentials.tsx
+msgid "Basic auth ({username})"
+msgstr ""
+
 #: src/pages/memory-providers/SerenitySettingsForm.tsx
 #: src/pages/PluginsOverlay.tsx
+#: src/pages/shell/bot-credentials.tsx
 msgid "Bearer token"
 msgstr "Bearer 토큰"
 
@@ -768,8 +683,9 @@ msgstr "서버에 연결할 수 없습니다."
 #: src/pages/Artifacts.tsx
 #: src/pages/KnowledgeSection.tsx
 #: src/pages/ModelSettingsOverlay.tsx
-#: src/pages/Onboarding.tsx
+#: src/pages/OnboardingAgent.tsx
 #: src/pages/PluginsOverlay.tsx
+#: src/pages/shell/bot-credentials.tsx
 #: src/pages/shell/dialogs.tsx
 msgid "Cancel"
 msgstr "취소"
@@ -827,6 +743,10 @@ msgstr "채팅 앱, 그룹 채널 및 Agent 연결을 관리합니다."
 msgid "Chat Settings"
 msgstr "채팅 설정"
 
+#: src/pages/OnboardingAgent.tsx
+msgid "Check again"
+msgstr ""
+
 #: src/components/SoftwareUpdateSection.tsx
 msgid "Check failed"
 msgstr "확인 실패"
@@ -846,6 +766,7 @@ msgstr "이메일을 확인하세요"
 
 #: src/components/DesktopUpdates.tsx
 #: src/components/SoftwareUpdateSection.tsx
+#: src/pages/OnboardingAgent.tsx
 msgid "Checking…"
 msgstr "확인 중…"
 
@@ -1060,10 +981,6 @@ msgstr "비밀번호 확인"
 msgid "Connect"
 msgstr "연결"
 
-#: src/pages/Onboarding.tsx
-msgid "Connect a model"
-msgstr "AI 모델 연결"
-
 #: src/pages/ModelSettingsOverlay.tsx
 msgid "Connect API key"
 msgstr "API 키 연결"
@@ -1087,6 +1004,10 @@ msgstr "이 AI 서비스를 연결하면 내 기본 모델로 사용할 수 있�
 #: src/pages/PluginsOverlay.tsx
 msgid "Connect Treg"
 msgstr "Treg 연결"
+
+#: src/pages/OnboardingAgent.tsx
+msgid "Connect your agent"
+msgstr ""
 
 #: src/components/integrations/IntegrationSetup.tsx
 #: src/pages/McpOAuthCallback.tsx
@@ -1132,12 +1053,12 @@ msgid "Connection to {0} is still pending. You can close this and check again."
 msgstr "{0} 연결이 아직 진행 중입니다. 이 창을 닫고 나중에 다시 확인할 수 있습니다."
 
 #: src/pages/ModelSettingsOverlay.tsx
-#: src/pages/Onboarding.tsx
 msgid "Context limit"
 msgstr "컨텍스트 한도"
 
 #: src/components/integrations/IntegrationSetup.tsx
-#: src/pages/Onboarding.tsx
+#: src/pages/Auth.tsx
+#: src/pages/OnboardingAgent.tsx
 msgid "Continue"
 msgstr "계속"
 
@@ -1150,12 +1071,12 @@ msgid "Continue with email"
 msgstr "이메일로 계속하기"
 
 #: src/pages/ModelSettingsOverlay.tsx
-#: src/pages/Onboarding.tsx
+#: src/pages/OnboardingAgent.tsx
 msgid "Copied"
 msgstr ""
 
 #: src/pages/ModelSettingsOverlay.tsx
-#: src/pages/Onboarding.tsx
+#: src/pages/OnboardingAgent.tsx
 #: src/pages/Shell.tsx
 msgid "Copy"
 msgstr "복사"
@@ -1183,6 +1104,10 @@ msgstr "비밀번호를 변경할 수 없습니다"
 #: src/pages/ModelSettingsOverlay.tsx
 msgid "Could not change the default model"
 msgstr "기본 모델을 변경하지 못했습니다."
+
+#: src/pages/OnboardingAgent.tsx
+msgid "Could not check Claude Code"
+msgstr ""
 
 #: src/components/teach/TeachComputerOverlay.tsx
 msgid "Could not check teaching status. Refresh the view to continue."
@@ -1344,6 +1269,10 @@ msgstr ""
 msgid "Could not load commands"
 msgstr ""
 
+#: src/pages/shell/bot-credentials.tsx
+msgid "Could not load credentials."
+msgstr ""
+
 #: src/components/integrations/IntegrationSetup.tsx
 #: src/pages/PluginsOverlay.tsx
 msgid "Could not load integrations"
@@ -1407,7 +1336,6 @@ msgid "Could not reach the server"
 msgstr "서버에 연결할 수 없습니다"
 
 #: src/pages/ModelSettingsOverlay.tsx
-#: src/pages/Onboarding.tsx
 msgid "Could not reach this model server"
 msgstr "모델 서버에 연결하지 못했습니다."
 
@@ -1426,6 +1354,10 @@ msgstr "그룹을 삭제하지 못했습니다."
 #: src/components/ApprovalRulesSettings.tsx
 msgid "Could not remove rule"
 msgstr "확인 규칙을 삭제하지 못했습니다."
+
+#: src/pages/shell/bot-credentials.tsx
+msgid "Could not remove the credential"
+msgstr ""
 
 #: src/pages/PluginsOverlay.tsx
 msgid "Could not rename connection"
@@ -1451,6 +1383,10 @@ msgstr "연결을 해제하지 못했습니다."
 msgid "Could not run routine"
 msgstr "루틴을 실행할 수 없습니다"
 
+#: src/pages/OnboardingAgent.tsx
+msgid "Could not run the command"
+msgstr ""
+
 #: src/pages/ExternalConversationSettings.tsx
 #: src/pages/KnowledgeSection.tsx
 #: src/pages/shell/bot-panel.tsx
@@ -1464,10 +1400,6 @@ msgstr "자동 검토를 저장할 수 없습니다"
 #: src/pages/GroupPanel.tsx
 msgid "Could not save group"
 msgstr "그룹을 저장하지 못했습니다."
-
-#: src/pages/Onboarding.tsx
-msgid "Could not save model"
-msgstr "AI 모델을 저장하지 못했습니다."
 
 #: src/pages/Shell.tsx
 msgid "Could not save routine"
@@ -1492,6 +1424,10 @@ msgstr "음성 모델을 저장하지 못했습니다."
 #: src/pages/VoiceSettingsOverlay.tsx
 msgid "Could not save that voice"
 msgstr "목소리를 저장하지 못했습니다."
+
+#: src/pages/shell/bot-credentials.tsx
+msgid "Could not save the credential"
+msgstr ""
 
 #: src/pages/shell/message-cards.tsx
 msgid "Could not save this choice"
@@ -1625,6 +1561,10 @@ msgstr "인증 정보"
 msgid "credential saved"
 msgstr "인증 정보 저장됨"
 
+#: src/pages/shell/bot-credentials.tsx
+msgid "Credentials"
+msgstr ""
+
 #: src/pages/PluginsOverlay.tsx
 msgid "Credentials are encrypted and never sent to the model."
 msgstr "인증 정보는 암호화되며 모델에 전송되지 않습니다."
@@ -1640,6 +1580,10 @@ msgstr "Cron 표현식"
 #: src/pages/AccountSettingsOverlay.tsx
 msgid "Current password"
 msgstr "현재 비밀번호"
+
+#: src/pages/shell/bot-credentials.tsx
+msgid "Custom header"
+msgstr ""
 
 #: src/pages/shell/dialogs.tsx
 msgid "Customer support"
@@ -1670,7 +1614,6 @@ msgid "Decline"
 msgstr "거절"
 
 #: src/pages/ModelSettingsOverlay.tsx
-#: src/pages/Onboarding.tsx
 msgid "Default"
 msgstr "기본값"
 
@@ -1680,9 +1623,7 @@ msgstr "기본값"
 msgid "Default ({0})"
 msgstr ""
 
-#. placeholder {0}: thinkingLevelLabel("medium")
 #. placeholder {0}: thinkingLevelLabel(defaultThinkingLevel)
-#: src/pages/Onboarding.tsx
 #: src/pages/shell/bot-panel.tsx
 msgid "Default ({0})"
 msgstr "기본값 ({0})"
@@ -1895,18 +1836,19 @@ msgstr "이메일"
 msgid "Engage when... Ignore..."
 msgstr ""
 
+#: src/pages/shell/bot-credentials.tsx
+msgid "Enter a username and password"
+msgstr ""
+
 #: src/pages/ModelSettingsOverlay.tsx
-#: src/pages/Onboarding.tsx
 msgid "Enter a whole number from 1 to {MAX_MODEL_CONTEXT_WINDOW} for the context limit."
 msgstr "컨텍스트 한도는 1에서 {MAX_MODEL_CONTEXT_WINDOW} 사이의 정수로 입력하세요."
 
 #: src/pages/ModelSettingsOverlay.tsx
-#: src/pages/Onboarding.tsx
 msgid "Enter a whole number from 1 to {MAX_MODEL_MAX_TOKENS} for maximum output tokens."
 msgstr "최대 출력 토큰 수는 1에서 {MAX_MODEL_MAX_TOKENS} 사이의 정수로 입력하세요."
 
 #: src/pages/ModelSettingsOverlay.tsx
-#: src/pages/Onboarding.tsx
 msgid "Enter a whole number from 1 to 1000 for the image limit."
 msgstr "이미지 한도는 1에서 1000 사이의 정수로 입력하세요."
 
@@ -1970,15 +1912,14 @@ msgstr "CRM에서 이번 주 목록을 내려받아 공유 폴더에 넣기"
 msgid "External conversation"
 msgstr ""
 
+#: src/pages/ModelSettingsOverlay.tsx
+msgid "Extra high"
+msgstr "매우 높음"
+
 #. js-lingui-explicit-id
 #: src/lib/model-catalog.ts
 msgid "Extra high"
 msgstr ""
-
-#: src/pages/ModelSettingsOverlay.tsx
-#: src/pages/Onboarding.tsx
-msgid "Extra high"
-msgstr "매우 높음"
 
 #: src/components/CloudAgentCard.tsx
 msgid "failed"
@@ -2022,18 +1963,15 @@ msgid "Filters"
 msgstr ""
 
 #: src/pages/ModelSettingsOverlay.tsx
-#: src/pages/Onboarding.tsx
 msgid "Find models"
 msgstr "모델 찾기"
 
 #: src/pages/ModelSettingsOverlay.tsx
-#: src/pages/Onboarding.tsx
 msgid "Finding…"
 msgstr "찾는 중…"
 
 #. placeholder {0}: new URL(oauth.verificationUri).hostname
 #: src/pages/ModelSettingsOverlay.tsx
-#: src/pages/Onboarding.tsx
 msgid "Finish signing in at <0>{0}</0>. The final page may not load; paste its URL or code here."
 msgstr "<0>{0}</0>에서 로그인을 마치세요. 마지막 페이지가 열리지 않아도 괜찮습니다. 그 페이지의 URL이나 코드를 여기에 붙여넣으세요."
 
@@ -2119,8 +2057,13 @@ msgstr "전화를 끊은 다음 화면에 표시된 코드를 입력하세요."
 msgid "header"
 msgstr "header"
 
+#: src/pages/shell/bot-credentials.tsx
+msgid "Header \"{header}\""
+msgstr ""
+
 #: src/pages/McpServersOverlay.tsx
 #: src/pages/PluginsOverlay.tsx
+#: src/pages/shell/bot-credentials.tsx
 msgid "Header name"
 msgstr "헤더 이름"
 
@@ -2148,15 +2091,14 @@ msgstr "비밀번호 숨기기"
 msgid "Hide transcript"
 msgstr "대화 기록 숨기기"
 
+#: src/pages/ModelSettingsOverlay.tsx
+msgid "High"
+msgstr "높음"
+
 #. js-lingui-explicit-id
 #: src/lib/model-catalog.ts
 msgid "High"
 msgstr ""
-
-#: src/pages/ModelSettingsOverlay.tsx
-#: src/pages/Onboarding.tsx
-msgid "High"
-msgstr "높음"
 
 #: src/pages/RoutineSchedule.tsx
 msgid "hour"
@@ -2206,6 +2148,10 @@ msgstr "기본 설정 사용"
 #: src/components/teach/SkillDraftCard.tsx
 msgid "Inputs"
 msgstr "입력값"
+
+#: src/pages/OnboardingAgent.tsx
+msgid "Install"
+msgstr ""
 
 #: src/pages/memory-providers/SupermemorySettingsForm.tsx
 msgid "Instance API key"
@@ -2284,6 +2230,10 @@ msgstr "기억은 유지"
 #: src/pages/RoutineEditor.tsx
 msgid "key"
 msgstr "key"
+
+#: src/pages/shell/bot-credentials.tsx
+msgid "Keys and passwords this bot can use, each for one site only. Values are encrypted and never shown again."
+msgstr ""
 
 #: src/pages/KnowledgeSection.tsx
 msgid "Knowledge"
@@ -2399,15 +2349,18 @@ msgstr ""
 msgid "Log out"
 msgstr "로그아웃"
 
+#: src/pages/ModelSettingsOverlay.tsx
+msgid "Low"
+msgstr "낮음"
+
 #. js-lingui-explicit-id
 #: src/lib/model-catalog.ts
 msgid "Low"
 msgstr ""
 
-#: src/pages/ModelSettingsOverlay.tsx
-#: src/pages/Onboarding.tsx
-msgid "Low"
-msgstr "낮음"
+#: src/pages/shell/bot-credentials.tsx
+msgid "Lowercase letters, numbers, hyphens and underscores, starting with a letter."
+msgstr ""
 
 #: src/components/ComputerUpdateProgress.tsx
 msgid "Make sure nothing is still running on this computer."
@@ -2441,27 +2394,24 @@ msgstr "읽음으로 표시"
 msgid "Mark as Unread"
 msgstr "읽지 않음으로 표시"
 
+#: src/pages/ModelSettingsOverlay.tsx
+msgid "Max"
+msgstr "최대"
+
 #. js-lingui-explicit-id
 #: src/lib/model-catalog.ts
 msgid "Max"
 msgstr ""
-
-#: src/pages/ModelSettingsOverlay.tsx
-#: src/pages/Onboarding.tsx
-msgid "Max"
-msgstr "최대"
 
 #: src/pages/Artifacts.tsx
 msgid "Maximize"
 msgstr ""
 
 #: src/pages/ModelSettingsOverlay.tsx
-#: src/pages/Onboarding.tsx
 msgid "Maximum images per request"
 msgstr "요청당 최대 이미지 수"
 
 #: src/pages/ModelSettingsOverlay.tsx
-#: src/pages/Onboarding.tsx
 msgid "Maximum output tokens"
 msgstr "최대 출력 토큰 수"
 
@@ -2473,15 +2423,14 @@ msgstr ""
 msgid "MCP servers"
 msgstr "MCP 서버"
 
+#: src/pages/ModelSettingsOverlay.tsx
+msgid "Medium"
+msgstr "보통"
+
 #. js-lingui-explicit-id
 #: src/lib/model-catalog.ts
 msgid "Medium"
 msgstr ""
-
-#: src/pages/ModelSettingsOverlay.tsx
-#: src/pages/Onboarding.tsx
-msgid "Medium"
-msgstr "보통"
 
 #: src/pages/GroupPanel.tsx
 msgid "Members ({GROUP_MEMBER_MIN}–{GROUP_MEMBER_MAX})"
@@ -2551,15 +2500,18 @@ msgstr "메시징"
 msgid "Microphone failed"
 msgstr "마이크를 사용할 수 없습니다."
 
+#: src/pages/OnboardingAgent.tsx
+msgid "Milo runs your bots on Claude Code."
+msgstr ""
+
+#: src/pages/ModelSettingsOverlay.tsx
+msgid "Minimal"
+msgstr "최소"
+
 #. js-lingui-explicit-id
 #: src/lib/model-catalog.ts
 msgid "Minimal"
 msgstr ""
-
-#: src/pages/ModelSettingsOverlay.tsx
-#: src/pages/Onboarding.tsx
-msgid "Minimal"
-msgstr "최소"
 
 #: src/pages/WindowChrome.tsx
 msgid "Minimize"
@@ -2578,13 +2530,11 @@ msgid "minutes"
 msgstr "분"
 
 #: src/pages/ModelSettingsOverlay.tsx
-#: src/pages/Onboarding.tsx
 #: src/pages/shell/bot-panel.tsx
 msgid "Model"
 msgstr "모델"
 
 #: src/pages/ModelSettingsOverlay.tsx
-#: src/pages/Onboarding.tsx
 msgid "Model id"
 msgstr "모델 ID"
 
@@ -2611,7 +2561,6 @@ msgid "Models for the server owner’s default space."
 msgstr ""
 
 #: src/pages/ModelSettingsOverlay.tsx
-#: src/pages/Onboarding.tsx
 msgid "Models from server"
 msgstr "서버에서 찾은 모델"
 
@@ -2643,6 +2592,7 @@ msgstr "음소거"
 #: src/pages/Auth.tsx
 #: src/pages/GroupPanel.tsx
 #: src/pages/RoutineEditor.tsx
+#: src/pages/shell/bot-credentials.tsx
 #: src/pages/shell/bot-panel.tsx
 #: src/pages/shell/dialogs.tsx
 msgid "Name"
@@ -2738,6 +2688,10 @@ msgstr ""
 msgid "No chat apps linked yet."
 msgstr "아직 연결된 채팅 앱이 없습니다."
 
+#: src/pages/shell/bot-credentials.tsx
+msgid "No credentials saved for this bot."
+msgstr ""
+
 #: src/pages/MessagingSettingsOverlay.tsx
 msgid "No group chats yet."
 msgstr "아직 그룹 채팅이 없습니다."
@@ -2815,9 +2769,17 @@ msgstr "아직 없음"
 msgid "Not in the plugin catalog"
 msgstr "플러그인 카탈로그에 없음"
 
+#: src/pages/OnboardingAgent.tsx
+msgid "Not installed"
+msgstr ""
+
 #: src/pages/shell/message-cards.tsx
 msgid "Not now"
 msgstr "나중에"
+
+#: src/pages/OnboardingAgent.tsx
+msgid "Not signed in"
+msgstr ""
 
 #: src/components/ComputerUpdateProgress.tsx
 msgid "Nothing is still running"
@@ -2886,13 +2848,11 @@ msgstr "{0} 열기"
 
 #. placeholder {0}: oauth.verificationUri.replace(/^https:\/\//, "")
 #: src/pages/ModelSettingsOverlay.tsx
-#: src/pages/Onboarding.tsx
 msgid "Open <0>{0}</0> and enter this code:"
 msgstr ""
 
 #. placeholder {0}: new URL(oauth.verificationUri).hostname
 #: src/pages/ModelSettingsOverlay.tsx
-#: src/pages/Onboarding.tsx
 msgid "Open <0>{0}</0> to finish signing in."
 msgstr ""
 
@@ -2913,7 +2873,6 @@ msgid "Open work"
 msgstr "진행 중인 작업"
 
 #: src/pages/ModelSettingsOverlay.tsx
-#: src/pages/Onboarding.tsx
 msgid "OpenAI-compatible server URL"
 msgstr "OpenAI 호환 서버 주소"
 
@@ -2934,7 +2893,6 @@ msgid "Opening your Space…"
 msgstr "작업공간을 여는 중…"
 
 #: src/pages/ModelSettingsOverlay.tsx
-#: src/pages/Onboarding.tsx
 #: src/pages/VoiceSettingsOverlay.tsx
 msgid "Optional"
 msgstr "선택 사항"
@@ -2947,10 +2905,6 @@ msgstr "선택 사항인 헤더 값"
 msgid "Or connect an API key"
 msgstr "또는 API 키 연결"
 
-#: src/pages/Onboarding.tsx
-msgid "Or paste an API key"
-msgstr "또는 API 키 붙여넣기"
-
 #: src/pages/AccountSettingsOverlay.tsx
 msgid "Organic"
 msgstr "자연스럽게"
@@ -2960,7 +2914,6 @@ msgid "Organization API key"
 msgstr "조직 API 키"
 
 #: src/pages/ModelSettingsOverlay.tsx
-#: src/pages/Onboarding.tsx
 msgid "Other model…"
 msgstr "다른 모델 직접 입력…"
 
@@ -2975,6 +2928,7 @@ msgstr "보류"
 #: src/components/AskCard.tsx
 #: src/pages/AccountSettingsOverlay.tsx
 #: src/pages/Auth.tsx
+#: src/pages/shell/bot-credentials.tsx
 msgid "Password"
 msgstr "비밀번호"
 
@@ -3046,7 +3000,6 @@ msgid "Protected input"
 msgstr ""
 
 #: src/pages/MemorySettingsOverlay.tsx
-#: src/pages/Onboarding.tsx
 msgid "Provider"
 msgstr "서비스"
 
@@ -3083,8 +3036,11 @@ msgstr "답변을 자동으로 읽기"
 msgid "read-only"
 msgstr "읽기 전용"
 
+#: src/pages/OnboardingAgent.tsx
+msgid "Ready"
+msgstr ""
+
 #: src/pages/ModelSettingsOverlay.tsx
-#: src/pages/Onboarding.tsx
 msgid "Reasoning effort"
 msgstr "추론 강도"
 
@@ -3183,6 +3139,7 @@ msgstr ""
 #: src/components/ApprovalRulesSettings.tsx
 #: src/pages/PluginsOverlay.tsx
 #: src/pages/ScratchpadSection.tsx
+#: src/pages/shell/bot-credentials.tsx
 msgid "Remove"
 msgstr "삭제"
 
@@ -3190,6 +3147,10 @@ msgstr "삭제"
 #: src/pages/Shell.tsx
 msgid "Remove {0}"
 msgstr "{0} 삭제"
+
+#: src/pages/shell/bot-credentials.tsx
+msgid "Remove {secretName}? This bot will no longer be able to use it."
+msgstr ""
 
 #: src/pages/RoutineEditor.tsx
 msgid "Remove Git event"
@@ -3247,6 +3208,10 @@ msgstr "API 키 교체"
 msgid "Replace key"
 msgstr "키 교체"
 
+#: src/pages/shell/bot-credentials.tsx
+msgid "Replace value"
+msgstr ""
+
 #: src/pages/Shell.tsx
 msgid "Reply"
 msgstr "답장"
@@ -3296,6 +3261,10 @@ msgstr "비밀번호를 재설정하세요"
 #: src/components/ComputerMaintenanceActions.tsx
 msgid "Resetting…"
 msgstr "재설정 중…"
+
+#: src/pages/ResizableSidePanel.tsx
+msgid "Resize panel"
+msgstr "패널 크기 조절"
 
 #: src/components/DesktopUpdates.tsx
 msgid "Restart to update"
@@ -3356,6 +3325,10 @@ msgstr "자동 실행"
 msgid "Routines"
 msgstr "자동 실행"
 
+#: src/pages/OnboardingAgent.tsx
+msgid "Run"
+msgstr ""
+
 #: src/pages/RoutineEditor.tsx
 msgid "Run at"
 msgstr "실행 시간"
@@ -3400,8 +3373,16 @@ msgstr ""
 msgid "Save"
 msgstr "저장"
 
+#: src/pages/shell/bot-credentials.tsx
+msgid "Save credential"
+msgstr ""
+
 #: src/pages/ModelSettingsOverlay.tsx
 msgid "Save limits"
+msgstr ""
+
+#: src/pages/shell/bot-credentials.tsx
+msgid "Save new value"
 msgstr ""
 
 #: src/components/AskCard.tsx
@@ -3435,6 +3416,7 @@ msgstr ""
 #: src/pages/GroupPanel.tsx
 #: src/pages/ModelSettingsOverlay.tsx
 #: src/pages/RoutineEditor.tsx
+#: src/pages/shell/bot-credentials.tsx
 #: src/pages/shell/dialogs.tsx
 msgid "Saving…"
 msgstr "저장 중…"
@@ -3534,7 +3516,6 @@ msgstr "서버 이름"
 #: src/components/integrations/IntegrationSetup.tsx
 #: src/pages/McpServersOverlay.tsx
 #: src/pages/ModelSettingsOverlay.tsx
-#: src/pages/Onboarding.tsx
 msgid "Server URL"
 msgstr "서버 URL"
 
@@ -3614,7 +3595,7 @@ msgstr "대화 기록 표시"
 #: src/lib/localized-provider-hint.ts
 #: src/pages/Auth.tsx
 #: src/pages/ModelSettingsOverlay.tsx
-#: src/pages/Onboarding.tsx
+#: src/pages/OnboardingAgent.tsx
 msgid "Sign in"
 msgstr "로그인"
 
@@ -3627,9 +3608,25 @@ msgid "Sign in to Rakazo"
 msgstr "Rakazo 로그인"
 
 #: src/pages/Auth.tsx
+msgid "Sign in with email"
+msgstr ""
+
+#: src/pages/Auth.tsx
 #: src/pages/Welcome.tsx
 msgid "Sign up"
 msgstr "가입하기"
+
+#: src/pages/OnboardingAgent.tsx
+msgid "Sign-in code"
+msgstr ""
+
+#: src/pages/OnboardingAgent.tsx
+msgid "Signed in"
+msgstr ""
+
+#: src/pages/shell/bot-credentials.tsx
+msgid "Site"
+msgstr ""
 
 #. placeholder {0}: skill.name
 #: src/pages/Shell.tsx
@@ -3705,7 +3702,6 @@ msgstr "시작 중"
 #: src/components/teach/TeachComputerOverlay.tsx
 #: src/lib/roster-status.ts
 #: src/pages/ModelSettingsOverlay.tsx
-#: src/pages/Onboarding.tsx
 msgid "Starting…"
 msgstr "시작하는 중…"
 
@@ -3747,17 +3743,15 @@ msgid "subagent"
 msgstr "보조 에이전트"
 
 #: src/pages/ModelSettingsOverlay.tsx
-#: src/pages/Onboarding.tsx
+#: src/pages/OnboardingAgent.tsx
 msgid "Submit"
 msgstr "확인"
 
 #: src/pages/ModelSettingsOverlay.tsx
-#: src/pages/Onboarding.tsx
 msgid "Supports images"
 msgstr "이미지 지원"
 
 #: src/pages/ModelSettingsOverlay.tsx
-#: src/pages/Onboarding.tsx
 msgid "Supports thinking"
 msgstr "사고 모드 지원"
 
@@ -3817,12 +3811,19 @@ msgstr "테스트 실행"
 msgid "The API did not come back. Refresh this page."
 msgstr "API가 다시 작동하지 않습니다. 이 페이지를 새로 고침하세요."
 
+#: src/pages/OnboardingAgent.tsx
+msgid "The command stopped before it finished."
+msgstr ""
+
 #: src/pages/MemorySettingsOverlay.tsx
 msgid "The selected memory provider is not available in this build."
 msgstr "선택한 기억 서비스는 현재 빌드에서 사용할 수 없습니다."
 
+#: src/pages/shell/bot-credentials.tsx
+msgid "These saved settings can't be read. Remove it and add it again."
+msgstr ""
+
 #: src/pages/ModelSettingsOverlay.tsx
-#: src/pages/Onboarding.tsx
 #: src/pages/shell/bot-panel.tsx
 msgid "Thinking"
 msgstr "생각 깊이"
@@ -3940,6 +3941,10 @@ msgstr "Treg 토큰"
 msgid "Try again"
 msgstr "다시 시도"
 
+#: src/pages/shell/bot-credentials.tsx
+msgid "Type"
+msgstr ""
+
 #: src/components/teach/TeachRecordingChrome.tsx
 msgid "Type without recording"
 msgstr ""
@@ -4011,6 +4016,10 @@ msgstr ""
 msgid "Updated"
 msgstr "업데이트됨"
 
+#: src/pages/shell/bot-credentials.tsx
+msgid "Updated {updated}"
+msgstr ""
+
 #: src/pages/SettingsOverlay.tsx
 msgid "Updates"
 msgstr "업데이트"
@@ -4045,7 +4054,6 @@ msgid "Use {hostLabel}"
 msgstr "{hostLabel} 사용"
 
 #: src/pages/ModelSettingsOverlay.tsx
-#: src/pages/Onboarding.tsx
 msgid "Use a found model"
 msgstr "찾은 모델 중에서 선택"
 
@@ -4062,7 +4070,12 @@ msgid "Use this model"
 msgstr "이 모델 사용"
 
 #: src/components/AskCard.tsx
+#: src/pages/shell/bot-credentials.tsx
 msgid "Username"
+msgstr ""
+
+#: src/pages/shell/bot-credentials.tsx
+msgid "Value"
 msgstr ""
 
 #: src/pages/PluginsOverlay.tsx
@@ -4075,6 +4088,11 @@ msgstr "확인 중…"
 
 #: src/pages/Artifacts.tsx
 msgid "Version"
+msgstr ""
+
+#. placeholder {0}: status.version
+#: src/pages/OnboardingAgent.tsx
+msgid "Version {0}"
 msgstr ""
 
 #: src/pages/RoutineRunHistory.tsx
@@ -4108,6 +4126,10 @@ msgstr "기다리는 중…"
 msgid "Webhook"
 msgstr "웹훅"
 
+#: src/pages/shell/bot-credentials.tsx
+msgid "Website login"
+msgstr ""
+
 #: src/pages/RoutineEditor.tsx
 #: src/pages/RoutineSchedule.tsx
 msgid "Weekdays"
@@ -4128,6 +4150,10 @@ msgstr "어떤 작업을 직접 보여줄까요?"
 #: src/pages/RoutineEditor.tsx
 msgid "What should this routine do each time it runs?"
 msgstr "이 루틴이 실행될 때마다 무엇을 해야 하나요?"
+
+#: src/pages/Auth.tsx
+msgid "What should we call you?"
+msgstr ""
 
 #: src/pages/shell/bot-panel.tsx
 msgid "What this bot is for"
@@ -4193,7 +4219,3 @@ msgstr "이름"
 #: src/pages/Welcome.tsx
 msgid "Your team of always-on agents<0/>that you can give real work to."
 msgstr "언제든 실제 작업을 맡길 수 있는<0/>나만의 Agent 팀"
-
-#: src/pages/ResizableSidePanel.tsx
-msgid "Resize panel"
-msgstr "패널 크기 조절"

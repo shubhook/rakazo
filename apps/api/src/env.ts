@@ -1,4 +1,5 @@
 import {
+  DEFAULT_AGENT_RUNTIME,
   resolveCloudAgentProvider,
   resolveDeploymentModel,
   resolveSandboxProvider,
@@ -126,7 +127,7 @@ export function loadEnv(source: NodeJS.ProcessEnv = process.env): AppEnv {
     cloudAgentProvider,
     cloudAgentSpaceId: optional(source.CLOUD_AGENT_SPACE_ID),
     cursorApiKey: optional(source.CURSOR_API_KEY),
-    agentRuntime: source.AGENT_RUNTIME ?? "pi",
+    agentRuntime: source.AGENT_RUNTIME ?? DEFAULT_AGENT_RUNTIME,
     // Provider, model and key resolve together: see resolveDeploymentModel.
     deploymentModelKey: deploymentModel.key,
     e2bApiKey: source.E2B_API_KEY,

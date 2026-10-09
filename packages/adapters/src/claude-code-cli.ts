@@ -1,4 +1,5 @@
 import { type ChildProcess, spawn as nodeSpawn, type SpawnOptions } from "node:child_process";
+import { delimiter, join } from "node:path";
 import { createInterface } from "node:readline";
 import type { AgentRunModel } from "@rakazo/adapter-kit";
 
@@ -57,12 +58,25 @@ const INHERITED_ENV = [
 // computer actions legitimately run longer, so the executor's own timeouts end them.
 export const CLAUDE_CODE_TOOL_TIMEOUT_MS = 65 * 60 * 1_000;
 
+/**
+ * The native installer puts `claude` in `~/.local/bin`, which a GUI launch or a
+ * service manager often leaves off PATH; it goes last so a PATH install still wins.
+ */
+function withInstallerBin(env: NodeJS.ProcessEnv): string | undefined {
+  const home = env.HOME ?? env.USERPROFILE;
+  if (!home) return env.PATH;
+  const bin = join(home, ".local", "bin");
+  const entries = (env.PATH ?? "").split(delimiter).filter(Boolean);
+  return entries.includes(bin) ? env.PATH : [...entries, bin].join(delimiter);
+}
+
 export function claudeCodeEnvironment(base: NodeJS.ProcessEnv): NodeJS.ProcessEnv {
   const env: NodeJS.ProcessEnv = {};
   for (const name of INHERITED_ENV) {
     const value = base[name];
     if (value !== undefined && value !== "") env[name] = value;
   }
+  env.PATH = withInstallerBin(env);
   return {
     ...env,
     MCP_TOOL_TIMEOUT: String(CLAUDE_CODE_TOOL_TIMEOUT_MS),

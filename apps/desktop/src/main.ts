@@ -3,6 +3,7 @@ import { existsSync } from "node:fs";
 import { readFile, stat, writeFile } from "node:fs/promises";
 import path from "node:path";
 import type { DesktopReachability, DesktopSetup } from "@rakazo/contracts";
+import { isAgentSetupAction } from "@rakazo/contracts/agent-setup";
 import { LOCAL_SETTINGS_PAGE } from "@rakazo/contracts/local-settings";
 import {
   app,
@@ -16,6 +17,7 @@ import {
   session,
   shell,
 } from "electron";
+import { AgentSetupRunner } from "./agent-setup.js";
 import {
   DesktopUpdateController,
   type ElectronAutoUpdater,
@@ -1168,6 +1170,29 @@ app.whenReady().then(async () => {
       throw new Error("This server needs a normal sign-in.");
     }
     return localAccounts.ensure(origin);
+  });
+  // Same gate as the local account: the CLI must land on the machine the server runs on.
+  const agentSetup = new AgentSetupRunner({ platform: process.platform, env: process.env });
+  ipcMain.handle("desktop.agentSetup.run", (event, action: unknown) => {
+    if (localAccountRequestOrigin(event) === null || !isAgentSetupAction(action)) {
+      throw new Error("Set up Claude Code on the computer that runs this server.");
+    }
+    const sender = event.sender;
+    const cancel = () => agentSetup.cancel();
+    sender.once("destroyed", cancel);
+    return agentSetup
+      .run(action, (text) => {
+        if (!sender.isDestroyed()) sender.send("desktop.agentSetup.output", text);
+      })
+      .finally(() => sender.removeListener("destroyed", cancel));
+  });
+  ipcMain.handle("desktop.agentSetup.input", (event, line: unknown) => {
+    if (localAccountRequestOrigin(event) !== null && typeof line === "string") {
+      agentSetup.input(line);
+    }
+  });
+  ipcMain.handle("desktop.agentSetup.cancel", (event) => {
+    if (localAccountRequestOrigin(event) !== null) agentSetup.cancel();
   });
   ipcMain.handle("desktop.platform", () => process.platform);
   ipcMain.handle("desktop.window.close", (event) => {

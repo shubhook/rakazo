@@ -13,6 +13,9 @@ import { ClaudeCodeAgentRuntime } from "./claude-code-runtime.js";
 import { PiAgentRuntime } from "./pi-runtime.js";
 import { ScriptedAgentRuntime } from "./scripted-runtime.js";
 
+/** Bots run on the Claude Code CLI unless AGENT_RUNTIME picks another runtime. */
+export const DEFAULT_AGENT_RUNTIME = CLAUDE_CODE_PROVIDER;
+
 /** Runtimes that can run without a stored model credential or deployment key. */
 export function runtimeProvidesDefaultModel(kind: string): boolean {
   return kind === "scripted" || runtimeModel(kind) !== null;

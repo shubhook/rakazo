@@ -135,6 +135,8 @@ describe("model setup gate", () => {
     agentRuntime: string;
     deploymentModelKey?: string;
     deploymentModelCredentialCipher?: string;
+    isDeploymentOwner?: boolean;
+    probeClaudeCode?: RouterDeps["probeClaudeCode"];
   }) {
     const prisma = {
       user: {
@@ -167,12 +169,13 @@ describe("model setup gate", () => {
         sandboxProvider: "fake",
       },
       dataDir: "/tmp/rakazo-router-test",
+      probeClaudeCode: options.probeClaudeCode,
     } as unknown as RouterDeps;
     const actor = {
       spaceId: "workspace-1",
       userId: "user-1",
       email: "user@rakazo.test",
-      isDeploymentOwner: true,
+      isDeploymentOwner: options.isDeploymentOwner ?? true,
     } satisfies Actor;
     return { actor, handler: new RPCHandler(createRouter(deps)) };
   }
@@ -231,6 +234,41 @@ describe("model setup gate", () => {
         defaultModel: "sonnet",
       }),
     });
+  });
+
+  it("reports the Claude Code CLI state to the deployment owner", async () => {
+    const probeClaudeCode = vi.fn().mockResolvedValue({
+      installed: true,
+      version: "2.1.0",
+      loggedIn: false,
+    });
+    const { actor, handler } = modelGateDeps({ agentRuntime: "claude-code", probeClaudeCode });
+
+    const response = await call(handler, actor, "agent/status", null);
+
+    expect(response.status).toBe(200);
+    await expect(response.json()).resolves.toEqual({
+      json: {
+        agent: "claude-code",
+        installed: true,
+        version: "2.1.0",
+        loggedIn: false,
+        platform: process.platform,
+      },
+    });
+  });
+
+  it("skips the agent CLI check off its runtime and for people who cannot fix it", async () => {
+    const probeClaudeCode = vi.fn();
+    for (const options of [
+      { agentRuntime: "pi" },
+      { agentRuntime: "claude-code", isDeploymentOwner: false },
+    ]) {
+      const { actor, handler } = modelGateDeps({ ...options, probeClaudeCode });
+      const response = await call(handler, actor, "agent/status", null);
+      await expect(response.json()).resolves.toEqual({ json: null });
+    }
+    expect(probeClaudeCode).not.toHaveBeenCalled();
   });
 
   it("leaves model setup to people on the Pi runtime", async () => {

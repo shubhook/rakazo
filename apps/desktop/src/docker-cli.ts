@@ -186,7 +186,7 @@ export function runDocker(
   });
 }
 
-function killProcessTree(pid: number | undefined) {
+export function killProcessTree(pid: number | undefined) {
   if (!pid) return;
   if (process.platform === "win32") {
     const killer = spawn("taskkill", ["/pid", String(pid), "/t", "/f"], { stdio: "ignore" });

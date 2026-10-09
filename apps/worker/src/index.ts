@@ -19,6 +19,7 @@ import {
   createRunSandbox,
   createRunSecretWriter,
   createWebProvider,
+  DEFAULT_AGENT_RUNTIME,
   databaseCapacityBackoffMs,
   EncryptedSecretStore,
   ExpoPushProvider,
@@ -81,7 +82,7 @@ async function main() {
     runSecretWriter: createRunSecretWriter(secrets),
   });
   const dataDir = process.env.DATA_DIR ?? "./data";
-  const runtimeKind = process.env.AGENT_RUNTIME ?? "pi";
+  const runtimeKind = process.env.AGENT_RUNTIME ?? DEFAULT_AGENT_RUNTIME;
   const runtime = createAgentRuntime(runtimeKind, { sessionRoot: resolvePiSessionRoot(dataDir) });
   if (runtimeKind === CLAUDE_CODE_PROVIDER) {
     void probeClaudeCode().then((status) => {

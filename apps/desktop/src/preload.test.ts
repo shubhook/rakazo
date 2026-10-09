@@ -32,6 +32,7 @@ describe("desktop preload bridge", () => {
     expect(globalName).toBe("rakazoDesktop");
     expect(bridge.platform).toBe("linux");
     expect(Object.keys(bridge).sort()).toEqual([
+      "agentSetup",
       "localAccount",
       "localSettings",
       "oauth",
@@ -48,9 +49,18 @@ describe("desktop preload bridge", () => {
     expect(Object.keys(bridge.update).sort()).toEqual(["check", "download", "install", "state"]);
 
     expect(Object.keys(bridge.localAccount ?? {}).sort()).toEqual(["ensure", "read"]);
+    expect(Object.keys(bridge.agentSetup ?? {}).sort()).toEqual([
+      "cancel",
+      "input",
+      "onOutput",
+      "run",
+    ]);
 
     await bridge.localAccount?.read();
     await bridge.localAccount?.ensure();
+    await bridge.agentSetup?.run("login");
+    await bridge.agentSetup?.input("code");
+    await bridge.agentSetup?.cancel();
     await bridge.oauth.open?.("https://provider.example.com/authorize");
     await bridge.oauth.cancel?.("https://provider.example.com/authorize");
     await bridge.window.close();
@@ -64,6 +74,9 @@ describe("desktop preload bridge", () => {
     expect(invoke.mock.calls.map(([channel]) => channel)).toEqual([
       "desktop.localAccount.read",
       "desktop.localAccount.ensure",
+      "desktop.agentSetup.run",
+      "desktop.agentSetup.input",
+      "desktop.agentSetup.cancel",
       "desktop.oauth.open",
       "desktop.oauth.cancel",
       "desktop.window.close",
@@ -81,6 +94,7 @@ describe("desktop preload bridge", () => {
     const { exposeInMainWorld } = runPreload("preload.cjs");
     const [, bridge] = exposeInMainWorld.mock.calls[0] as [string, Record<string, unknown>];
     expect(Object.keys(bridge).sort()).toEqual([
+      "agentSetup",
       "localAccount",
       "localSettings",
       "oauth",

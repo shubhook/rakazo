@@ -7,9 +7,9 @@ const base = {
 };
 
 describe("loadEnv", () => {
-  it("defaults the product path to Pi, Docker, and Graphile Worker", () => {
+  it("defaults the product path to Claude Code, Docker, and Graphile Worker", () => {
     const env = loadEnv(base);
-    expect(env.agentRuntime).toBe("pi");
+    expect(env.agentRuntime).toBe("claude-code");
     expect(env.sandboxProvider).toBe("docker");
     expect(env.wakeupDriver).toBe("graphile");
     expect(env.apiHost).toBe("127.0.0.1");

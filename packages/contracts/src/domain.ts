@@ -1217,6 +1217,17 @@ export const ServerUpdateRequestSchema = z.object({
 });
 export type ServerUpdateRequest = z.infer<typeof ServerUpdateRequestSchema>;
 
+/** Install and sign-in state of the agent CLI on the server's machine. Never carries a credential. */
+export const AgentStatusSchema = z.object({
+  agent: z.literal("claude-code"),
+  installed: z.boolean(),
+  version: z.string().nullable(),
+  loggedIn: z.boolean(),
+  /** Node platform of the server's machine, so the setup command matches it. */
+  platform: z.string(),
+});
+export type AgentStatus = z.infer<typeof AgentStatusSchema>;
+
 export const MeSchema = z.object({
   userId: Id,
   email: z.string().email(),

@@ -1,4 +1,5 @@
 import { spawn } from "node:child_process";
+import { delimiter, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import type {
   AgentRunRequest,
@@ -251,7 +252,9 @@ describe("Claude Code CLI boundary", () => {
       BETTER_AUTH_SECRET: "placeholder",
     });
 
-    expect(env.PATH).toBe("/bin");
+    expect(env.PATH).toBe(["/bin", join("/home/a", ".local", "bin")].join(delimiter));
+    const installerBin = join("/home/a", ".local", "bin");
+    expect(claudeCodeEnvironment({ PATH: installerBin, HOME: "/home/a" }).PATH).toBe(installerBin);
     expect(env.CLAUDE_CONFIG_DIR).toBe("/home/a/.claude-work");
     expect(env.ANTHROPIC_API_KEY).toBeUndefined();
     expect(env.DATABASE_URL).toBeUndefined();

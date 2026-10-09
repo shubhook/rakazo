@@ -1,3 +1,5 @@
+import type { AgentSetupAction } from "./agent-setup.js";
+
 /**
  * `unsupported` covers an unpackaged build and a repository with no published releases, which is
  * the normal state for a fork. It is not an error the user needs to act on. Automatic checks stay
@@ -42,6 +44,19 @@ export interface RakazoDesktopLocalAccount {
   password: string;
 }
 
+/**
+ * Runs the fixed agent CLI install or sign-in command on this computer. Only the app
+ * window of a server on this computer may call it. Optional for older desktops.
+ */
+export interface RakazoDesktopAgentSetup {
+  run: (action: AgentSetupAction) => Promise<{ exitCode: number }>;
+  /** Answers a prompt from the running command, such as a pasted sign-in code. */
+  input: (line: string) => Promise<void>;
+  cancel: () => Promise<void>;
+  /** Plain-text output chunks of the running command. Returns an unsubscribe function. */
+  onOutput: (listener: (text: string) => void) => () => void;
+}
+
 export interface RakazoDesktop {
   /** Only the isolated local settings window is authorized to call this bridge. */
   localSettings?: {
@@ -56,6 +71,7 @@ export interface RakazoDesktop {
     read: () => Promise<{ account: RakazoDesktopLocalAccount | null } | null>;
     ensure: () => Promise<RakazoDesktopLocalAccount>;
   };
+  agentSetup?: RakazoDesktopAgentSetup;
   platform: string;
   window: {
     close: () => Promise<void>;
