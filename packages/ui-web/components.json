@@ -13,11 +13,11 @@
   "iconLibrary": "lucide",
   "rtl": false,
   "aliases": {
-    "components": "@rakazo/ui-web/components",
-    "utils": "@rakazo/ui-web/lib/utils",
-    "ui": "@rakazo/ui-web/components/ui",
-    "lib": "@rakazo/ui-web/lib",
-    "hooks": "@rakazo/ui-web/hooks"
+    "components": "@milo/ui-web/components",
+    "utils": "@milo/ui-web/lib/utils",
+    "ui": "@milo/ui-web/components/ui",
+    "lib": "@milo/ui-web/lib",
+    "hooks": "@milo/ui-web/hooks"
   },
   "menuColor": "default",
   "menuAccent": "subtle",

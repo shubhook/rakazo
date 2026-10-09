@@ -27,8 +27,8 @@ import type {
   SandboxProvider,
   ScreenRequest,
   ScreenSession,
-} from "@rakazo/adapter-kit";
-import { boundedSandboxCommandTimeoutMs } from "@rakazo/core";
+} from "@milo/adapter-kit";
+import { boundedSandboxCommandTimeoutMs } from "@milo/core";
 import {
   applyPlaceholderAction,
   boundedComputerActions,

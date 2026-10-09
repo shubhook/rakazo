@@ -1,4 +1,4 @@
-import type { ComputerAction, ComputerInput } from "@rakazo/adapter-kit";
+import type { ComputerAction, ComputerInput } from "@milo/adapter-kit";
 import { clampRounded, shellQuote } from "./computer-support.js";
 export interface ExtraDisplayLayout {
   display: string;

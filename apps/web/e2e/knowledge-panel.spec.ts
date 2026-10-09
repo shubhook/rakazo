@@ -1,6 +1,6 @@
 import { readFile } from "node:fs/promises";
+import type { MemoryDocument } from "@milo/contracts";
 import { expect, test } from "@playwright/test";
-import type { MemoryDocument } from "@rakazo/contracts";
 import {
   activeBotId,
   captureScreenshot,

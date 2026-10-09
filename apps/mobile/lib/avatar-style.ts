@@ -1,5 +1,5 @@
-import type { AvatarStyle } from "@rakazo/contracts";
-import { AvatarStyleSchema } from "@rakazo/contracts";
+import type { AvatarStyle } from "@milo/contracts";
+import { AvatarStyleSchema } from "@milo/contracts";
 import * as SecureStore from "expo-secure-store";
 
 /** The last avatar style the server confirmed, so an offline launch starts from it. */

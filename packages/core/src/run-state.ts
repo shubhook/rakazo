@@ -1,4 +1,4 @@
-import type { RunStatus } from "@rakazo/contracts";
+import type { RunStatus } from "@milo/contracts";
 
 export const ACTIVE_RUN_STATUSES = [
   "queued",

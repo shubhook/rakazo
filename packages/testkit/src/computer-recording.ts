@@ -5,7 +5,7 @@ import type {
   BrowserProvider,
   ComputerRef,
   SandboxProvider,
-} from "@rakazo/adapter-kit";
+} from "@milo/adapter-kit";
 import {
   browserActFromTool,
   browserNavigateFromTool,
@@ -13,7 +13,7 @@ import {
   builtinAgentTools,
   observationToolResult,
   PiAgentRuntime,
-} from "@rakazo/adapters";
+} from "@milo/adapters";
 import { computerReplayContext, waitForReplayFile } from "./computer-replay.js";
 import {
   CONTACTS_CSV,

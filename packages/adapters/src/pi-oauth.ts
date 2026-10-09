@@ -6,7 +6,7 @@ import type {
   OAuthCredential,
 } from "@earendil-works/pi-ai";
 import { builtinModels } from "@earendil-works/pi-ai/providers/all";
-import type { ModelCredentialFailedState, ModelCredentialRetireReason } from "@rakazo/adapter-kit";
+import type { ModelCredentialFailedState, ModelCredentialRetireReason } from "@milo/adapter-kit";
 import {
   MAX_MODEL_CONTEXT_WINDOW,
   MAX_MODEL_MAX_TOKENS,
@@ -14,9 +14,9 @@ import {
   type ModelOAuthSignInMode,
   type ThinkingLevel,
   ThinkingLevelSchema,
-} from "@rakazo/contracts";
-import type { PrismaClient } from "@rakazo/db";
-import { getLogger } from "@rakazo/logging";
+} from "@milo/contracts";
+import type { PrismaClient } from "@milo/db";
+import { getLogger } from "@milo/logging";
 import type { EncryptedSecretStore } from "./secrets.js";
 
 export const CHATGPT_OAUTH_PROVIDER = "openai-codex";
@@ -25,7 +25,7 @@ export const XAI_OAUTH_PROVIDER = "xai";
 export const ANTHROPIC_PROVIDER = "anthropic";
 
 /**
- * Anthropic only permits Claude subscriptions inside Claude Code, so Rakazo never
+ * Anthropic only permits Claude subscriptions inside Claude Code, so Milo never
  * signs in to one or calls Claude with a subscription token. AGENT_RUNTIME=claude-code
  * reaches the subscription through the CLI's own login instead.
  */
@@ -61,20 +61,19 @@ export const SUBSCRIPTION_SIGN_IN_PROVIDERS: Record<
     mode: "device-code",
     loginLabel: "Sign in with ChatGPT Plus/Pro",
     hint: "ChatGPT Plus/Pro",
-    billing:
-      "Sign in with ChatGPT Plus or Pro. Uses your OpenAI subscription. Rakazo does not pay.",
+    billing: "Sign in with ChatGPT Plus or Pro. Uses your OpenAI subscription. Milo does not pay.",
   },
   [COPILOT_OAUTH_PROVIDER]: {
     mode: "device-code",
     loginLabel: "Sign in with GitHub Copilot",
     hint: "Copilot",
-    billing: "Sign in with GitHub Copilot. Uses your Copilot subscription. Rakazo does not pay.",
+    billing: "Sign in with GitHub Copilot. Uses your Copilot subscription. Milo does not pay.",
   },
   [XAI_OAUTH_PROVIDER]: {
     mode: "device-code",
     loginLabel: "Sign in with SuperGrok or X Premium",
     hint: "SuperGrok / key",
-    billing: "Sign in with SuperGrok or X Premium, or paste an xAI API key. Rakazo does not pay.",
+    billing: "Sign in with SuperGrok or X Premium, or paste an xAI API key. Milo does not pay.",
   },
 };
 

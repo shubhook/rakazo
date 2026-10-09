@@ -1,6 +1,5 @@
-import { ORPCError } from "@orpc/server";
-import { type JobPublisher, runContinueJob, type SandboxProvider } from "@rakazo/adapter-kit";
-import { cancelComputerRunWork, screenLeaseIdForRun, toComputerRef } from "@rakazo/adapters";
+import { type JobPublisher, runContinueJob, type SandboxProvider } from "@milo/adapter-kit";
+import { cancelComputerRunWork, screenLeaseIdForRun, toComputerRef } from "@milo/adapters";
 import {
   type Actor,
   GROUP_MEMBER_MIN,
@@ -10,7 +9,7 @@ import {
   type MessageReaction,
   type RunStatus,
   type ThreadSnapshot,
-} from "@rakazo/contracts";
+} from "@milo/contracts";
 import {
   ACTIVE_RUN_STATUSES,
   callIdFromClientNonce,
@@ -19,8 +18,8 @@ import {
   projectMessages,
   resolveGroupTargetBotIds,
   runFailureError,
-} from "@rakazo/core";
-import { deriveMessageQuote } from "@rakazo/core/message-quote";
+} from "@milo/core";
+import { deriveMessageQuote } from "@milo/core/message-quote";
 import {
   answerWaitingRunWithTextInTransaction,
   appendEventInTransaction,
@@ -34,8 +33,9 @@ import {
   type PrismaClient,
   type ThreadEvents,
   touchGroupUpdatedAt,
-} from "@rakazo/db";
-import { getLogger } from "@rakazo/logging";
+} from "@milo/db";
+import { getLogger } from "@milo/logging";
+import { ORPCError } from "@orpc/server";
 import {
   buildSendPrompt,
   buildUserMessageBlocks,

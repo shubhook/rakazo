@@ -1,7 +1,5 @@
 import { randomUUID } from "node:crypto";
 import { rm } from "node:fs/promises";
-import { ORPCError, onError } from "@orpc/server";
-import { RPCHandler } from "@orpc/server/fetch";
 import type {
   AgentRuntime,
   JobPublisher,
@@ -10,13 +8,13 @@ import type {
   RealtimeFanout,
   SandboxProvider,
   TransactionalEmailProvider,
-} from "@rakazo/adapter-kit";
+} from "@milo/adapter-kit";
 import type {
   ComposioProvider,
   ConnectorRegistry,
   DestinationEmulator,
   RemoteConnectorDependencies,
-} from "@rakazo/adapters";
+} from "@milo/adapters";
 import {
   applyMessagingOutboundStatus,
   ChatSdkMessagingSurface,
@@ -63,10 +61,10 @@ import {
   SpaceMemoryProviderResolver,
   sandboxProviderOptionsFromEnv,
   toTeamChatInbound,
-} from "@rakazo/adapters";
-import { createAuth, isBlockedAuthPath, loopbackTwinOrigins } from "@rakazo/auth";
-import { signupAllowlistBootUpdate, signupPolicyFromEnv } from "@rakazo/core";
-import type { Pool, PrismaClient } from "@rakazo/db";
+} from "@milo/adapters";
+import { createAuth, isBlockedAuthPath, loopbackTwinOrigins } from "@milo/auth";
+import { signupAllowlistBootUpdate, signupPolicyFromEnv } from "@milo/core";
+import type { Pool, PrismaClient } from "@milo/db";
 import {
   createDb,
   createPool,
@@ -74,17 +72,19 @@ import {
   parsePositiveInteger,
   provisionMessagingIdentity,
   requireMembership,
-} from "@rakazo/db";
-import type { Logger } from "@rakazo/logging";
+} from "@milo/db";
+import type { Logger } from "@milo/logging";
 import {
   createServiceLogger,
   enrichLogContext,
   getLogger,
   installLogger,
   SERVICE_NAMES,
-} from "@rakazo/logging";
-import { requestLogging } from "@rakazo/logging/hono";
-import { MarkdownMemoryStore } from "@rakazo/memory";
+} from "@milo/logging";
+import { requestLogging } from "@milo/logging/hono";
+import { MarkdownMemoryStore } from "@milo/memory";
+import { ORPCError, onError } from "@orpc/server";
+import { RPCHandler } from "@orpc/server/fetch";
 import { Hono } from "hono";
 import { cors } from "hono/cors";
 import type { AppEnv } from "./env.js";

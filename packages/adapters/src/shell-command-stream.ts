@@ -1,5 +1,5 @@
-import type { ProcessEvent } from "@rakazo/adapter-kit";
-import { redactSecrets } from "@rakazo/core";
+import type { ProcessEvent } from "@milo/adapter-kit";
+import { redactSecrets } from "@milo/core";
 import { clipToolResultText } from "./pi-runtime-limits.js";
 
 /**

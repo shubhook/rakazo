@@ -1,6 +1,6 @@
-import type { JobPublisher, JobWorkerHost } from "@rakazo/adapter-kit";
-import { ComposioConnector, IntegrationProviderSettings } from "@rakazo/adapters";
-import { loadRootEnv } from "@rakazo/core/node/load-root-env";
+import type { JobPublisher, JobWorkerHost } from "@milo/adapter-kit";
+import { ComposioConnector, IntegrationProviderSettings } from "@milo/adapters";
+import { loadRootEnv } from "@milo/core/node/load-root-env";
 
 loadRootEnv();
 
@@ -47,17 +47,17 @@ import {
   resolveSandboxProvider,
   SpaceMemoryProviderResolver,
   sandboxProviderOptionsFromEnv,
-} from "@rakazo/adapters";
-import { resolveEncryptionKey, resolveSupervisorToken } from "@rakazo/core";
+} from "@milo/adapters";
+import { resolveEncryptionKey, resolveSupervisorToken } from "@milo/core";
 import {
   createDb,
   createThreadEvents,
   isTooManyDatabaseConnections,
   parsePositiveInteger,
-} from "@rakazo/db";
-import { SERVICE_NAMES } from "@rakazo/logging";
-import { createRootLogger } from "@rakazo/logging/axiom";
-import { MarkdownMemoryStore } from "@rakazo/memory";
+} from "@milo/db";
+import { SERVICE_NAMES } from "@milo/logging";
+import { createRootLogger } from "@milo/logging/axiom";
+import { MarkdownMemoryStore } from "@milo/memory";
 
 const logger = createRootLogger(SERVICE_NAMES.worker);
 

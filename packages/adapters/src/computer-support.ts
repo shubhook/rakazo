@@ -1,7 +1,7 @@
 import { createHash } from "node:crypto";
 import path from "node:path";
-import type { ComputerAction, ComputerObservation, ComputerRef } from "@rakazo/adapter-kit";
-import type { ComputerMode } from "@rakazo/contracts";
+import type { ComputerAction, ComputerObservation, ComputerRef } from "@milo/adapter-kit";
+import type { ComputerMode } from "@milo/contracts";
 
 export function toComputerRef(computer: {
   homeKey: string;
@@ -159,4 +159,4 @@ function stripVirtualWorkspaceRoot(value: string): string | null {
   return portable.startsWith("/") ? portable.slice(1) : null;
 }
 
-export { shellQuote } from "@rakazo/core/node/desktop-runtime";
+export { shellQuote } from "@milo/core/node/desktop-runtime";

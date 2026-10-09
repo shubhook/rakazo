@@ -1,5 +1,5 @@
-import type { VoiceChatGroup } from "@rakazo/core";
-import { speechFromBlocks, voiceChatDuration, voiceChatSummary } from "@rakazo/core";
+import type { VoiceChatGroup } from "@milo/core";
+import { speechFromBlocks, voiceChatDuration, voiceChatSummary } from "@milo/core";
 import { useState } from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 import type { MobileMessage } from "../lib/api";

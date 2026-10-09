@@ -1,6 +1,6 @@
 import { randomBytes } from "node:crypto";
 import path from "node:path";
-import type { RakazoDesktopLocalAccount } from "@rakazo/contracts";
+import type { RakazoDesktopLocalAccount } from "@milo/contracts";
 import { isLoopbackHost } from "./setup-config.js";
 import { readPrivateFile, writePrivateFile } from "./setup-store.js";
 

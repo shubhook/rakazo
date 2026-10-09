@@ -9,14 +9,14 @@ import {
   handoffToGroupBot,
   ManagedSandboxEmulator,
   toComputerRef,
-} from "@rakazo/adapters";
-import { ACTIVE_RUN_STATUSES, ONCE_ROUTINE_CRON } from "@rakazo/core";
+} from "@milo/adapters";
+import { ACTIVE_RUN_STATUSES, ONCE_ROUTINE_CRON } from "@milo/core";
 import {
   appendEvent,
   createThreadEvents,
   createThreadMessage,
   RunHistoryWriteError,
-} from "@rakazo/db";
+} from "@milo/db";
 import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
 import type { createApp } from "../../../apps/api/src/app.ts";
 import type { BotIntroHarness } from "./discard-bot-intro.js";

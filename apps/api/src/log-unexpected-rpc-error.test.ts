@@ -1,5 +1,5 @@
+import { createLogger, createTestSink, installLogger } from "@milo/logging";
 import { ORPCError } from "@orpc/server";
-import { createLogger, createTestSink, installLogger } from "@rakazo/logging";
 import { afterEach, describe, expect, it } from "vitest";
 import { logUnexpectedRpcError } from "./app.js";
 

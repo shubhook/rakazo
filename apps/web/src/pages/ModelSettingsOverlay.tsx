@@ -1,6 +1,6 @@
 import { i18n } from "@lingui/core";
 import { Plural, Trans, useLingui } from "@lingui/react/macro";
-import type { Me, ThinkingLevel } from "@rakazo/contracts";
+import type { Me, ThinkingLevel } from "@milo/contracts";
 import {
   DEFAULT_MODEL_CONTEXT_WINDOW,
   DEFAULT_MODEL_MAX_TOKENS,
@@ -12,7 +12,7 @@ import {
   parseModelContextWindow,
   parseModelMaxImagesPerPrompt,
   parseModelMaxTokens,
-} from "@rakazo/contracts";
+} from "@milo/contracts";
 import {
   COMPATIBLE_THINKING_LEVELS,
   clampCatalogThinkingLevel,
@@ -20,7 +20,7 @@ import {
   filterModelCatalog,
   initialModelProbeState,
   pickCatalogModelId,
-} from "@rakazo/core";
+} from "@milo/core";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -41,7 +41,7 @@ import {
   ModelThinkingOptions,
   NativeSelect,
   NativeSelectOption,
-} from "@rakazo/ui-web";
+} from "@milo/ui-web";
 import { Check, ChevronDown, Copy, X } from "lucide-react";
 import {
   type KeyboardEvent as ReactKeyboardEvent,
@@ -867,7 +867,7 @@ export function ModelSettingsOverlay({
       {selected?.auth === "oauth" && !subscriptionSignIn ? (
         <p className="mt-5 text-sm leading-[1.5] text-muted-foreground first:mt-0">
           <Trans>
-            This subscription sign-in is not available in Rakazo yet. Use a deployment credential or
+            This subscription sign-in is not available in Milo yet. Use a deployment credential or
             choose another provider.
           </Trans>
         </p>
@@ -932,7 +932,7 @@ export function ModelSettingsOverlay({
   ) : localOwner ? (
     <Trans>Models for the server owner’s default space.</Trans>
   ) : (
-    <Trans>Choose which connected model Rakazo uses.</Trans>
+    <Trans>Choose which connected model Milo uses.</Trans>
   );
 
   const body = (
@@ -1051,7 +1051,7 @@ export function ModelSettingsOverlay({
                       <Trans>Setup help</Trans>
                     </summary>
                     <p className="mt-1">
-                      {t`Paste the OpenAI-compatible address from your server. Rakazo adds /v1 if needed.`}
+                      {t`Paste the OpenAI-compatible address from your server. Milo adds /v1 if needed.`}
                     </p>
                   </details>
                   <div className="mt-3 flex items-center gap-2">

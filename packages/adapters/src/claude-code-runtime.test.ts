@@ -6,7 +6,7 @@ import type {
   AgentRuntime,
   AgentRuntimeEvent,
   ConnectorTool,
-} from "@rakazo/adapter-kit";
+} from "@milo/adapter-kit";
 import { describe, expect, it, vi } from "vitest";
 import {
   ClaudeCodeRoutingRuntime,
@@ -199,7 +199,7 @@ describe("ClaudeCodeAgentRuntime", () => {
     const runtime = new ClaudeCodeAgentRuntime({ binaryPath: "/nonexistent/claude-binary" });
 
     await expect(collect(runtime, request())).rejects.toThrow(
-      "Claude Code is not installed on the machine running Rakazo.",
+      "Claude Code is not installed on the machine running Milo.",
     );
   });
 

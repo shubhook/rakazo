@@ -1,5 +1,5 @@
 {
-  "name": "@rakazo/testkit",
+  "name": "@milo/testkit",
   "version": "0.1.0",
   "license": "Apache-2.0",
   "type": "module",
@@ -12,11 +12,11 @@
   },
   "dependencies": {
     "@hono/node-server": "2.1.1",
-    "@rakazo/adapter-kit": "workspace:*",
-    "@rakazo/adapters": "workspace:*",
-    "@rakazo/contracts": "workspace:*",
-    "@rakazo/core": "workspace:*",
-    "@rakazo/db": "workspace:*",
+    "@milo/adapter-kit": "workspace:*",
+    "@milo/adapters": "workspace:*",
+    "@milo/contracts": "workspace:*",
+    "@milo/core": "workspace:*",
+    "@milo/db": "workspace:*",
     "@testcontainers/postgresql": "12.1.0",
     "pngjs": "7.0.0"
   },

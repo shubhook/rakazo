@@ -1,4 +1,4 @@
-import { workingAvatarDuration, workingAvatarFrame } from "@rakazo/core";
+import { workingAvatarDuration, workingAvatarFrame } from "@milo/core";
 import { describe, expect, it } from "vitest";
 
 describe("working avatar motion", () => {

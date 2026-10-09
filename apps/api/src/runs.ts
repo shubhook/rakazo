@@ -1,6 +1,6 @@
-import { type Actor, MessageBlock, type RunActivityRow } from "@rakazo/contracts";
-import { ACTIVE_RUN_STATUSES, botMessageContext } from "@rakazo/core";
-import type { PrismaClient } from "@rakazo/db";
+import { type Actor, MessageBlock, type RunActivityRow } from "@milo/contracts";
+import { ACTIVE_RUN_STATUSES, botMessageContext } from "@milo/core";
+import type { PrismaClient } from "@milo/db";
 
 const RECENT_LIMIT = 20;
 const TERMINAL_STATUSES = ["completed", "failed", "cancelled"] as const;

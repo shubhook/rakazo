@@ -3,7 +3,7 @@ import type {
   AgentRunRequest,
   AgentRuntime,
   AgentRuntimeEvent,
-} from "@rakazo/adapter-kit";
+} from "@milo/adapter-kit";
 import {
   CLAUDE_CODE_DEFAULT_MODEL,
   CLAUDE_CODE_PROVIDER,

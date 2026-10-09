@@ -1,5 +1,5 @@
-import { ChatMarkdown } from "@rakazo/chat-ui/web";
-import { Dialog, DialogContent, DialogTitle } from "@rakazo/ui-web";
+import { ChatMarkdown } from "@milo/chat-ui/web";
+import { Dialog, DialogContent, DialogTitle } from "@milo/ui-web";
 import { useEffect, useState } from "react";
 import { createRoot } from "react-dom/client";
 import "../../src/styles.css";

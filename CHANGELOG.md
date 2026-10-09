@@ -1,6 +1,6 @@
 # Changelog
 
-Notable product changes in Rakazo. See GitHub Releases for tagged builds.
+Notable product changes in Milo. See GitHub Releases for tagged builds.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
@@ -44,7 +44,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ### Removed
 
 - Model sign-in under `AGENT_RUNTIME=claude-code`. Every bot runs on the Claude Code CLI's own login, so web, desktop and mobile no longer show model settings or the per-bot model and thinking pickers there.
-- Sign in with Claude Pro/Max. Anthropic only allows Claude subscriptions inside Claude Code, so Rakazo no longer signs in to Claude or calls it with a subscription token. A Claude sign-in saved earlier stops working, and a subscription token (`sk-ant-oat…`) pasted as an Anthropic key is refused. Anthropic API keys still work. To run on a Claude subscription, use `AGENT_RUNTIME=claude-code`.
+- Sign in with Claude Pro/Max. Anthropic only allows Claude subscriptions inside Claude Code, so Milo no longer signs in to Claude or calls it with a subscription token. A Claude sign-in saved earlier stops working, and a subscription token (`sk-ant-oat…`) pasted as an Anthropic key is refused. Anthropic API keys still work. To run on a Claude subscription, use `AGENT_RUNTIME=claude-code`.
 - Nonfunctional Grant folder picker in the desktop app.
 
 ### Messaging upgrade notes

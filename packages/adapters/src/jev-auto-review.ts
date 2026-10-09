@@ -5,7 +5,7 @@ import type {
   AutoReviewProvider,
   AutoReviewRequest,
   AutoReviewResult,
-} from "@rakazo/adapter-kit";
+} from "@milo/adapter-kit";
 import { z } from "zod";
 import {
   autoReviewMinConfidence,

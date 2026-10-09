@@ -6,11 +6,11 @@ import type {
   ArtifactStore,
   JobPublisher,
   SandboxProvider,
-} from "@rakazo/adapter-kit";
-import { routineJobKey, runContinueJob, runJobKey } from "@rakazo/adapter-kit";
-import { type Actor, type Bot, type ComputerMode, GROUP_MEMBER_MIN } from "@rakazo/contracts";
-import { ACTIVE_RUN_STATUSES } from "@rakazo/core";
-import { browserProfilePathForScreen } from "@rakazo/core/node/desktop-runtime";
+} from "@milo/adapter-kit";
+import { routineJobKey, runContinueJob, runJobKey } from "@milo/adapter-kit";
+import { type Actor, type Bot, type ComputerMode, GROUP_MEMBER_MIN } from "@milo/contracts";
+import { ACTIVE_RUN_STATUSES } from "@milo/core";
+import { browserProfilePathForScreen } from "@milo/core/node/desktop-runtime";
 import {
   cancelRunsInTransaction,
   computerScopeKey,
@@ -20,8 +20,8 @@ import {
   type Prisma,
   type PrismaClient,
   withTransactionRetry,
-} from "@rakazo/db";
-import { getLogger } from "@rakazo/logging";
+} from "@milo/db";
+import { getLogger } from "@milo/logging";
 import { BrowserStoppedReleaseError } from "./computer-screens.js";
 import { toComputerRef } from "./computer-support.js";
 import { checkpointAndRecordComputerWorkspace } from "./computer-workspace.js";

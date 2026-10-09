@@ -1,8 +1,8 @@
 import { mkdtempSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
-import type { RunActivityRow } from "@rakazo/contracts";
-import type { PrismaClient } from "@rakazo/db";
+import type { RunActivityRow } from "@milo/contracts";
+import type { PrismaClient } from "@milo/db";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { sessionCookieHeader } from "./index.js";
 

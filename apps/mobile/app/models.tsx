@@ -1,4 +1,4 @@
-import type { ModelOAuthBegin, ThinkingLevel } from "@rakazo/contracts";
+import type { ModelOAuthBegin, ThinkingLevel } from "@milo/contracts";
 import {
   DEFAULT_MODEL_CONTEXT_WINDOW,
   DEFAULT_MODEL_MAX_TOKENS,
@@ -10,7 +10,7 @@ import {
   parseModelContextWindow,
   parseModelMaxImagesPerPrompt,
   parseModelMaxTokens,
-} from "@rakazo/contracts";
+} from "@milo/contracts";
 import {
   COMPATIBLE_THINKING_LEVELS,
   clampCatalogThinkingLevel,
@@ -19,7 +19,7 @@ import {
   filterModelCatalog,
   initialModelProbeState,
   pickCatalogModelId,
-} from "@rakazo/core";
+} from "@milo/core";
 import * as Clipboard from "expo-clipboard";
 import { useFocusEffect } from "expo-router";
 import { Fragment, useCallback, useEffect, useMemo, useRef, useState } from "react";
@@ -1197,7 +1197,7 @@ export default function Models() {
         {selected.auth === "oauth" && !subscriptionSignIn ? (
           <Text style={styles.secondary}>
             {t(
-              "This subscription sign-in is not available in Rakazo yet. Use a deployment credential or choose another provider.",
+              "This subscription sign-in is not available in Milo yet. Use a deployment credential or choose another provider.",
             )}
           </Text>
         ) : null}

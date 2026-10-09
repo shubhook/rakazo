@@ -1,7 +1,7 @@
 import { type ChildProcess, spawn as nodeSpawn, type SpawnOptions } from "node:child_process";
 import path from "node:path";
 import { stripVTControlCharacters } from "node:util";
-import { type AgentSetupAction, agentSetupCommand } from "@rakazo/contracts/agent-setup";
+import { type AgentSetupAction, agentSetupCommand } from "@milo/contracts/agent-setup";
 import { killProcessTree } from "./docker-cli.js";
 
 const RUN_TIMEOUT_MS = 15 * 60_000;

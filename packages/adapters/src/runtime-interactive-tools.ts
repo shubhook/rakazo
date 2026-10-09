@@ -1,4 +1,4 @@
-import type { AgentRuntimeEvent } from "@rakazo/adapter-kit";
+import type { AgentRuntimeEvent } from "@milo/adapter-kit";
 
 /**
  * Tools that pause the run for the person instead of reaching the executor.

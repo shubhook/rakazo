@@ -8,7 +8,7 @@ import type {
   SemanticMemoryResponse,
   SemanticMemoryResult,
   SemanticMemorySaveRequest,
-} from "@rakazo/adapter-kit";
+} from "@milo/adapter-kit";
 import {
   classifySerenityEndpointTrust,
   forgetSerenity,
@@ -222,7 +222,7 @@ export class SerenityMemoryProvider implements SemanticMemoryProvider {
     request: SemanticMemoryRecallRequest,
     context: AdapterContext,
   ): Promise<SemanticMemoryResponse<SemanticMemoryResult[]>> {
-    // History compaction stays in Rakazo; Serenity is the durable brain only.
+    // History compaction stays in Milo; Serenity is the durable brain only.
     const entities = recallEntities(
       request.scope,
       request.botId,

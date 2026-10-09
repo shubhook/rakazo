@@ -9,7 +9,7 @@ import {
   RECREATED_SERVICES,
   resolveComposeProjectName,
   resolveUpdaterToken,
-} from "@rakazo/core";
+} from "@milo/core";
 
 export const DEFAULT_UPDATER_PORT = 7092;
 export const DEFAULT_COMPOSE_FILE = "infra/compose/docker-compose.prod.yml";

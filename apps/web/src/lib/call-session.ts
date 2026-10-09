@@ -1,5 +1,5 @@
 import { t } from "@lingui/core/macro";
-import type { ThreadMessage, ThreadSnapshot } from "@rakazo/contracts";
+import type { ThreadMessage, ThreadSnapshot } from "@milo/contracts";
 import {
   callClientNonce,
   INTERIM_BARGE_IN_MS,
@@ -11,7 +11,7 @@ import {
   speechFromBlocks,
   spokenDecision,
   spokenMemory,
-} from "@rakazo/core";
+} from "@milo/core";
 import { useSyncExternalStore } from "react";
 import { dictation } from "./dictation.js";
 import { rpc } from "./rpc.js";

@@ -3,11 +3,8 @@ import { mkdirSync, mkdtempSync, symlinkSync, unlinkSync, writeFileSync } from "
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { promisify } from "node:util";
-import type { ComputerRef, PortableFile, ProcessEvent } from "@rakazo/adapter-kit";
-import {
-  browserProfilePathForScreen,
-  DEFAULT_DESKTOP_ENV,
-} from "@rakazo/core/node/desktop-runtime";
+import type { ComputerRef, PortableFile, ProcessEvent } from "@milo/adapter-kit";
+import { browserProfilePathForScreen, DEFAULT_DESKTOP_ENV } from "@milo/core/node/desktop-runtime";
 import { describe, expect, it, vi } from "vitest";
 import {
   CHROME_OWNS_DEBUG_PORT_SCRIPT,

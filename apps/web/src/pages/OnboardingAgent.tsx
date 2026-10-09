@@ -1,6 +1,6 @@
 import { Trans, useLingui } from "@lingui/react/macro";
-import { type AgentSetupAction, type AgentStatus, agentSetupCommand } from "@rakazo/contracts";
-import { Button, Input, Spinner } from "@rakazo/ui-web";
+import { type AgentSetupAction, type AgentStatus, agentSetupCommand } from "@milo/contracts";
+import { Button, Input, Spinner } from "@milo/ui-web";
 import { ArrowRight, Check } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { useCopyText } from "../lib/copy-text";

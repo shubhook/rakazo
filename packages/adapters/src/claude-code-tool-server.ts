@@ -1,6 +1,7 @@
 import { randomBytes, randomUUID, timingSafeEqual } from "node:crypto";
 import { createServer, type IncomingMessage } from "node:http";
 import type { AddressInfo } from "node:net";
+import type { ConnectorTool } from "@milo/adapter-kit";
 import { Server } from "@modelcontextprotocol/sdk/server/index.js";
 import { StreamableHTTPServerTransport } from "@modelcontextprotocol/sdk/server/streamableHttp.js";
 import {
@@ -8,7 +9,6 @@ import {
   type CallToolResult,
   ListToolsRequestSchema,
 } from "@modelcontextprotocol/sdk/types.js";
-import type { ConnectorTool } from "@rakazo/adapter-kit";
 import { CLAUDE_CODE_TOOL_SERVER, CLAUDE_CODE_TOOL_TIMEOUT_MS } from "./claude-code-cli.js";
 
 export type ClaudeCodeToolCall = (
@@ -24,7 +24,7 @@ export interface ClaudeCodeToolServer {
 }
 
 /**
- * Serves one run's Rakazo tools to the spawned CLI over loopback MCP. The
+ * Serves one run's Milo tools to the spawned CLI over loopback MCP. The
  * listener binds 127.0.0.1 only and every request must carry the run's random
  * bearer and a loopback Host header, so other local processes and rebinding
  * pages cannot call the bot's tools.

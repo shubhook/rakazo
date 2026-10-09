@@ -16,9 +16,9 @@ import type {
   ScreenRequest,
   ScreenSession,
   TerminalRequest,
-} from "@rakazo/adapter-kit";
-import { boundedSandboxCommandTimeoutMs, resolveSupervisorToken } from "@rakazo/core";
-import { outgoingCorrelationHeaders } from "@rakazo/logging";
+} from "@milo/adapter-kit";
+import { boundedSandboxCommandTimeoutMs, resolveSupervisorToken } from "@milo/core";
+import { outgoingCorrelationHeaders } from "@milo/logging";
 import {
   boundedComputerActions,
   clampRounded,

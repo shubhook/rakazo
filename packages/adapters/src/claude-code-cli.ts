@@ -1,14 +1,14 @@
 import { type ChildProcess, spawn as nodeSpawn, type SpawnOptions } from "node:child_process";
 import { delimiter, join } from "node:path";
 import { createInterface } from "node:readline";
-import type { AgentRunModel } from "@rakazo/adapter-kit";
+import type { AgentRunModel } from "@milo/adapter-kit";
 
 export const CLAUDE_CODE_PROVIDER = "claude-code";
 export const CLAUDE_CODE_DEFAULT_MODEL = "sonnet";
-/** MCP server name; the model sees Rakazo tools as `mcp__rakazo__<tool>`. */
+/** MCP server name; the model sees Milo tools as `mcp__rakazo__<tool>`. */
 export const CLAUDE_CODE_TOOL_SERVER = "rakazo";
 export const CLAUDE_CODE_SIGNED_OUT_MESSAGE =
-  "Claude Code is not signed in on the machine running Rakazo. Run `claude auth login` there, then try again.";
+  "Claude Code is not signed in on the machine running Milo. Run `claude auth login` there, then try again.";
 
 export type ClaudeCodeSpawn = (
   command: string,
@@ -54,7 +54,7 @@ const INHERITED_ENV = [
   "USERPROFILE",
 ] as const;
 
-// Claude Code aborts an HTTP MCP call after 60 s by default; Rakazo shells and
+// Claude Code aborts an HTTP MCP call after 60 s by default; Milo shells and
 // computer actions legitimately run longer, so the executor's own timeouts end them.
 export const CLAUDE_CODE_TOOL_TIMEOUT_MS = 65 * 60 * 1_000;
 
@@ -97,7 +97,7 @@ export function claudeCodeEffort(level: AgentRunModel["thinkingLevel"]): string 
 
 /**
  * Headless flags. Built-in tools are disabled so every effect goes through
- * Rakazo's executor, sandbox, and approvals; user settings, hooks, skills, and
+ * Milo's executor, sandbox, and approvals; user settings, hooks, skills, and
  * other MCP servers stay out of bot runs.
  */
 export function claudeCodeArgs(input: {

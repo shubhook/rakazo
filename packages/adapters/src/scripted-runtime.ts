@@ -3,8 +3,8 @@ import type {
   AgentRunRequest,
   AgentRuntime,
   AgentRuntimeEvent,
-} from "@rakazo/adapter-kit";
-import { abortableDelay, inferHandoffTargetName } from "@rakazo/core";
+} from "@milo/adapter-kit";
+import { abortableDelay, inferHandoffTargetName } from "@milo/core";
 
 const running = new Map<string, AbortController>();
 
@@ -490,7 +490,7 @@ code-b
         toolCalls: [
           {
             name: "destination.write",
-            args: { collection: "notes", title: "Rakazo result", body: prompt },
+            args: { collection: "notes", title: "Milo result", body: prompt },
           },
         ],
         complete: true,

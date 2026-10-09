@@ -1,4 +1,4 @@
-import type { RakazoDesktop, RakazoDesktopLocalAccount } from "@rakazo/contracts";
+import type { RakazoDesktop, RakazoDesktopLocalAccount } from "@milo/contracts";
 
 type LocalAccountBridge = NonNullable<RakazoDesktop["localAccount"]>;
 type AuthResult = { error: { code?: string; message?: string } | null };

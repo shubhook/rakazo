@@ -4,8 +4,8 @@ import type {
   ConnectorEvent,
   ConnectorProvider,
   ConnectorTool,
-} from "@rakazo/adapter-kit";
-import type { PrismaClient } from "@rakazo/db";
+} from "@milo/adapter-kit";
+import type { PrismaClient } from "@milo/db";
 import { z } from "zod";
 import {
   AuthSchema,

@@ -6,8 +6,8 @@ import type {
   AgentHomeStore,
   JobPublisher,
   SandboxProvider,
-} from "@rakazo/adapter-kit";
-import { clearThread, type PrismaClient, type ThreadEvents } from "@rakazo/db";
+} from "@milo/adapter-kit";
+import { clearThread, type PrismaClient, type ThreadEvents } from "@milo/db";
 import { describe, expect, it, vi } from "vitest";
 import {
   acquireComputerExecutionLease,
