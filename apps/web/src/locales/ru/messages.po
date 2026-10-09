@@ -406,6 +406,7 @@ msgid "Allowed once"
 msgstr "Разрешено один раз"
 
 #: src/pages/Auth.tsx
+#: src/pages/Welcome.tsx
 msgid "Already have an account?"
 msgstr "У вас уже есть аккаунт?"
 
@@ -539,6 +540,10 @@ msgstr "в {0}"
 #: src/pages/RoutineSchedule.tsx
 msgid "at {timeSelect}"
 msgstr "в {timeSelect}"
+
+#: src/pages/Auth.tsx
+msgid "At least 8 characters"
+msgstr ""
 
 #: src/pages/Shell.tsx
 msgid "Attach file"
@@ -3600,6 +3605,7 @@ msgstr "Показать расшифровку"
 #: src/pages/Auth.tsx
 #: src/pages/ModelSettingsOverlay.tsx
 #: src/pages/OnboardingAgent.tsx
+#: src/pages/Welcome.tsx
 msgid "Sign in"
 msgstr "Войти"
 

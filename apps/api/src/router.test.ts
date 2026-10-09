@@ -1682,7 +1682,13 @@ describe("bot intro run", () => {
     email: "user@rakazo.test",
     isDeploymentOwner: true,
   } satisfies Actor;
-  const bot = { id: "bot-1", threadId: "thread-1" } as unknown as Bot;
+  const bot = {
+    id: "bot-1",
+    threadId: "thread-1",
+    title: "Researcher",
+    description: "",
+    instructions: "",
+  } as unknown as Bot;
 
   function introDeps(options: { agentRuntime?: string; hasCredential?: boolean } = {}) {
     let calls = 0;
@@ -1742,6 +1748,20 @@ describe("bot intro run", () => {
     const { create, enqueue, deps } = introDeps();
 
     await enqueueBotIntroRun(deps, actor, { id: "bot-1", threadId: null } as unknown as Bot);
+
+    expect(create).not.toHaveBeenCalled();
+    expect(enqueue).not.toHaveBeenCalled();
+  });
+
+  it("does nothing for a blank bot, whose first turn is the onboarding focus card", async () => {
+    const { create, enqueue, deps } = introDeps();
+
+    await enqueueBotIntroRun(deps, actor, {
+      ...bot,
+      title: " ",
+      description: "",
+      instructions: "",
+    });
 
     expect(create).not.toHaveBeenCalled();
     expect(enqueue).not.toHaveBeenCalled();

@@ -11,7 +11,15 @@ vi.mock("@milo/db", async (original) => ({
   }),
   appendEventInTransaction: vi.fn(async () => ({ seq: 1 })),
 }));
-function fixture(catalog: unknown[]) {
+function postedTexts() {
+  return posted.flatMap((message) =>
+    message.blocks.flatMap((block) => {
+      const { kind, text } = block as { kind: string; text?: string };
+      return kind === "text" && text ? [text] : [];
+    }),
+  );
+}
+function fixture(catalog: unknown[], options: { providers?: boolean } = {}) {
   posted.length = 0;
   const tx = {
     $executeRaw: vi.fn(),
@@ -26,7 +34,10 @@ function fixture(catalog: unknown[]) {
       $transaction: vi.fn(async (fn: (tx: unknown) => unknown) => fn(tx)),
     },
     events: { notify: vi.fn() },
-    connectors: { managedProviders: () => [{ catalog: async () => catalog }] },
+    connectors: {
+      managedProviders: () =>
+        (options.providers ?? true) ? [{ catalog: async () => catalog }] : [],
+    },
   } as unknown as Parameters<typeof chooseFocus>[0];
   const actor = {
     userId: "user",
@@ -43,7 +54,12 @@ describe("onboarding connection suggestions", () => {
     expect(posted.flatMap((message) => message.blocks)).not.toContainEqual(
       expect.objectContaining({ kind: "app_connect" }),
     );
-    expect(posted.length).toBeGreaterThan(0);
+    expect(postedTexts().at(-1)).toBe("Send me a first task to start on.");
+  });
+  it("asks for a first task without promising a connection check when no connector exists", async () => {
+    const { deps, actor } = fixture([], { providers: false });
+    await chooseFocus(deps, actor, "bot", "everything");
+    expect(postedTexts()).toEqual(["Got it. Send me a first task to start on."]);
   });
   it("uses the available connector and omits unavailable apps", async () => {
     const { deps, actor } = fixture([

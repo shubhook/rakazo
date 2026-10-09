@@ -84,8 +84,14 @@ pnpm 9; and Docker. Node.js 23.x and 25.x are not supported.
 ```bash
 git clone https://github.com/elie222/rakazo.git
 cd rakazo
-cp .env.example .env
+pnpm install
+pnpm dev:setup
+pnpm dev
 ```
+
+`pnpm dev:setup` creates `.env` with fresh secrets (an existing `.env` is kept), starts Postgres,
+and applies migrations. Run `pnpm sandbox:build` once before bots use their computers. To set up
+by hand instead, run `cp .env.example .env`.
 
 Set `POSTGRES_PASSWORD` (for example `openssl rand -hex 16`), then put the same value in
 `DATABASE_URL`. Set `BETTER_AUTH_SECRET`, `ENCRYPTION_KEY`, and `SCREEN_PROXY_SECRET` to
