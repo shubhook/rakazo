@@ -344,12 +344,30 @@ onboarding shows the deployment owner whether the CLI is installed and signed in
 app can run both steps for a server on the same computer. The worker also logs the CLI state at
 startup. The API checks the CLI on its own machine, so run the API and worker on the same machine.
 
-Every bot runs on Claude Code (`sonnet`), so the apps hide model sign-in and the model pickers.
+Every bot runs on Claude Code (`sonnet`) unless its owner signed in with ChatGPT (below), so the
+apps hide model sign-in and the model pickers.
 Models connected before switching runtimes are kept but not used. Pi still serves a model the
 deployment configures for side work, such as an Auto Review checker. The CLI's own tools, settings, hooks, and MCP servers are disabled for bot runs, so
 shell, files, browser, and approvals still go through Milo. The published images do not include
 the CLI, so use a source checkout where the worker runs on your machine. Use this only on a
 personal deployment: everyone on the deployment would share your Claude subscription.
+
+## Sign in with ChatGPT
+
+People can sign in to Milo with their ChatGPT account. The same sign-in can let Milo run that
+person's bots on their ChatGPT plan through OpenAI's Responses API, in place of Claude Code. Milo
+never sees ChatGPT conversations. Nothing needs configuring: Milo registers itself with OpenAI the
+first time someone signs in, and OpenAI lists it under the person's ChatGPT settings.
+
+OpenAI only returns the sign-in to `http://127.0.0.1`, so the option appears only when
+`WEB_ORIGIN` is a loopback address. When the API runs directly on that computer it catches the
+redirect itself. Inside Docker, only the desktop app can catch it, so a browser does not show the
+option. A server on another computer, and the mobile app, never show it. OpenAI offers plan usage
+to open-source and locally hosted apps; a hosted deployment needs OpenAI's approval first.
+
+A new ChatGPT account follows the same registration rules as email sign-up. An account that
+already exists with the same email keeps signing in with its password; the deployment owner can
+connect ChatGPT from the first-run agent step instead of Claude Code.
 
 ## Backup
 

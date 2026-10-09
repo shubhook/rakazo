@@ -2509,6 +2509,10 @@ msgstr "Le microphone a échoué"
 msgid "Milo runs your bots on Claude Code."
 msgstr ""
 
+#: src/pages/OnboardingAgent.tsx
+msgid "Milo runs your bots on your ChatGPT plan."
+msgstr ""
+
 #: src/pages/ModelSettingsOverlay.tsx
 msgid "Minimal"
 msgstr "Minimal"
@@ -3614,6 +3618,11 @@ msgid "Sign in to Milo"
 msgstr "Connectez-vous à Milo"
 
 #: src/pages/Auth.tsx
+#: src/pages/OnboardingAgent.tsx
+msgid "Sign in with ChatGPT"
+msgstr ""
+
+#: src/pages/Auth.tsx
 msgid "Sign in with email"
 msgstr ""
 
@@ -4115,6 +4124,11 @@ msgstr "Voix"
 #: src/components/call/VoiceChatCard.tsx
 msgid "Voice chat"
 msgstr "Chat vocal"
+
+#: src/pages/Auth.tsx
+#: src/pages/OnboardingAgent.tsx
+msgid "Waiting for ChatGPT…"
+msgstr ""
 
 #: src/components/SoftwareUpdateSection.tsx
 msgid "Waiting for the API to come back…"

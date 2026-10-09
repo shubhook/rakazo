@@ -137,7 +137,21 @@ describe("model setup gate", () => {
     deploymentModelCredentialCipher?: string;
     isDeploymentOwner?: boolean;
     probeClaudeCode?: RouterDeps["probeClaudeCode"];
+    chatgpt?: boolean;
   }) {
+    const chatgpt = options.chatgpt
+      ? [
+          {
+            id: "credential-1",
+            userId: "user-1",
+            provider: "chatgpt",
+            label: "ChatGPT",
+            secretId: "secret-1",
+            createdAt: new Date(0),
+            updatedAt: new Date(0),
+          },
+        ]
+      : [];
     const prisma = {
       user: {
         findUniqueOrThrow: vi.fn().mockResolvedValue({
@@ -146,7 +160,17 @@ describe("model setup gate", () => {
           avatarStyle: "robot",
         }),
       },
-      spaceModelPreference: { findFirst: vi.fn().mockResolvedValue(null) },
+      spaceModelPreference: {
+        findFirst: vi.fn().mockResolvedValue(null),
+        findMany: vi.fn().mockResolvedValue([]),
+      },
+      userModelCredential: {
+        findMany: vi
+          .fn()
+          .mockImplementation(async ({ where }: { where: { provider: string } }) =>
+            chatgpt.filter((credential) => credential.provider === where.provider),
+          ),
+      },
       deploymentSettings: {
         findUnique: vi
           .fn()
@@ -254,8 +278,25 @@ describe("model setup gate", () => {
         version: "2.1.0",
         loggedIn: false,
         platform: process.platform,
+        chatgpt: false,
       },
     });
+  });
+
+  it("runs a person's bots on their ChatGPT plan once they sign in with ChatGPT", async () => {
+    const probeClaudeCode = vi.fn().mockResolvedValue({ installed: false, loggedIn: false });
+    const { actor, handler } = modelGateDeps({
+      agentRuntime: "claude-code",
+      probeClaudeCode,
+      chatgpt: true,
+    });
+
+    const me = await call(handler, actor, "me", null);
+    await expect(me.json()).resolves.toMatchObject({
+      json: { modelManaged: true, defaultProvider: "chatgpt", defaultModel: "gpt-6-sol" },
+    });
+    const status = await call(handler, actor, "agent/status", null);
+    await expect(status.json()).resolves.toMatchObject({ json: { chatgpt: true } });
   });
 
   it("skips the agent CLI check off its runtime and for people who cannot fix it", async () => {

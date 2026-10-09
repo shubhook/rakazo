@@ -24,6 +24,7 @@ export * from "./builtin-skills.js";
 export * from "./builtin-tools.js";
 export * from "./cartesia-voice.js";
 export * from "./chat-sdk-surface.js";
+export * from "./chatgpt-plan.js";
 export * from "./child-bots.js";
 export * from "./claude-code-cli.js";
 export * from "./claude-code-runtime.js";

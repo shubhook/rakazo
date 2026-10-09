@@ -3,6 +3,8 @@ import { type AgentSetupAction, type AgentStatus, agentSetupCommand } from "@mil
 import { Button, Input, Spinner } from "@milo/ui-web";
 import { ArrowRight, Check } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
+import type { ChatGptCapture } from "../lib/chatgpt-sign-in";
+import { chatGptAvailable, useChatGptSignIn } from "../lib/chatgpt-sign-in";
 import { useCopyText } from "../lib/copy-text";
 import { desktopBridge } from "../lib/desktop";
 import { rpc } from "../lib/rpc";
@@ -11,7 +13,7 @@ const MAX_OUTPUT_LENGTH = 16 * 1024;
 const CODE_PROMPT = /paste code/i;
 
 export function agentReady(status: AgentStatus): boolean {
-  return status.installed && status.loggedIn;
+  return status.chatgpt || (status.installed && status.loggedIn);
 }
 
 /**
@@ -36,6 +38,8 @@ export function OnboardingAgentStep({
   const [error, setError] = useState<string | null>(null);
   const [copied, copy] = useCopyText();
   const runningRef = useRef(false);
+  const [chatgptCapture, setChatgptCapture] = useState<ChatGptCapture>(null);
+  const chatgpt = useChatGptSignIn(() => void recheck());
   const ready = agentReady(status);
   const next: AgentSetupAction | null = !status.installed
     ? "install"
@@ -56,6 +60,19 @@ export function OnboardingAgentStep({
       setChecking(false);
     }
   }
+
+  useEffect(() => {
+    let active = true;
+    void fetch("/api/auth/capabilities")
+      .then((response) => (response.ok ? response.json() : null))
+      .then((capabilities: { chatgpt?: ChatGptCapture } | null) => {
+        if (active) setChatgptCapture(capabilities?.chatgpt ?? null);
+      })
+      .catch(() => undefined);
+    return () => {
+      active = false;
+    };
+  }, []);
 
   // A sign-in finished in the browser or a terminal shows up when the window comes back.
   useEffect(() => {
@@ -120,7 +137,11 @@ export function OnboardingAgentStep({
         <Trans>Connect your agent</Trans>
       </h1>
       <p className="mt-2 text-sm text-muted-foreground">
-        <Trans>Milo runs your bots on Claude Code.</Trans>
+        {status.chatgpt ? (
+          <Trans>Milo runs your bots on your ChatGPT plan.</Trans>
+        ) : (
+          <Trans>Milo runs your bots on Claude Code.</Trans>
+        )}
       </p>
       <div className="mt-8 overflow-hidden rounded-xl border border-border bg-card">
         <div className="flex items-center gap-3 p-4">
@@ -132,7 +153,7 @@ export function OnboardingAgentStep({
           </div>
           {checking ? (
             <Spinner className="size-4 text-muted-foreground" />
-          ) : ready ? (
+          ) : status.installed && status.loggedIn ? (
             <span className="inline-flex items-center gap-1.5 text-xs font-medium text-success">
               <Check className="size-3.5" aria-hidden />
               <Trans>Ready</Trans>
@@ -206,7 +227,33 @@ export function OnboardingAgentStep({
           </div>
         ) : null}
       </div>
-      {error ? <p className="mt-3 text-sm text-destructive">{error}</p> : null}
+      {status.chatgpt || chatGptAvailable(chatgptCapture) ? (
+        <div className="mt-3 flex items-center gap-3 rounded-xl border border-border bg-card p-4">
+          <p className="min-w-0 flex-1 text-sm font-medium text-foreground">ChatGPT</p>
+          {status.chatgpt ? (
+            <span className="inline-flex items-center gap-1.5 text-xs font-medium text-success">
+              <Check className="size-3.5" aria-hidden />
+              <Trans>Ready</Trans>
+            </span>
+          ) : (
+            <Button
+              size="sm"
+              variant="outline"
+              disabled={chatgpt.pending}
+              onClick={() => void chatgpt.start()}
+            >
+              {chatgpt.pending ? (
+                <Trans>Waiting for ChatGPT…</Trans>
+              ) : (
+                <Trans>Sign in with ChatGPT</Trans>
+              )}
+            </Button>
+          )}
+        </div>
+      ) : null}
+      {error || chatgpt.error ? (
+        <p className="mt-3 text-sm text-destructive">{error ?? chatgpt.error}</p>
+      ) : null}
       <div className="mt-6 flex justify-end">
         <Button onClick={onContinue} disabled={!ready || checking}>
           <Trans>Continue</Trans>

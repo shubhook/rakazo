@@ -1225,6 +1225,8 @@ export const AgentStatusSchema = z.object({
   loggedIn: z.boolean(),
   /** Node platform of the server's machine, so the setup command matches it. */
   platform: z.string(),
+  /** The caller signed in with ChatGPT, so their bots run on their ChatGPT plan. */
+  chatgpt: z.boolean(),
 });
 export type AgentStatus = z.infer<typeof AgentStatusSchema>;
 

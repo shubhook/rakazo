@@ -7,6 +7,7 @@ import {
   findModelCredential,
   type PrismaClient,
 } from "@milo/db";
+import { CHATGPT_PLAN_DEFAULT_MODEL, CHATGPT_PLAN_PROVIDER } from "./chatgpt-plan.js";
 import type { ModelCredentialAuthKind } from "./pi-catalog-availability.js";
 import {
   catalogModelAvailableForAuth,
@@ -347,6 +348,30 @@ export async function validateConnectedModelChoice(
 }
 
 /** Select configuration without loading secrets or applying a runtime-specific fallback. */
+/**
+ * A runtime that brings its own model (Claude Code) runs every bot, unless the
+ * person signed in with ChatGPT: then their ChatGPT plan runs their bots.
+ * Null when the runtime leaves model choice to the person.
+ */
+export async function selectRuntimeModel(
+  prisma: PrismaClient,
+  scope: { userId: string; spaceId: string },
+  runtimeModel: { provider: string; id: string } | undefined | null,
+) {
+  if (!runtimeModel) return null;
+  const credential = await findModelCredential(prisma, scope, CHATGPT_PLAN_PROVIDER);
+  if (!credential) return { ...runtimeModel, credential: null, thinkingLevel: null };
+  const id = usableModelId(credential.defaultModel) ?? CHATGPT_PLAN_DEFAULT_MODEL;
+  return {
+    provider: CHATGPT_PLAN_PROVIDER,
+    id,
+    credential,
+    thinkingLevel: (credential.defaultModel === id
+      ? credential.thinkingLevel
+      : null) as AgentRunRequest["model"]["thinkingLevel"],
+  };
+}
+
 export function selectConfiguredModel(input: {
   bot: {
     modelProvider: string | null;

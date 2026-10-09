@@ -2509,6 +2509,10 @@ msgstr "마이크를 사용할 수 없습니다."
 msgid "Milo runs your bots on Claude Code."
 msgstr ""
 
+#: src/pages/OnboardingAgent.tsx
+msgid "Milo runs your bots on your ChatGPT plan."
+msgstr ""
+
 #: src/pages/ModelSettingsOverlay.tsx
 msgid "Minimal"
 msgstr "최소"
@@ -3614,6 +3618,11 @@ msgid "Sign in to Milo"
 msgstr "Milo 로그인"
 
 #: src/pages/Auth.tsx
+#: src/pages/OnboardingAgent.tsx
+msgid "Sign in with ChatGPT"
+msgstr ""
+
+#: src/pages/Auth.tsx
 msgid "Sign in with email"
 msgstr ""
 
@@ -4115,6 +4124,11 @@ msgstr "음성"
 #: src/components/call/VoiceChatCard.tsx
 msgid "Voice chat"
 msgstr "음성 대화"
+
+#: src/pages/Auth.tsx
+#: src/pages/OnboardingAgent.tsx
+msgid "Waiting for ChatGPT…"
+msgstr ""
 
 #: src/components/SoftwareUpdateSection.tsx
 msgid "Waiting for the API to come back…"

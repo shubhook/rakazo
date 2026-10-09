@@ -1,4 +1,5 @@
 import { randomUUID } from "node:crypto";
+import { existsSync } from "node:fs";
 import { rm } from "node:fs/promises";
 import type {
   AgentRuntime,
@@ -10,6 +11,7 @@ import type {
   TransactionalEmailProvider,
 } from "@milo/adapter-kit";
 import type {
+  ChatGptPlanCredential,
   ComposioProvider,
   ConnectorRegistry,
   DestinationEmulator,
@@ -17,9 +19,11 @@ import type {
 } from "@milo/adapters";
 import {
   applyMessagingOutboundStatus,
+  ChatGptSignIn,
   ChatSdkMessagingSurface,
   CodexCatalogCache,
   ComposioConnector,
+  chatGptHostId,
   createAgentRuntime,
   createBackgroundJobHandlers,
   createCloudAgentConnection,
@@ -62,7 +66,7 @@ import {
   sandboxProviderOptionsFromEnv,
   toTeamChatInbound,
 } from "@milo/adapters";
-import { createAuth, isBlockedAuthPath, loopbackTwinOrigins } from "@milo/auth";
+import { createAuth, isBlockedAuthPath, isLoopbackOrigin, loopbackTwinOrigins } from "@milo/auth";
 import { signupAllowlistBootUpdate, signupPolicyFromEnv } from "@milo/core";
 import type { Pool, PrismaClient } from "@milo/db";
 import {
@@ -98,7 +102,8 @@ import {
 } from "./messaging-inbound.js";
 import { mountMessagingWebhookRoutes } from "./messaging-webhook.js";
 import { mountApiRequestBodyLimits } from "./request-body-limit.js";
-import { createRouter } from "./router.js";
+import type { RouterDeps } from "./router.js";
+import { createRouter, saveChatGptPlan } from "./router.js";
 import { mountScreenTarget } from "./screen-proxy.js";
 import { isDeferredReservationLost, TeamChatBridge } from "./team-chat-bridge.js";
 import { ModelTeamChatEngagementJudge } from "./team-chat-judge.js";
@@ -345,6 +350,16 @@ export async function createApp(
     sessionRoot: env.piSessionRecording ? piSessionsRoot(env.dataDir) : undefined,
   });
   const notifications = new ExpoPushProvider(env.dataDir);
+  // OpenAI only redirects Sign in with ChatGPT to 127.0.0.1, so the browser must share this
+  // computer. In a container only the desktop app can catch that redirect for the server.
+  const chatgptCapture = isLoopbackOrigin(env.webOrigin)
+    ? existsSync("/.dockerenv")
+      ? ("desktop" as const)
+      : ("browser" as const)
+    : null;
+  const chatgpt = chatgptCapture
+    ? new ChatGptSignIn({ hostId: chatGptHostId(env.authSecret) })
+    : undefined;
   const auth = createAuth(prisma, {
     secret: env.authSecret,
     baseURL: env.authUrl,
@@ -354,6 +369,12 @@ export async function createApp(
     email,
     onEmailError: (error) => getLogger().error("transactional email delivery failed", error),
     extraOrigins: MOBILE_AUTH_ORIGINS,
+    chatgpt: chatgpt && {
+      start: (input) => chatgpt.start(input),
+      complete: (flowId, callback) => chatgpt.complete(flowId, callback),
+      savePlan: (userId, credential) =>
+        saveChatGptPlan(routerDeps, userId, credential as ChatGptPlanCredential),
+    },
     beforeDeleteUser: async (userId) => {
       const bots = await prisma.bot.findMany({
         where: { userId },
@@ -462,7 +483,7 @@ export async function createApp(
     : undefined;
   reconciler?.start();
 
-  const router = createRouter({
+  const routerDeps: RouterDeps = {
     cloudAgent,
     codexCatalog,
     prisma,
@@ -505,7 +526,8 @@ export async function createApp(
       integrationsCatalogUrl: env.integrationsCatalogUrl,
       mcpAllowPrivateEndpoint: env.mcpAllowPrivateEndpoint,
     },
-  });
+  };
+  const router = createRouter(routerDeps);
   const rpc = new RPCHandler(router, {
     clientInterceptors: [onError((error, { path }) => logUnexpectedRpcError(error, path))],
   });
@@ -525,6 +547,7 @@ export async function createApp(
     c.json({
       passwordReset: Boolean(email),
       resetUrl: email ? new URL("/reset-password", env.webOrigin).href : null,
+      chatgpt: chatgptCapture,
     }),
   );
   if (localEmailEmulator && env.nodeEnv === "development") {
@@ -874,6 +897,7 @@ export async function createApp(
       // on waitForComputerReady for the full boot-wait window during shared Postgres journeys.
       shutdown.abort();
       oauthLogins.abortAll();
+      chatgpt?.cancelAll();
       messagingStopped = true;
       clearMessagingRetryDelay?.();
       clearTeamChatRetryDelay?.();

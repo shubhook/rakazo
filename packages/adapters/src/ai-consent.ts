@@ -1,5 +1,6 @@
 import { createHash } from "node:crypto";
 import type { AiDataUse, AiRecipient } from "@milo/contracts";
+import { CHATGPT_PLAN_PROVIDER } from "./chatgpt-plan.js";
 import { CLAUDE_CODE_PROVIDER } from "./claude-code-cli.js";
 import { localBaseUrl } from "./pi-local-provider.js";
 import { listPiCatalog } from "./pi-models.js";
@@ -10,6 +11,7 @@ const PRIVACY_URLS: Record<string, string> = {
   openrouter: "https://openrouter.ai/privacy",
   openai: "https://openai.com/policies/privacy-policy/",
   "openai-codex": "https://openai.com/policies/privacy-policy/",
+  [CHATGPT_PLAN_PROVIDER]: "https://openai.com/policies/privacy-policy/",
   anthropic: "https://www.anthropic.com/legal/privacy",
   [CLAUDE_CODE_PROVIDER]: "https://www.anthropic.com/legal/privacy",
   google: "https://policies.google.com/privacy",
