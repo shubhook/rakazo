@@ -147,5 +147,5 @@ When finished, report:
 - App URL, health result, UI/message/computer verification, and test/type-check results.
 - Every workaround or remaining limitation.
 - How to restart the stack.
-- How to stop it without deleting data. Do not use `pnpm compose:down` for a normal stop because that script includes `-v` and removes Compose volumes; use a non-destructive stop/down command without `-v` and explain it.
+- How to stop it without deleting data: `pnpm compose:down` keeps volumes. `pnpm compose:reset` runs `down -v` and deletes all Postgres state, so never use it for a normal stop.
 ```

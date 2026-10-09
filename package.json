@@ -9,6 +9,7 @@
     "node": "^22.22.2 || ^24.0.0 || >=26.0.0"
   },
   "scripts": {
+    "dev:setup": "node scripts/dev-setup.mjs",
     "dev": "cross-env COREPACK_ENABLE_DOWNLOAD_PROMPT=0 turbo dev --filter=@milo/api --filter=@milo/worker --filter=@milo/web --filter=@milo/sandbox-supervisor",
     "build": "turbo build",
     "check": "turbo check",
@@ -31,7 +32,8 @@
     "perf:desktop": "tsx packages/testkit/src/cli/desktop-performance.ts",
     "perf:compare": "tsx packages/testkit/src/cli/compare-performance.ts",
     "compose:up": "docker compose --env-file .env -f infra/compose/docker-compose.yml up --build",
-    "compose:down": "docker compose --env-file .env -f infra/compose/docker-compose.yml down -v"
+    "compose:down": "docker compose --env-file .env -f infra/compose/docker-compose.yml down",
+    "compose:reset": "docker compose --env-file .env -f infra/compose/docker-compose.yml down -v"
   },
   "devDependencies": {
     "@biomejs/biome": "2.5.13",
