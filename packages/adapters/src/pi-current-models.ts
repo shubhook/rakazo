@@ -1,4 +1,5 @@
 import type { Api, Model, MutableModels } from "@earendil-works/pi-ai";
+import { chatGptPlanProvider } from "./chatgpt-plan.js";
 
 /** Fill catalog gaps until the bundled provider library includes these releases. */
 export function supplementPiModels(models: MutableModels): MutableModels {
@@ -58,5 +59,7 @@ export function supplementPiModels(models: MutableModels): MutableModels {
     // Subscription transport keeps its own window; the account catalog may narrow it.
     contextWindow: sol?.contextWindow ?? 272000,
   });
+  const chatgpt = chatGptPlanProvider(models);
+  if (chatgpt) models.setProvider(chatgpt);
   return models;
 }

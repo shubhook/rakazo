@@ -17,6 +17,7 @@ import {
   runJobKey,
 } from "@milo/adapter-kit";
 import type {
+  ChatGptPlanCredential,
   ClaudeCodeStatus,
   CloudAgentConnection,
   CodexLiveCatalog,
@@ -39,6 +40,8 @@ import {
   buildMcpCredentialBlob,
   buildModelConnectPlaintext,
   CHATGPT_OAUTH_PROVIDER,
+  CHATGPT_PLAN_DEFAULT_MODEL,
+  CHATGPT_PLAN_PROVIDER,
   CLAUDE_CODE_PROVIDER,
   CodexCatalogCache,
   ComputerBusyError,
@@ -102,6 +105,7 @@ import {
   screenLeaseIdForRun,
   scriptedCatalogEntry,
   selectDefaultCredentialId,
+  selectRuntimeModel,
   serializeModelSecret,
   storeBotSecret,
   takeoverLeaseMs,
@@ -178,6 +182,7 @@ import {
   parseComputerMode,
   releaseSpaceDeletionClaim,
   renewSpaceDeletionClaim,
+  requireMembership,
   restoreBotUnderComputerQuota,
   SPACE_DELETION_CLAIM_TIMEOUT_MS,
   SpaceDeletionInProgressError,
@@ -1007,7 +1012,10 @@ export function createRouter(deps: RouterDeps) {
           deps.secrets,
           context.actor,
         );
-        const available = listAvailablePiCatalog(auth.byProvider, auth.byModel);
+        // ChatGPT plan models only connect through Sign in with ChatGPT.
+        const available = listAvailablePiCatalog(auth.byProvider, auth.byModel).filter(
+          (entry) => entry.provider !== CHATGPT_PLAN_PROVIDER || auth.byProvider[entry.provider],
+        );
         const live = await codexLiveCatalogsForSpace(
           deps.prisma,
           deps.secrets,
@@ -4041,13 +4049,17 @@ export function createRouter(deps: RouterDeps) {
         if (deps.env.agentRuntime !== CLAUDE_CODE_PROVIDER || !context.actor.isDeploymentOwner) {
           return null;
         }
-        const status = await (deps.probeClaudeCode ?? probeClaudeCode)();
+        const [status, chatgpt] = await Promise.all([
+          (deps.probeClaudeCode ?? probeClaudeCode)(),
+          findModelCredential(deps.prisma, context.actor, CHATGPT_PLAN_PROVIDER),
+        ]);
         return {
           agent: CLAUDE_CODE_PROVIDER,
           installed: status.installed,
           version: status.version ?? null,
           loggedIn: status.loggedIn,
           platform: process.platform,
+          chatgpt: Boolean(chatgpt),
         };
       }),
     },
@@ -5762,15 +5774,16 @@ async function meDto(deps: RouterDeps, actor: Actor): Promise<Me> {
 }
 
 async function modelSetup(deps: RouterDeps, actor: Actor) {
-  const [credential, settings] = await Promise.all([
+  const [credential, settings, managed] = await Promise.all([
     findDefaultModelCredential(deps.prisma, actor),
     deps.prisma.deploymentSettings.findUnique({ where: { id: "default" } }),
+    selectRuntimeModel(deps.prisma, actor, runtimeModel(deps.env.agentRuntime)),
   ]);
   const hasDeployment = Boolean(deps.env.deploymentModelKey);
   return {
     credential,
     settings,
-    runtimeModel: runtimeModel(deps.env.agentRuntime),
+    runtimeModel: managed && { provider: managed.provider, id: managed.id },
     needsModel:
       !runtimeProvidesDefaultModel(deps.env.agentRuntime) && !credential && !hasDeployment,
   };
@@ -6197,6 +6210,26 @@ async function persistModelCredential(
     ),
   );
   return modelCredentialDto(cred, input.plaintext);
+}
+
+/** Stores the plan from Sign in with ChatGPT, which then runs this person's bots. */
+export async function saveChatGptPlan(
+  deps: RouterDeps,
+  userId: string,
+  credential: ChatGptPlanCredential,
+): Promise<void> {
+  const actor = await requireMembership(deps.prisma, userId);
+  await persistModelCredential(
+    deps,
+    actor,
+    {
+      provider: CHATGPT_PLAN_PROVIDER,
+      plaintext: serializeModelSecret({ kind: "oauth", credential }),
+      label: "ChatGPT",
+      modelId: CHATGPT_PLAN_DEFAULT_MODEL,
+    },
+    deps.codexCatalog ?? new CodexCatalogCache(),
+  );
 }
 
 function throwIfAborted(signal?: AbortSignal) {

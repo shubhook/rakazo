@@ -7,6 +7,7 @@ test("onboarding skips agent setup when Claude Code is ready", async ({ page }, 
       json: {
         json: {
           agent: "claude-code",
+          chatgpt: false,
           installed: true,
           version: "2.1.0",
           loggedIn: true,

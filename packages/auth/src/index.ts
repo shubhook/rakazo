@@ -12,6 +12,11 @@ import { betterAuth } from "better-auth";
 import { prismaAdapter } from "better-auth/adapters/prisma";
 import { APIError, createAuthMiddleware } from "better-auth/api";
 import { bearer, organization } from "better-auth/plugins";
+import type { ChatGptSignInOptions } from "./chatgpt.js";
+import { chatGptSignIn } from "./chatgpt.js";
+
+export type { ChatGptSignInOptions } from "./chatgpt.js";
+export { CHATGPT_ACCOUNT_PROVIDER } from "./chatgpt.js";
 
 export interface AuthEnv {
   secret: string;
@@ -23,6 +28,8 @@ export interface AuthEnv {
   email?: TransactionalEmailProvider;
   onEmailError?: (error: unknown) => void;
   beforeDeleteUser?: (userId: string) => Promise<void>;
+  /** Sign in with ChatGPT; only set when the browser shares the server's computer. */
+  chatgpt?: Omit<ChatGptSignInOptions, "signupPolicy">;
 }
 
 export async function resolveSignupPolicy(
@@ -297,6 +304,14 @@ export function createAuth(prisma: PrismaClient, env: AuthEnv) {
         disableOrganizationDeletion: true,
         creatorRole: "owner",
       }),
+      ...(env.chatgpt
+        ? [
+            chatGptSignIn({
+              ...env.chatgpt,
+              signupPolicy: () => resolveSignupPolicy(prisma, env),
+            }),
+          ]
+        : []),
     ],
     hooks: {
       before: createAuthMiddleware(async (ctx) => {
@@ -519,6 +534,11 @@ export function buildTrustedOrigins(env: Pick<AuthEnv, "webOrigin" | "baseURL" |
 
 function isLoopbackHost(host: string): boolean {
   return host === "localhost" || host === "127.0.0.1" || host === "::1" || host === "[::1]";
+}
+
+/** True when the origin names this computer, so a browser on it can reach a loopback callback. */
+export function isLoopbackOrigin(origin: string): boolean {
+  return URL.canParse(origin) && isLoopbackHost(new URL(origin).hostname);
 }
 
 /** Same-scheme/port localhost and 127.0.0.1 variants when `origin` is loopback. */

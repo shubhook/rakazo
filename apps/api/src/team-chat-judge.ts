@@ -10,6 +10,7 @@ import {
   formatCurrentTimeInstruction,
   matchesFailedOAuthSecret,
   resolveModelAuth,
+  selectRuntimeModel,
   serializeModelSecret,
   toOAuthCredential,
 } from "@milo/adapters";
@@ -186,17 +187,7 @@ export class ModelTeamChatEngagementJudge implements TeamChatEngagementJudge {
     }
   }
 
-  private async resolveModel(bot: TeamChatEngagementInput["bot"]): Promise<{
-    model: {
-      provider: string;
-      id: string;
-      apiKey?: string;
-      baseUrl?: string;
-      oauth?: AgentRunModel["oauth"];
-    };
-  } | null> {
-    const runtimeModel = this.deps.runtime.describe().capabilities.model;
-    if (runtimeModel) return { model: runtimeModel };
+  private async configuredModel(bot: TeamChatEngagementInput["bot"]) {
     const settings = await this.deps.prisma.deploymentSettings.findUnique({
       where: { id: "default" },
     });
@@ -222,6 +213,27 @@ export class ModelTeamChatEngagementJudge implements TeamChatEngagementJudge {
       credential?.defaultModel ??
       settings?.defaultModelId ??
       this.deps.deploymentModel;
+    return { provider, modelId, credential };
+  }
+
+  private async resolveModel(bot: TeamChatEngagementInput["bot"]): Promise<{
+    model: {
+      provider: string;
+      id: string;
+      apiKey?: string;
+      baseUrl?: string;
+      oauth?: AgentRunModel["oauth"];
+    };
+  } | null> {
+    const scope = { userId: bot.userId, spaceId: bot.spaceId };
+    const managed = await selectRuntimeModel(
+      this.deps.prisma,
+      scope,
+      this.deps.runtime.describe().capabilities.model,
+    );
+    const { provider, modelId, credential } = managed
+      ? { provider: managed.provider, modelId: managed.id, credential: managed.credential }
+      : await this.configuredModel(bot);
     if (!provider || !modelId) return null;
 
     if (!credential) {

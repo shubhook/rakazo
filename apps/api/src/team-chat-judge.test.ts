@@ -49,6 +49,7 @@ describe("team chat engagement judge", () => {
     const prisma = {
       deploymentSettings: { findUnique: vi.fn(async () => null) },
       spaceModelPreference: { findFirst: vi.fn(async () => null) },
+      userModelCredential: { findFirst: vi.fn(async () => null) },
     };
     const judge = new ModelTeamChatEngagementJudge({
       prisma: prisma as never,
@@ -80,7 +81,12 @@ describe("team chat engagement judge", () => {
     expect(run.mock.calls[0]?.[0]).toMatchObject({
       model: { provider: "claude-code", id: "sonnet" },
     });
-    expect(prisma.spaceModelPreference.findFirst).not.toHaveBeenCalled();
+    // Only a ChatGPT sign-in can take over from the runtime's model.
+    for (const [query] of prisma.spaceModelPreference.findFirst.mock.calls as unknown as [
+      { where: { credential?: unknown } },
+    ][]) {
+      expect(query.where.credential).toEqual({ provider: "chatgpt" });
+    }
   });
 
   it("persists cache-read and cache-write tokens from usage events", async () => {

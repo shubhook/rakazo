@@ -247,6 +247,7 @@ import { selectMemoryTools } from "./memory-tools.js";
 import {
   isCatalogModelChoice,
   selectConfiguredModel,
+  selectRuntimeModel,
   UnavailableModelForAuthError,
   validateConnectedModelChoice,
   validateModelAuthAvailability,
@@ -2591,6 +2592,33 @@ export function desktopProtectionGuardMessage(reason: string): string {
 const BOT_DIRECTORY_LIMIT = 40;
 const MISSING_MODEL_MESSAGE = "Connect a model in Settings before running bots.";
 
+async function selectBotModel(
+  deps: Pick<ExecutorDeps, "prisma" | "deploymentModelKey">,
+  scope: { userId: string; spaceId: string; botId?: string },
+) {
+  const override = scope.botId
+    ? await deps.prisma.bot.findFirst({
+        where: { id: scope.botId, userId: scope.userId, spaceId: scope.spaceId },
+        select: { modelProvider: true, modelId: true, thinkingLevel: true },
+      })
+    : null;
+  const hasOverride = Boolean(override?.modelProvider && override.modelId);
+  const [overrideCredential, defaultCredential, settings] = await Promise.all([
+    hasOverride
+      ? findModelCredential(deps.prisma, scope, override!.modelProvider!, override!.modelId)
+      : Promise.resolve(null),
+    findDefaultModelCredential(deps.prisma, scope),
+    deps.prisma.deploymentSettings.findUnique({ where: { id: "default" } }),
+  ]);
+  return selectConfiguredModel({
+    bot: override,
+    overrideCredential,
+    defaultCredential,
+    settings,
+    deployment: deps.deploymentModelKey ? resolveDeploymentModel() : null,
+  });
+}
+
 function runtimeFallbackModel(runtime: AgentRuntime) {
   return runtime.describe().capabilities.scripted ? { provider: "scripted", id: "scripted" } : null;
 }
@@ -2960,33 +2988,15 @@ export function createRunExecutor(deps: ExecutorDeps) {
       spaceId: string;
       botId?: string;
     }): Promise<AgentRunRequest["model"]> {
-      const runtimeModel = deps.runtime.describe().capabilities.model;
-      if (runtimeModel) return { ...runtimeModel, thinkingLevel: null };
-      const override = scope.botId
-        ? await deps.prisma.bot.findFirst({
-            where: {
-              id: scope.botId,
-              userId: scope.userId,
-              spaceId: scope.spaceId,
-            },
-            select: { modelProvider: true, modelId: true, thinkingLevel: true },
-          })
-        : null;
-      const hasOverride = Boolean(override?.modelProvider && override.modelId);
-      const [overrideCredential, defaultCredential, settings] = await Promise.all([
-        hasOverride
-          ? findModelCredential(deps.prisma, scope, override!.modelProvider!, override!.modelId)
-          : Promise.resolve(null),
-        findDefaultModelCredential(deps.prisma, scope),
-        deps.prisma.deploymentSettings.findUnique({ where: { id: "default" } }),
-      ]);
-      const selected = selectConfiguredModel({
-        bot: override,
-        overrideCredential,
-        defaultCredential,
-        settings,
-        deployment: deps.deploymentModelKey ? resolveDeploymentModel() : null,
-      });
+      const managed = await selectRuntimeModel(
+        deps.prisma,
+        scope,
+        deps.runtime.describe().capabilities.model,
+      );
+      if (managed && !managed.credential) {
+        return { provider: managed.provider, id: managed.id, thinkingLevel: null };
+      }
+      const selected = managed ?? (await selectBotModel(deps, scope));
       const { credential, thinkingLevel } = selected;
       let { provider, id } = selected;
       if (!provider || !id) {
@@ -3506,16 +3516,19 @@ export function createRunExecutor(deps: ExecutorDeps) {
         }
         const runDeployment = deps.deploymentModelKey ? resolveDeploymentModel() : null;
         const runtimeFallback = runtimeFallbackModel(deps.runtime);
-        const runtimeModel = deps.runtime.describe().capabilities.model;
-        const selected = runtimeModel
-          ? { ...runtimeModel, credential: null, thinkingLevel: null }
-          : selectConfiguredModel({
-              bot,
-              overrideCredential,
-              defaultCredential,
-              settings,
-              deployment: runDeployment,
-            });
+        const selected =
+          (await selectRuntimeModel(
+            deps.prisma,
+            { userId: run.userId, spaceId: run.spaceId },
+            deps.runtime.describe().capabilities.model,
+          )) ??
+          selectConfiguredModel({
+            bot,
+            overrideCredential,
+            defaultCredential,
+            settings,
+            deployment: runDeployment,
+          });
         const { credential, thinkingLevel } = selected;
         const runModelProvider = selected.provider ?? runtimeFallback?.provider;
         const runModelId = selected.id ?? runtimeFallback?.id;

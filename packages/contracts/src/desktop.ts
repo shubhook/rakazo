@@ -36,6 +36,8 @@ export interface RakazoDesktopUpdate {
 export interface RakazoDesktopOAuthCallback {
   code: string;
   state?: string;
+  /** The client a provider issued during this sign-in, as Sign in with ChatGPT returns it. */
+  clientId?: string;
 }
 
 /** Sign-in the desktop app holds for a server on this computer, so the person never types one. */

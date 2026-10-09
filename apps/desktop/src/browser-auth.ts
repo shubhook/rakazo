@@ -71,6 +71,7 @@ export async function openBrowserAuth(
           }
           const target = new URL(request.url ?? "/", callback.origin);
           const code = target.searchParams.get("code");
+          const clientId = target.searchParams.get("client_id");
           if (
             consumed ||
             request.method !== "GET" ||
@@ -80,6 +81,8 @@ export async function openBrowserAuth(
             target.searchParams.getAll("state").length !== 1 ||
             target.searchParams.get("state") !== state ||
             target.searchParams.getAll("code").length !== 1 ||
+            target.searchParams.getAll("client_id").length > 1 ||
+            (clientId !== null && !/^[A-Za-z0-9_-]{1,200}$/.test(clientId)) ||
             !code ||
             target.searchParams.has("error")
           ) {
@@ -88,7 +91,7 @@ export async function openBrowserAuth(
           }
           consumed = true;
           response.end("You can close this tab and return to Milo.", close);
-          options.onCallback({ code, state });
+          options.onCallback(clientId ? { code, state, clientId } : { code, state });
         });
         server.requestTimeout = 10_000;
         server.headersTimeout = 10_000;

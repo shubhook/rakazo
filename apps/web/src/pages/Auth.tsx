@@ -5,12 +5,18 @@ import { Eye, EyeOff } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { authClient } from "../lib/auth";
+import type { ChatGptCapture } from "../lib/chatgpt-sign-in";
+import { chatGptAvailable, useChatGptSignIn } from "../lib/chatgpt-sign-in";
 import { desktopBridge } from "../lib/desktop";
 import { type LocalAccountAuth, resumeLocalAccount, startLocalAccount } from "../lib/local-account";
 import { clearSpaceSelection } from "../lib/rpc";
 
 type AuthMode = "in" | "up" | "forgot";
-type PasswordResetCapabilities = { passwordReset: boolean; resetUrl: string | null };
+type AuthCapabilities = {
+  passwordReset: boolean;
+  resetUrl: string | null;
+  chatgpt?: ChatGptCapture;
+};
 
 const fieldClass = "mt-2 h-12 rounded-xl px-4 text-base md:text-base";
 const submitClass = "mt-3 h-12 w-full rounded-xl text-base";
@@ -30,7 +36,12 @@ export function AuthPage({ mode }: { mode: AuthMode }) {
   const [resetSent, setResetSent] = useState(false);
   // Signup triggers a session refresh that remounts the anonymous auth page.
   const sent = resetSent || searchParams.get("verify") === "email";
-  const [reset, setReset] = useState<PasswordResetCapabilities | null>(null);
+  const [capabilities, setCapabilities] = useState<AuthCapabilities | null>(null);
+  const chatgpt = useChatGptSignIn(({ created }) => {
+    clearSpaceSelection();
+    authClient.$store.notify("$sessionSignal");
+    navigate(created ? "/onboarding" : "/app");
+  });
   const passwordFieldId = mode === "in" ? "current-password" : "new-password";
   const title = sent ? (
     <Trans>Check your email</Trans>
@@ -43,21 +54,20 @@ export function AuthPage({ mode }: { mode: AuthMode }) {
   );
 
   useEffect(() => {
-    if (mode === "up") return;
     let active = true;
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), AUTH_CAPABILITIES_TIMEOUT_MS);
     void fetch("/api/auth/capabilities", { signal: controller.signal })
       .then(async (response) => {
         if (!response.ok) throw new Error("Could not load authentication capabilities");
-        return readBoundedJsonResponse<PasswordResetCapabilities>(
+        return readBoundedJsonResponse<AuthCapabilities>(
           response,
           MAX_AUTH_CAPABILITIES_RESPONSE_BYTES,
           controller.signal,
         );
       })
-      .then((capabilities) => {
-        if (active) setReset(capabilities);
+      .then((loaded) => {
+        if (active) setCapabilities(loaded);
       })
       .catch(() => undefined)
       .finally(() => clearTimeout(timer));
@@ -76,13 +86,13 @@ export function AuthPage({ mode }: { mode: AuthMode }) {
     setError(null);
     try {
       if (mode === "forgot") {
-        if (!reset?.passwordReset || !reset.resetUrl) {
+        if (!capabilities?.passwordReset || !capabilities.resetUrl) {
           setError(t`Password recovery is not configured for this server`);
           return;
         }
         const result = await authClient.requestPasswordReset({
           email: email.trim(),
-          redirectTo: reset.resetUrl,
+          redirectTo: capabilities.resetUrl,
         });
         if (result.error) {
           setError(result.error.message ?? t`Could not send reset email`);
@@ -194,7 +204,7 @@ export function AuthPage({ mode }: { mode: AuthMode }) {
                   {showPassword ? <EyeOff /> : <Eye />}
                 </Button>
               </div>
-              {mode === "in" && reset?.passwordReset ? (
+              {mode === "in" && capabilities?.passwordReset ? (
                 <div className="mt-2 text-right text-sm">
                   <Link to="/forgot-password" className="font-medium text-foreground">
                     <Trans>Forgot password?</Trans>
@@ -203,9 +213,9 @@ export function AuthPage({ mode }: { mode: AuthMode }) {
               ) : null}
             </div>
           ) : null}
-          {error ? (
+          {error || chatgpt.error ? (
             <p role="alert" className="mt-3 w-full text-sm text-destructive">
-              {error}
+              {error ?? chatgpt.error}
             </p>
           ) : null}
           <Button type="submit" size="lg" disabled={pending} className={submitClass}>
@@ -219,6 +229,22 @@ export function AuthPage({ mode }: { mode: AuthMode }) {
               <Trans>Create account</Trans>
             )}
           </Button>
+          {mode !== "forgot" && chatGptAvailable(capabilities?.chatgpt) ? (
+            <Button
+              type="button"
+              size="lg"
+              variant="outline"
+              disabled={chatgpt.pending}
+              onClick={() => void chatgpt.start()}
+              className={submitClass}
+            >
+              {chatgpt.pending ? (
+                <Trans>Waiting for ChatGPT…</Trans>
+              ) : (
+                <Trans>Sign in with ChatGPT</Trans>
+              )}
+            </Button>
+          ) : null}
           <p className="mt-8 text-muted-foreground">
             {mode === "in" ? (
               <>

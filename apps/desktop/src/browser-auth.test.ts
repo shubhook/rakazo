@@ -49,6 +49,22 @@ describe("system browser authentication", () => {
     expect(options.onClose).toHaveBeenCalledOnce();
   });
 
+  it("forwards the client a provider issued during the sign-in", async () => {
+    const { authorization, callback, options } = await setup();
+    options.openExternal.mockImplementation(async () => {
+      const response = await fetch(
+        `${callback}?code=example-code&state=test-state&client_id=oaiapp_example`,
+      );
+      expect(response.status).toBe(200);
+    });
+    await openBrowserAuth(authorization.href, options);
+    expect(options.onCallback).toHaveBeenCalledExactlyOnceWith({
+      code: "example-code",
+      state: "test-state",
+      clientId: "oaiapp_example",
+    });
+  });
+
   it("rejects wrong state, path, method and duplicate parameters without consuming the attempt", async () => {
     const { authorization, callback, options } = await setup();
     await openBrowserAuth(authorization.href, options);
@@ -57,6 +73,7 @@ describe("system browser authentication", () => {
       `${callback}/wrong?code=x&state=test-state`,
       `${callback}?code=x&state=test-state&state=wrong`,
       `${callback}?code=x&code=y&state=test-state`,
+      `${callback}?code=x&state=test-state&client_id=a&client_id=b`,
       `${callback}?error=denied&state=test-state`,
     ])
       expect((await fetch(url)).status).toBe(400);

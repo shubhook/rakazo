@@ -8,6 +8,7 @@ test("onboarding waits for Claude Code before opening Chief", async ({ page }, t
       json: {
         json: {
           agent: "claude-code",
+          chatgpt: false,
           installed,
           version: installed ? "2.1.0" : null,
           loggedIn: installed,

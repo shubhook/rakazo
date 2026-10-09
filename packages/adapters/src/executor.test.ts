@@ -2034,7 +2034,57 @@ description: Prepare standup notes
       executor.resolveModel({ userId: "user-1", spaceId: "ws-1", botId: "bot-1" }),
     ).resolves.toEqual({ ...model, thinkingLevel: null });
     expect(prisma.bot.findFirst).not.toHaveBeenCalled();
-    expect(prisma.spaceModelPreference.findFirst).not.toHaveBeenCalled();
+    // Only a ChatGPT sign-in can take over from the runtime's model.
+    for (const [query] of vi.mocked(prisma.spaceModelPreference.findFirst).mock.calls) {
+      expect(query?.where?.credential).toEqual({ provider: "chatgpt" });
+    }
+  });
+
+  it("runs a person's bots on their ChatGPT plan instead of the runtime's model", async () => {
+    const credential = {
+      type: "oauth",
+      access: "plan-access",
+      refresh: "plan-refresh",
+      expires: Date.now() + 3_600_000,
+      clientId: "oaiapp_1",
+      accountId: "user-subject",
+    };
+    const prisma = {
+      bot: { findFirst: vi.fn(async () => null) },
+      spaceModelPreference: {
+        findFirst: vi.fn(async (args: { where: { credential?: { provider?: string } } }) =>
+          args.where.credential?.provider === "chatgpt"
+            ? modelPreference({
+                provider: "chatgpt",
+                secretId: "secret-chatgpt",
+                modelId: "gpt-6-sol",
+                isDefault: true,
+              })
+            : null,
+        ),
+      },
+      userModelCredential: { findFirst: vi.fn(async () => null) },
+      deploymentSettings: { findUnique: vi.fn(async () => null) },
+      secret: {
+        findFirst: vi.fn(async () => ({ id: "secret-chatgpt", ciphertext: "cipher" })),
+        findUnique: vi.fn(async () => null),
+      },
+    } as unknown as PrismaClient;
+    const executor = createRunExecutor({
+      prisma,
+      runtime: {
+        describe: () => ({ capabilities: { model: { provider: "claude-code", id: "sonnet" } } }),
+      },
+      secretStore: { load: vi.fn(() => JSON.stringify(credential)), put: vi.fn() },
+    } as unknown as Parameters<typeof createRunExecutor>[0]);
+
+    await expect(
+      executor.resolveModel({ userId: "user-1", spaceId: "ws-1", botId: "bot-1" }),
+    ).resolves.toMatchObject({
+      provider: "chatgpt",
+      id: "gpt-6-sol",
+      oauth: { credential: { access: "plan-access", clientId: "oaiapp_1" } },
+    });
   });
 
   it("keeps a saved Claude subscription off Pi", async () => {

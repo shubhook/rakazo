@@ -2,6 +2,7 @@ import { randomUUID } from "node:crypto";
 import type {
   AuthInteraction,
   Credential,
+  MutableModels,
   OAuthAuth,
   OAuthCredential,
 } from "@earendil-works/pi-ai";
@@ -17,6 +18,7 @@ import {
 } from "@milo/contracts";
 import type { PrismaClient } from "@milo/db";
 import { getLogger } from "@milo/logging";
+import { supplementPiModels } from "./pi-current-models.js";
 import type { EncryptedSecretStore } from "./secrets.js";
 
 export const CHATGPT_OAUTH_PROVIDER = "openai-codex";
@@ -528,10 +530,10 @@ export function loadProviderOAuth(providerId: string): OAuthAuth | undefined {
   return providerCatalog().getProvider(providerId)?.auth.oauth;
 }
 
-let cachedProviderCatalog: ReturnType<typeof builtinModels> | undefined;
+let cachedProviderCatalog: MutableModels | undefined;
 
 function providerCatalog() {
-  cachedProviderCatalog ??= builtinModels();
+  cachedProviderCatalog ??= supplementPiModels(builtinModels());
   return cachedProviderCatalog;
 }
 
