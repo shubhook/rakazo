@@ -670,6 +670,8 @@ const BOT_INTRO_PROMPT =
 export async function enqueueBotIntroRun(deps: RouterDeps, actor: Actor, bot: Bot): Promise<void> {
   const threadId = bot.threadId;
   if (!threadId) return;
+  // A blank bot has no role to read back; onboarding's focus card owns its first turn.
+  if (!bot.title.trim() && !bot.description.trim() && !bot.instructions.trim()) return;
   // Scripted is the deterministic test/eval runtime, not a real deployment: an
   // extra automatic run there competes with whatever response a test or eval
   // harness queued next, for a bot it doesn't otherwise get to opt out of.

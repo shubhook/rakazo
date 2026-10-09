@@ -406,6 +406,7 @@ msgid "Allowed once"
 msgstr "한 번 허용됨"
 
 #: src/pages/Auth.tsx
+#: src/pages/Welcome.tsx
 msgid "Already have an account?"
 msgstr "이미 계정이 있나요?"
 
@@ -539,6 +540,10 @@ msgstr "{0}에"
 #: src/pages/RoutineSchedule.tsx
 msgid "at {timeSelect}"
 msgstr "{timeSelect}에"
+
+#: src/pages/Auth.tsx
+msgid "At least 8 characters"
+msgstr ""
 
 #: src/pages/Shell.tsx
 msgid "Attach file"
@@ -3596,6 +3601,7 @@ msgstr "대화 기록 표시"
 #: src/pages/Auth.tsx
 #: src/pages/ModelSettingsOverlay.tsx
 #: src/pages/OnboardingAgent.tsx
+#: src/pages/Welcome.tsx
 msgid "Sign in"
 msgstr "로그인"
 

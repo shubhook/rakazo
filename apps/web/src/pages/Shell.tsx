@@ -2854,6 +2854,7 @@ export function ShellPage() {
               <PopoverTrigger
                 className="app-no-drag text-[21px] text-muted-foreground/70 hover:text-foreground/75"
                 title={t`Create`}
+                aria-label={t`Create`}
                 data-testid="create-menu-trigger"
               >
                 +
@@ -3681,7 +3682,7 @@ export function ShellPage() {
                   {panel === "settings" ? (
                     <Trans>Settings</Trans>
                   ) : active ? (
-                    (computer?.state ?? active.status)
+                    <Trans>Computer</Trans>
                   ) : (
                     <Trans>Group</Trans>
                   )}

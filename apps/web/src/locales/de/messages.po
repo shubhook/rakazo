@@ -406,6 +406,7 @@ msgid "Allowed once"
 msgstr "Einmal erlaubt"
 
 #: src/pages/Auth.tsx
+#: src/pages/Welcome.tsx
 msgid "Already have an account?"
 msgstr "Du hast bereits ein Konto?"
 
@@ -539,6 +540,10 @@ msgstr "um {0}"
 #: src/pages/RoutineSchedule.tsx
 msgid "at {timeSelect}"
 msgstr "um {timeSelect}"
+
+#: src/pages/Auth.tsx
+msgid "At least 8 characters"
+msgstr ""
 
 #: src/pages/Shell.tsx
 msgid "Attach file"
@@ -3596,6 +3601,7 @@ msgstr "Transkript anzeigen"
 #: src/pages/Auth.tsx
 #: src/pages/ModelSettingsOverlay.tsx
 #: src/pages/OnboardingAgent.tsx
+#: src/pages/Welcome.tsx
 msgid "Sign in"
 msgstr "Anmelden"
 

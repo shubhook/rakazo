@@ -18,7 +18,7 @@
     "@milo/adapter-kit": "workspace:*",
     "@milo/core": "workspace:*",
     "@milo/db": "workspace:*",
-    "better-auth": "1.7.4"
+    "better-auth": "1.7.7"
   },
   "devDependencies": {
     "typescript": "7.0.2",

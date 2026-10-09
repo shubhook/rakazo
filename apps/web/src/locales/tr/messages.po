@@ -406,6 +406,7 @@ msgid "Allowed once"
 msgstr "Bir kez izin verildi"
 
 #: src/pages/Auth.tsx
+#: src/pages/Welcome.tsx
 msgid "Already have an account?"
 msgstr "Zaten hesabın var mı?"
 
@@ -539,6 +540,10 @@ msgstr "saat {0}"
 #: src/pages/RoutineSchedule.tsx
 msgid "at {timeSelect}"
 msgstr "saat {timeSelect}"
+
+#: src/pages/Auth.tsx
+msgid "At least 8 characters"
+msgstr ""
 
 #: src/pages/Shell.tsx
 msgid "Attach file"
@@ -3596,6 +3601,7 @@ msgstr "Dökümü göster"
 #: src/pages/Auth.tsx
 #: src/pages/ModelSettingsOverlay.tsx
 #: src/pages/OnboardingAgent.tsx
+#: src/pages/Welcome.tsx
 msgid "Sign in"
 msgstr "Oturum aç"
 

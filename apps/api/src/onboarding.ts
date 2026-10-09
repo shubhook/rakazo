@@ -60,6 +60,9 @@ const FOCUS_OPTIONS: FocusOption[] = [
   },
 ];
 
+/** Follows the focus choice when there are no apps to suggest; asks for a task, not the focus again. */
+const FIRST_TASK_PROMPT = "Send me a first task to start on.";
+
 const APP_DESCRIPTIONS: Record<string, string> = {
   slack: "Search, read, and send messages.",
   gmail: "Search, read, draft, and send email.",
@@ -236,6 +239,11 @@ export async function chooseFocus(
 
   // Keep the name and title the user chose when creating the bot; the focus
   // step only suggests apps, it must not rename the bot.
+  const providers = deps.connectors.managedProviders();
+  if (!providers.length) {
+    await post(deps, target, [{ kind: "text", text: `Got it. ${FIRST_TASK_PROMPT}` }]);
+    return;
+  }
   await post(deps, target, [
     {
       kind: "text",
@@ -243,7 +251,6 @@ export async function chooseFocus(
     },
   ]);
 
-  const providers = deps.connectors.managedProviders();
   const catalog = (
     await Promise.all(
       providers.map((provider) =>
@@ -280,7 +287,7 @@ export async function chooseFocus(
     ];
   });
   if (!cards.length) {
-    await post(deps, target, [{ kind: "text", text: "What would you like to work on first?" }]);
+    await post(deps, target, [{ kind: "text", text: FIRST_TASK_PROMPT }]);
     return;
   }
   const cardNames = cards

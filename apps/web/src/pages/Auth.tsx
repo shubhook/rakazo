@@ -176,7 +176,7 @@ export function AuthPage({ mode }: { mode: AuthMode }) {
                   autoComplete={mode === "in" ? "current-password" : "new-password"}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  placeholder={t`Password`}
+                  placeholder={mode === "up" ? t`At least 8 characters` : undefined}
                   type={showPassword ? "text" : "password"}
                   required
                   minLength={8}
