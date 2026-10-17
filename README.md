@@ -62,7 +62,6 @@ apps/desktop    Electron shell
 apps/mobile     Expo app
 apps/api        HTTP API
 apps/worker     background jobs and bot runs
-apps/www        public website
 packages/       shared contracts, core logic, adapters, database, and UI
 infra/          Docker Compose files and the bot computer image
 docs/           self-hosting, runtime, and release guides

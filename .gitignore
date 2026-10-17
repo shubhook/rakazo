@@ -29,13 +29,11 @@ apps/mobile/ios
 packages/db/src/generated
 infra/sandboxes/supervisor/dist
 *.log
-.vercel
 .cache
 artifacts
 backups
 test-report
 verify-report
-.astro
 .deploy.lock
 .last-deployed-revision
 design/
@@ -45,4 +43,3 @@ PRODUCT_PLAN.md
 apps/web/src/locales/**/*.mjs
 apps/web/src/locales/**/*.js
 apps/web/scripts/msgids.json
-playwright-report-www

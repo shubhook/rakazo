@@ -180,7 +180,6 @@ function performanceEnvironment(databaseUrl: string): NodeJS.ProcessEnv {
     DATA_DIR: path.join(temporaryRoot, "data"),
     SIGNUPS_ENABLED: "true",
     SIGNUP_ALLOWLIST: "",
-    PUBLIC_POSTHOG_KEY: "",
     CI: "",
     CSC_IDENTITY_AUTO_DISCOVERY: "false",
   };

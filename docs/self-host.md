@@ -1,6 +1,6 @@
 # Self-hosting Milo
 
-The signed-in product is a long-running API, a Graphile Worker, Postgres, and a computer provider (Docker supervisor, E2B, Daytona, CreateOS, or Box). It is not a static site. The marketing site in `apps/www` can be hosted separately.
+The signed-in product is a long-running API, a Graphile Worker, Postgres, and a computer provider (Docker supervisor, E2B, Daytona, CreateOS, or Box). It is not a static site.
 
 ## Local (source checkout)
 
@@ -812,7 +812,6 @@ Use the same HTTPS origin for the web app, `/api`, and `/rpc`. Preserve the auth
 proxy routes. Choose a [computer provider](#choosing-a-computer-provider) appropriate to the
 service's trust boundary. `SIGNUPS_ENABLED` applies on the API's first start. A non-empty
 `SIGNUP_ALLOWLIST` applies on every API start.
-The optional marketing site in `apps/www` can be hosted separately.
 
 ## Connect mobile clients
 
