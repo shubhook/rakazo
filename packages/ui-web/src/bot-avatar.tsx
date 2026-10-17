@@ -183,35 +183,35 @@ export const BotAvatar = memo(function BotAvatar({
       data-working={isWorking}
     >
       {isWorking ? (
-      <svg
-        className="rakazo-bot-avatar-ring absolute pointer-events-none"
-        style={{
-          inset: -3,
-          width: size + 6,
-          height: size + 6,
-          filter: `drop-shadow(0 0 4px ${colorDef.light})`,
-        }}
-        viewBox="0 0 48 48"
-        fill="none"
-        aria-hidden="true"
-      >
-        <circle
-          cx="24"
-          cy="24"
-          r="22"
-          stroke={`url(#${id}-ring)`}
-          strokeWidth="3.2"
-          strokeLinecap="round"
-          strokeDasharray="45 80"
-        />
-        <circle cx="43" cy="24" r="2.4" fill={colorDef.light} />
-        <defs>
-          <linearGradient id={`${id}-ring`} x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor={colorDef.light} stopOpacity="1" />
-            <stop offset="100%" stopColor={colorDef.light} stopOpacity="0" />
-          </linearGradient>
-        </defs>
-      </svg>
+        <svg
+          className="rakazo-bot-avatar-ring absolute pointer-events-none"
+          style={{
+            inset: -3,
+            width: size + 6,
+            height: size + 6,
+            filter: `drop-shadow(0 0 4px ${colorDef.light})`,
+          }}
+          viewBox="0 0 48 48"
+          fill="none"
+          aria-hidden="true"
+        >
+          <circle
+            cx="24"
+            cy="24"
+            r="22"
+            stroke={`url(#${id}-ring)`}
+            strokeWidth="3.2"
+            strokeLinecap="round"
+            strokeDasharray="45 80"
+          />
+          <circle cx="43" cy="24" r="2.4" fill={colorDef.light} />
+          <defs>
+            <linearGradient id={`${id}-ring`} x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stopColor={colorDef.light} stopOpacity="1" />
+              <stop offset="100%" stopColor={colorDef.light} stopOpacity="0" />
+            </linearGradient>
+          </defs>
+        </svg>
       ) : null}
       <svg
         viewBox={VIEWBOX}

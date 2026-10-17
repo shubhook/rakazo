@@ -65,7 +65,9 @@ describe("window chrome", () => {
     const shell = readFileSync(path.join(root, "Shell.tsx"), "utf8");
     expect(shell).toContain('className="app-drag grid grid-cols-[1fr_auto_1fr] items-center');
     expect(shell).toContain('className="app-no-drag grid h-8 w-8');
-    expect(shell).toContain('className="app-no-drag flex min-w-0 items-center gap-2 rounded-full');
+    expect(shell).toContain(
+      'className="app-no-drag flex h-[30px] min-w-0 items-center gap-2 rounded-full',
+    );
     expect(
       shell.match(/className="app-no-drag grid size-\[30px\] place-items-center/g),
     ).toHaveLength(1);
