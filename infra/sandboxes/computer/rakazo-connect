@@ -1,0 +1,55 @@
+#!/usr/bin/env python3
+"""ssh ProxyCommand for restricted computers: tunnel stdio through the egress proxy.
+
+Usage: rakazo-connect HOST PORT. The proxy only opens hosts on the computer's allowlist.
+"""
+
+import os
+import socket
+import sys
+import threading
+import urllib.parse
+
+
+def connect(host: str, port: str, proxy_url: str) -> tuple[socket.socket, bytes]:
+    proxy = urllib.parse.urlsplit(proxy_url)
+    if not proxy.hostname:
+        raise SystemExit("rakazo-connect: https_proxy is not set")
+    sock = socket.create_connection((proxy.hostname, proxy.port or 3128), timeout=30)
+    target = f"{host}:{port}"
+    sock.sendall(f"CONNECT {target} HTTP/1.1\r\nHost: {target}\r\n\r\n".encode())
+    response = b""
+    while b"\r\n\r\n" not in response:
+        chunk = sock.recv(4096)
+        if not chunk or len(response) > 16384:
+            raise SystemExit("rakazo-connect: proxy closed the connection")
+        response += chunk
+    head, _, rest = response.partition(b"\r\n\r\n")
+    status = head.split(b"\r\n", 1)[0].decode("latin-1")
+    if status.split(" ")[1:2] != ["200"]:
+        raise SystemExit(f"rakazo-connect: {status}")
+    sock.settimeout(None)
+    return sock, rest
+
+
+def main() -> None:
+    if len(sys.argv) != 3:
+        raise SystemExit("usage: rakazo-connect HOST PORT")
+    sock, rest = connect(sys.argv[1], sys.argv[2], os.environ.get("https_proxy", ""))
+    out = sys.stdout.buffer
+    out.write(rest)
+    out.flush()
+
+    def upload() -> None:
+        while chunk := os.read(0, 65536):
+            sock.sendall(chunk)
+        sock.shutdown(socket.SHUT_WR)
+
+    threading.Thread(target=upload, daemon=True).start()
+    while chunk := sock.recv(65536):
+        out.write(chunk)
+        out.flush()
+
+
+if __name__ == "__main__":
+    main()

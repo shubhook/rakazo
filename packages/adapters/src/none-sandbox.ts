@@ -30,6 +30,7 @@ export class NoneSandboxProvider implements SandboxProvider {
         takeover: false,
         persistentHome: false,
         multiScreen: false,
+        egress: false,
       },
     };
   }

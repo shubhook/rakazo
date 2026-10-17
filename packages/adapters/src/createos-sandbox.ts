@@ -15,6 +15,8 @@ import type {
   ScreenRequest,
   ScreenSession,
 } from "@milo/adapter-kit";
+import { assertSandboxEgress } from "@milo/adapter-kit";
+import type { ComputerEgressPolicy } from "@milo/contracts";
 import { boundedSandboxCommandTimeoutMs } from "@milo/core";
 import {
   browserProfilePathForScreen,
@@ -400,6 +402,7 @@ export class CreateOSSandboxProvider implements SandboxProvider {
         takeover: true,
         persistentHome: true,
         multiScreen: true,
+        egress: false,
       },
     };
   }
@@ -410,9 +413,11 @@ export class CreateOSSandboxProvider implements SandboxProvider {
       homePath: string;
       providerRef?: string;
       providerKind?: ComputerRef["kind"];
+      egress?: ComputerEgressPolicy;
     },
     context: AdapterContext,
   ): Promise<ComputerRef> {
+    assertSandboxEgress(this, request.egress);
     if (request.providerRef && request.providerKind === "createos") {
       try {
         const existing = await this.waitUntilSettled(request.providerRef, context);

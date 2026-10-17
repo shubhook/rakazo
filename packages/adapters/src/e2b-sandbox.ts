@@ -15,6 +15,8 @@ import type {
   ScreenSession,
   TerminalRequest,
 } from "@milo/adapter-kit";
+import { assertSandboxEgress } from "@milo/adapter-kit";
+import type { ComputerEgressPolicy } from "@milo/contracts";
 import { boundedSandboxCommandTimeoutMs } from "@milo/core";
 import { sandboxIdleMs } from "./computer-idle.js";
 import { normalizeWorkspacePath, shellQuote, workspacePath } from "./computer-support.js";
@@ -102,6 +104,7 @@ export class E2BSandboxProvider implements SandboxProvider {
         takeover: true,
         persistentHome: true,
         multiScreen: true,
+        egress: false,
       },
     };
   }
@@ -150,9 +153,11 @@ export class E2BSandboxProvider implements SandboxProvider {
       homePath: string;
       providerRef?: string;
       providerKind?: ComputerRef["kind"];
+      egress?: ComputerEgressPolicy;
     },
     _context: AdapterContext,
   ): Promise<ComputerRef> {
+    assertSandboxEgress(this, request.egress);
     if (request.providerRef && request.providerKind === "e2b") {
       try {
         const desktop = await this.box({

@@ -1,3 +1,4 @@
+import type { ComputerEgressPolicy } from "@milo/contracts";
 import type {
   AdapterContext,
   AdapterDescriptor,
@@ -88,13 +89,18 @@ export interface SandboxProvider {
     request: PageBrowserCommand,
     context: AdapterContext,
   ): Promise<PageBrowserResult>;
-  /** Allocate or reconnect the computer, returning its reference before fallible setup. */
+  /**
+   * Allocate or reconnect the computer, returning its reference before fallible setup.
+   * Providers without the `egress` capability must refuse a restricted policy.
+   */
   provision(
     request: {
       botId: string;
       homePath: string;
       providerRef?: string;
       providerKind?: ComputerRef["kind"];
+      /** Omitted means open. */
+      egress?: ComputerEgressPolicy;
     },
     context: AdapterContext,
   ): Promise<ComputerRef>;

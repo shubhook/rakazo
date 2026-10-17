@@ -13,6 +13,8 @@ import type {
   ScreenSession,
   TerminalRequest,
 } from "@milo/adapter-kit";
+import { assertSandboxEgress } from "@milo/adapter-kit";
+import type { ComputerEgressPolicy } from "@milo/contracts";
 import { canReleaseScreenLease, canTakeScreenLease } from "@milo/core";
 import { ComputerScreenUnavailableError, screenSessionKey } from "./computer-screens.js";
 import {
@@ -48,14 +50,16 @@ export class FakeSandboxProvider implements SandboxProvider {
         takeover: true,
         persistentHome: true,
         multiScreen: true,
+        egress: false,
       },
     };
   }
 
   async provision(
-    request: { botId: string; homePath: string },
+    request: { botId: string; homePath: string; egress?: ComputerEgressPolicy },
     _context: AdapterContext,
   ): Promise<ComputerRef> {
+    assertSandboxEgress(this, request.egress);
     const id = `fake-${request.botId}`;
     const existing = this.boxes.get(id);
     if (existing) {

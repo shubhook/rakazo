@@ -17,6 +17,8 @@ import type {
   ScreenSession,
   TerminalRequest,
 } from "@milo/adapter-kit";
+import type { ComputerEgressPolicy } from "@milo/contracts";
+import { OPEN_COMPUTER_EGRESS } from "@milo/contracts";
 import { boundedSandboxCommandTimeoutMs, resolveSupervisorToken } from "@milo/core";
 import { outgoingCorrelationHeaders } from "@milo/logging";
 import {
@@ -121,6 +123,7 @@ export class DockerSandboxProvider implements SandboxProvider {
         takeover: true,
         persistentHome: true,
         multiScreen: true,
+        egress: true,
       },
     };
   }
@@ -142,7 +145,7 @@ export class DockerSandboxProvider implements SandboxProvider {
   }
 
   async provision(
-    request: { botId: string; homePath: string },
+    request: { botId: string; homePath: string; egress?: ComputerEgressPolicy },
     context: AdapterContext,
   ): Promise<ComputerRef> {
     const res = await fetch(this.url("/computers"), {
@@ -152,6 +155,7 @@ export class DockerSandboxProvider implements SandboxProvider {
         botId: request.botId,
         homePath: request.homePath,
         spaceId: context.spaceId,
+        egress: request.egress ?? OPEN_COMPUTER_EGRESS,
       }),
       signal: context.signal,
     });

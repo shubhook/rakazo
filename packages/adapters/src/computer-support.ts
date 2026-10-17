@@ -1,7 +1,22 @@
 import { createHash } from "node:crypto";
 import path from "node:path";
 import type { ComputerAction, ComputerObservation, ComputerRef } from "@milo/adapter-kit";
-import type { ComputerMode } from "@milo/contracts";
+import type { ComputerEgressPolicy, ComputerMode } from "@milo/contracts";
+import { ComputerEgressPolicySchema, OPEN_COMPUTER_EGRESS } from "@milo/contracts";
+
+/** The stored policy for a computer row; restricted rows that no longer validate fail closed. */
+export function computerEgressPolicy(computer: {
+  egressMode: string;
+  egressAllowedDomains: string[];
+  egressAllowedTcp: string[];
+}): ComputerEgressPolicy {
+  if (computer.egressMode !== "restricted") return OPEN_COMPUTER_EGRESS;
+  return ComputerEgressPolicySchema.parse({
+    mode: computer.egressMode,
+    allowedDomains: computer.egressAllowedDomains,
+    allowedTcp: computer.egressAllowedTcp,
+  });
+}
 
 export function toComputerRef(computer: {
   homeKey: string;

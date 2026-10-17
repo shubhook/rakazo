@@ -28,6 +28,8 @@ import type {
   ScreenRequest,
   ScreenSession,
 } from "@milo/adapter-kit";
+import { assertSandboxEgress } from "@milo/adapter-kit";
+import type { ComputerEgressPolicy } from "@milo/contracts";
 import { boundedSandboxCommandTimeoutMs } from "@milo/core";
 import {
   applyPlaceholderAction,
@@ -75,14 +77,16 @@ export class DesktopSandboxProvider implements SandboxProvider {
         takeover: false,
         persistentHome: true,
         multiScreen: false,
+        egress: false,
       },
     };
   }
 
   async provision(
-    request: { botId: string; homePath: string },
+    request: { botId: string; homePath: string; egress?: ComputerEgressPolicy },
     _context: AdapterContext,
   ): Promise<ComputerRef> {
+    assertSandboxEgress(this, request.egress);
     const home = path.resolve(
       this.opts.root ?? path.join(process.cwd(), "data"),
       "desktop-computers",

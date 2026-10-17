@@ -6,6 +6,8 @@ import { homedir } from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { serve } from "@hono/node-server";
+import type { ComputerEgressPolicy } from "@milo/contracts";
+import { ComputerEgressPolicySchema, OPEN_COMPUTER_EGRESS } from "@milo/contracts";
 import {
   boundedSandboxCommandTimeoutMs,
   readBoundedJsonResponse,
@@ -21,19 +23,28 @@ import { bodyLimit } from "hono/body-limit";
 import { z } from "zod";
 import {
   assertVolumeSubpathSupport,
+  COMPUTER_EGRESS_LABEL,
   COMPUTER_GID,
   COMPUTER_IMAGE,
   COMPUTER_UID,
   COMPUTER_USER,
-  computerBridgeNameFor,
   computerHomeStorage,
   computerNetworkCreateOptions,
+  computerNetworkMatches,
   computerNetworkNameFor,
   computerNetworkNamesForCleanup,
   computerResourceLimits,
   containerCreateOptions,
   containerNameFor,
   controlPortPublicationMatches,
+  EGRESS_POLICY_LABEL,
+  EGRESS_PROXY_ALIAS,
+  EGRESS_PROXY_LABEL,
+  egressPolicyDigest,
+  egressProxyContainerNameFor,
+  egressProxyCreateOptions,
+  egressProxyNetworkCreateOptions,
+  egressProxyNetworkNameFor,
   homeVolumeMatches,
   hostComputerUser,
   legacyNetworkOwnedSolelyBy,
@@ -167,8 +178,17 @@ app.post("/computers", async (c) => {
       botId: z.string().min(1),
       homePath: z.string().min(1),
       spaceId: z.string().min(1),
+      egress: ComputerEgressPolicySchema.default(OPEN_COMPUTER_EGRESS),
     })
     .parse(await c.req.json());
+  const restrictedEgress = body.egress.mode === "restricted";
+  // Internal networks publish no ports, so only per-bot Compose networks can carry the proxy.
+  if (restrictedEgress && screenNetworkMode !== "isolated") {
+    return c.json(
+      { error: "Restricted network access needs SANDBOX_SCREEN_NETWORK=isolated" },
+      400,
+    );
+  }
   try {
     assertRequestIdentity(c.req.header("x-rakazo-bot-id"), c.req.header("x-rakazo-space-id"), {
       botId: body.botId,
@@ -192,8 +212,10 @@ app.post("/computers", async (c) => {
       }
       const computerUser = runtimeInfo ? COMPUTER_USER : hostComputerUser(hostUid, hostGid);
       const existing = await findBotContainer(body.botId, body.spaceId);
+      let wasRestricted = false;
       if (existing) {
         const info = await existing.inspect();
+        wasRestricted = info.Config.Labels?.[COMPUTER_EGRESS_LABEL] === "restricted";
         const desired = await docker.getImage(COMPUTER_IMAGE).inspect();
         const controlPublishOk = controlPortPublicationMatches(
           info.HostConfig.PortBindings,
@@ -201,18 +223,19 @@ app.post("/computers", async (c) => {
         );
         // A network created while egress was open keeps a generic br-* bridge
         // the host ruleset does not match, so restricted mode must not resume a
-        // computer on it — the replace path rekeys the network instead.
+        // computer on it — the replace path rekeys the network instead. The same
+        // applies to a computer policy change, which flips the network's internal flag.
+        const egressLabelOk = wasRestricted === restrictedEgress;
         const restrictedBridgeOk =
           !networkMode ||
-          computerEgressMode !== "restricted" ||
+          (computerEgressMode !== "restricted" && !restrictedEgress) ||
           networkMode !== computerNetworkNameFor(body.botId) ||
           (await docker
             .getNetwork(networkMode)
             .inspect()
             .then(
               (net) =>
-                net.Options?.["com.docker.network.bridge.name"] ===
-                computerBridgeNameFor(body.botId),
+                computerNetworkMatches(net, body.botId, computerEgressMode, restrictedEgress),
               (error) => {
                 // A missing network is incompatible; transient inspect
                 // failures must surface instead of force-replacing a
@@ -232,11 +255,13 @@ app.post("/computers", async (c) => {
           (!networkMode ||
             (info.HostConfig.NetworkMode === networkMode &&
               Boolean(info.NetworkSettings?.Networks?.[networkMode]))) &&
+          egressLabelOk &&
           restrictedBridgeOk &&
           info.Config.User === computerUser &&
           controlPublishOk &&
           (!storage.homeVolume || homeVolumeMatches(info.HostConfig.Mounts, storage.homeVolume))
         ) {
+          if (restrictedEgress) await ensureEgressProxy(body.botId, body.egress, runtimeInfo);
           if (!info.State.Running) await existing.start();
           return c.json({
             id: existing.id,
@@ -277,12 +302,17 @@ app.post("/computers", async (c) => {
         await assertComputerHomeWritable(serviceHomePath, effectiveUid, effectiveGid);
         const name = containerNameFor(body.botId);
         const createdNetwork =
-          screenNetworkMode === "internal" ? undefined : await ensureBotNetwork(body.botId);
+          screenNetworkMode === "internal"
+            ? undefined
+            : await ensureBotNetwork(body.botId, restrictedEgress);
         let container: Docker.Container | undefined;
         try {
           if (existing) {
             await existing.remove({ force: true }).catch(() => undefined);
           }
+          // The proxy is the restricted computer's only route out, so it comes up first.
+          if (restrictedEgress) await ensureEgressProxy(body.botId, body.egress, runtimeInfo);
+          else if (wasRestricted) await removeEgressProxy(body.botId);
           container = await docker.createContainer(
             containerCreateOptions({
               name,
@@ -294,6 +324,7 @@ app.post("/computers", async (c) => {
               networkMode,
               controlToken: randomUUID(),
               publishControlPort: controlViaLoopback,
+              restrictedEgress,
             }),
           );
           await container.start();
@@ -908,7 +939,7 @@ app.delete("/computers/:id/screen", async (c) => {
 app.post("/computers/:id/stop", async (c) => {
   const id = c.req.param("id");
   try {
-    const { container } = await managedContainer(
+    const { container, info } = await managedContainer(
       id,
       c.req.header("x-rakazo-bot-id"),
       c.req.header("x-rakazo-space-id"),
@@ -933,6 +964,9 @@ app.post("/computers/:id/stop", async (c) => {
       }
       clearComputerScreenRegistry(computerScreens, id);
     });
+    if (info.Config.Labels?.[COMPUTER_EGRESS_LABEL] === "restricted") {
+      await stopEgressProxy(c.req.header("x-rakazo-bot-id")!);
+    }
     return c.json({ ok: true });
   } catch (error) {
     if (error instanceof ComputerIdentityError)
@@ -954,6 +988,7 @@ app.delete("/computers/:id", async (c) => {
         await container.remove({ force: true }).catch(() => undefined);
         clearComputerScreenRegistry(computerScreens, id);
       });
+      await removeEgressProxy(botId);
       if (screenNetworkMode !== "internal") {
         await removeBotNetwork(botId);
       }
@@ -1400,31 +1435,29 @@ async function connectComposeScreenPeers(networkName: string, info: Docker.Conta
   );
 }
 
-async function ensureBotNetwork(botId: string) {
+async function ensureBotNetwork(botId: string, internal: boolean) {
   return docker
-    .createNetwork(computerNetworkCreateOptions(botId, computerEgressMode))
+    .createNetwork(computerNetworkCreateOptions(botId, computerEgressMode, internal))
     .catch(async (error) => {
       // Existing networks and concurrent provision requests are both safe.
       if (!/already exists/i.test(String(error))) throw error;
-      if (computerEgressMode === "restricted") {
-        await rekeyRestrictedBotNetwork(computerNetworkNameFor(botId), botId);
-      }
+      await rekeyBotNetwork(computerNetworkNameFor(botId), botId, internal);
     });
 }
 
 // A network created before SANDBOX_COMPUTER_EGRESS=restricted has a generic br-*
-// bridge the host ruleset does not match. Recreate it with the named bridge: the
-// only caller is the create path, which replaces the computer container anyway,
-// and supervisor/web screen peers rejoin lazily via connectComposeScreenPeers.
-async function rekeyRestrictedBotNetwork(name: string, botId: string) {
-  const expectedBridge = computerBridgeNameFor(botId);
+// bridge the host ruleset does not match, and a computer policy change flips the
+// internal flag. Recreate the network to match: the only caller is the create path,
+// which replaces the computer container anyway, and supervisor/web screen peers and
+// the egress proxy rejoin lazily.
+async function rekeyBotNetwork(name: string, botId: string, internal: boolean) {
   const inspect = () =>
     docker
       .getNetwork(name)
       .inspect()
       .catch(() => undefined);
   const hasNamedBridge = (info: Docker.NetworkInspectInfo | undefined) =>
-    info?.Options?.["com.docker.network.bridge.name"] === expectedBridge;
+    computerNetworkMatches(info, botId, computerEgressMode, internal);
   const info = await inspect();
   if (info && !hasNamedBridge(info)) {
     const network = docker.getNetwork(name);
@@ -1445,13 +1478,97 @@ async function rekeyRestrictedBotNetwork(name: string, botId: string) {
     }
   }
   if (!info || !hasNamedBridge(info)) {
-    await docker.createNetwork(computerNetworkCreateOptions(botId, "restricted")).catch((error) => {
-      if (!/already exists/i.test(String(error))) throw error;
-    });
+    await docker
+      .createNetwork(computerNetworkCreateOptions(botId, computerEgressMode, internal))
+      .catch((error) => {
+        if (!/already exists/i.test(String(error))) throw error;
+      });
   }
   if (!hasNamedBridge(await inspect())) {
     throw new Error(`cannot restrict egress: network ${name} is missing the named bridge`);
   }
+}
+
+/**
+ * Run the restricted computer's filtering proxy from the supervisor's own image. It sits
+ * on its own outbound network and joins the computer's internal network as
+ * `egress-proxy`. A changed allowlist or supervisor image replaces it.
+ */
+async function ensureEgressProxy(
+  botId: string,
+  policy: ComputerEgressPolicy,
+  runtimeInfo: Docker.ContainerInspectInfo | undefined,
+) {
+  if (!runtimeInfo) throw new Error("restricted network access needs a containerized supervisor");
+  const name = egressProxyContainerNameFor(botId);
+  const existing = await docker
+    .getContainer(name)
+    .inspect()
+    .catch(() => undefined);
+  const owned = existing?.Config.Labels?.[EGRESS_PROXY_LABEL] === botId;
+  if (existing && !owned) throw new Error(`container ${name} is not this computer's proxy`);
+  const current =
+    existing?.Config.Labels?.[EGRESS_POLICY_LABEL] === egressPolicyDigest(policy) &&
+    existing.Image === runtimeInfo.Image;
+  if (existing && !current) await docker.getContainer(name).remove({ force: true });
+  await ensureEgressProxyNetwork(botId);
+  const proxy = current
+    ? docker.getContainer(name)
+    : await docker.createContainer(
+        egressProxyCreateOptions({ botId, image: runtimeInfo.Image, policy }),
+      );
+  await docker
+    .getNetwork(computerNetworkNameFor(botId))
+    .connect({ Container: proxy.id, EndpointConfig: { Aliases: [EGRESS_PROXY_ALIAS] } })
+    .catch((error) => {
+      if (!/already exists|already connected/i.test(String(error))) throw error;
+    });
+  if (!(current && existing?.State.Running)) await proxy.start().catch(ignoreAlreadyStarted);
+}
+
+async function ensureEgressProxyNetwork(botId: string) {
+  const options = egressProxyNetworkCreateOptions(botId, computerEgressMode);
+  const network = docker.getNetwork(options.Name);
+  const info = await network.inspect().catch(() => undefined);
+  const bridge = options.Options?.["com.docker.network.bridge.name"] ?? null;
+  // The host ruleset matches bridge names, so a proxy network made before
+  // SANDBOX_COMPUTER_EGRESS=restricted must be rebuilt to stay off the host and LAN.
+  if (info && (bridge === null || info.Options?.["com.docker.network.bridge.name"] === bridge)) {
+    return;
+  }
+  if (info) {
+    await docker
+      .getContainer(egressProxyContainerNameFor(botId))
+      .remove({ force: true })
+      .catch(() => undefined);
+    await network.remove();
+  }
+  await docker.createNetwork(options).catch((error) => {
+    if (!/already exists/i.test(String(error))) throw error;
+  });
+}
+
+function ignoreAlreadyStarted(error: unknown) {
+  const status = (error as { statusCode?: number })?.statusCode;
+  if (status !== 304) throw error;
+}
+
+async function stopEgressProxy(botId: string) {
+  const proxy = docker.getContainer(egressProxyContainerNameFor(botId));
+  const info = await proxy.inspect().catch(() => undefined);
+  if (info?.Config.Labels?.[EGRESS_PROXY_LABEL] !== botId || !info.State.Running) return;
+  await proxy.stop({ t: 1 }).catch(() => undefined);
+}
+
+async function removeEgressProxy(botId: string) {
+  const proxy = docker.getContainer(egressProxyContainerNameFor(botId));
+  const info = await proxy.inspect().catch(() => undefined);
+  if (info?.Config.Labels?.[EGRESS_PROXY_LABEL] !== botId) return;
+  await proxy.remove({ force: true }).catch(() => undefined);
+  await docker
+    .getNetwork(egressProxyNetworkNameFor(botId))
+    .remove()
+    .catch(() => undefined);
 }
 
 async function stopContainer(container: Docker.Container) {

@@ -10,6 +10,7 @@ import type {
 } from "@milo/adapter-kit";
 import {
   computerControlExpireJobKey,
+  EgressUnsupportedError,
   messagingDeliverJob,
   routineJobKey,
   routineWakeupJob,
@@ -53,6 +54,7 @@ import {
   clearInactiveUserComputerControl,
   codexLiveCatalogsForSpace,
   codexLiveListsModel,
+  computerEgressPolicy,
   computerSupportsTerminal,
   computerSupportsUpdate,
   computerUpdateView,
@@ -126,6 +128,7 @@ import type {
   AgentModel,
   Bot,
   BotSecretMetadata,
+  ComputerEgress,
   ComputerReleaseReason,
   ComputerStatus,
   McpServer,
@@ -410,6 +413,26 @@ function computerContext(actor: Actor, botId: string, operationId: string): Adap
     userId: actor.userId,
     botId,
     signal: new AbortController().signal,
+  };
+}
+
+type EgressComputer = {
+  kind: string;
+  egressMode: string;
+  egressAllowedDomains: string[];
+  egressAllowedTcp: string[];
+};
+
+/** A host computer can sit behind a Docker-backed provider, so check the computer's own kind. */
+function computerSupportsEgress(sandbox: SandboxProvider, computer: Pick<EgressComputer, "kind">) {
+  const descriptor = sandbox.describe();
+  return descriptor.capabilities.egress === true && descriptor.id === computer.kind;
+}
+
+function computerEgressView(sandbox: SandboxProvider, computer: EgressComputer): ComputerEgress {
+  return {
+    policy: computerEgressPolicy(computer),
+    supported: computerSupportsEgress(sandbox, computer),
   };
 }
 
@@ -735,6 +758,14 @@ export function createRouter(deps: RouterDeps) {
     dataDir: deps.dataDir,
   });
   const agentSkills = createAgentSkillsService(deps.prisma);
+
+  /** Network policy belongs to the user who owns the computer, not every bot that shares it. */
+  async function ownedComputer(actor: Actor, botId: string) {
+    const bot = await repos.getBot(actor, botId);
+    if (!bot.computer) throw new IsolationError();
+    if (bot.computer.userId !== actor.userId) throw new ORPCError("FORBIDDEN");
+    return bot.computer;
+  }
 
   const authed = os.use(async ({ context, next }) => {
     if (!context.actor) throw new ORPCError("UNAUTHORIZED");
@@ -2936,6 +2967,44 @@ export function createRouter(deps: RouterDeps) {
           ).catch(() => undefined);
         }
         return { ok: true as const };
+      }),
+      egress: authed.computer.egress.handler(async ({ context, input }) => {
+        const computer = await ownedComputer(context.actor, input.botId);
+        return computerEgressView(deps.sandbox, computer);
+      }),
+      setEgress: authed.computer.setEgress.handler(async ({ context, input }) => {
+        const computer = await ownedComputer(context.actor, input.botId);
+        const { policy } = input;
+        if (policy.mode === "restricted" && !computerSupportsEgress(deps.sandbox, computer)) {
+          throw new ORPCError("BAD_REQUEST", {
+            message: new EgressUnsupportedError(computer.kind).message,
+          });
+        }
+        // Docker applies the policy by recreating the computer's network, so only a
+        // stopped computer may change it. Booting reads it under the same fence.
+        const saved = await deps.prisma.computer.updateMany({
+          where: {
+            id: computer.id,
+            state: { in: ["stopped", "suspended", "error"] },
+            maintenanceId: null,
+          },
+          data: {
+            egressMode: policy.mode,
+            egressAllowedDomains: policy.allowedDomains,
+            egressAllowedTcp: policy.allowedTcp,
+          },
+        });
+        if (saved.count !== 1) {
+          throw new ORPCError("CONFLICT", {
+            message: "Stop the computer before changing its network access",
+          });
+        }
+        return computerEgressView(deps.sandbox, {
+          ...computer,
+          egressMode: policy.mode,
+          egressAllowedDomains: policy.allowedDomains,
+          egressAllowedTcp: policy.allowedTcp,
+        });
       }),
     },
     memory: {

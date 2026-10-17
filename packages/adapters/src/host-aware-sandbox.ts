@@ -12,6 +12,7 @@ import type {
   ScreenRequest,
   TerminalRequest,
 } from "@milo/adapter-kit";
+import type { ComputerEgressPolicy } from "@milo/contracts";
 import type { PrismaClient } from "@milo/db";
 import { DesktopSandboxProvider } from "./desktop-sandbox.js";
 import { createSandboxProvider, type SandboxProviderOptions } from "./sandbox-factory.js";
@@ -85,6 +86,7 @@ export class HostAwareSandbox implements SandboxProvider {
       homePath: string;
       providerRef?: string;
       providerKind?: ComputerRef["kind"];
+      egress?: ComputerEgressPolicy;
     },
     context: AdapterContext,
   ) {

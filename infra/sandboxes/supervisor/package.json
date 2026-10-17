@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "@hono/node-server": "2.1.1",
+    "@milo/contracts": "workspace:*",
     "@milo/core": "workspace:*",
     "@milo/logging": "workspace:*",
     "dockerode": "5.0.1",

@@ -949,6 +949,9 @@ model Computer {
   executionLeases         ComputerExecutionLease[]
   maintenanceId           String?
   updates                 ComputerUpdate[]
+  egressMode              String                   @default("open")
+  egressAllowedDomains    String[]                 @default([])
+  egressAllowedTcp        String[]                 @default([])
 
   @@index([spaceId, scope])
   @@map("computers")

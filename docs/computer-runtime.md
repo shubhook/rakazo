@@ -39,6 +39,18 @@ Fake computers and explicit `BROWSER_PROVIDER=fake|emulator` use an in-process s
 
 Human input and agent input may coexist on distinct Team screens. “Take control” grants the user an exclusive control lease on that bot’s screen so the embedded viewer accepts input. For a Team bot, takeover is refused with HTTP 409 (“Stop the bot first”) while that bot holds a live computer execution lease or an active run, unless the run is `waiting_takeover` (the bot asked for protected input). Stop the bot first, then take control; after release, the agent may continue. `request_takeover` remains available when the model explicitly needs protected input or human judgment.
 
+## Network access
+
+Each computer has an egress policy: `{ mode: "open" | "restricted", allowedDomains, allowedTcp }`. It defaults to `open`, which keeps the provider's normal outbound access. The computer's owner reads and changes it through `computer/egress` and `computer/setEgress`. The API validates the entries and saves a change only while the computer is stopped. The new policy applies on the next boot.
+
+`allowedDomains` holds host names. `example.com` matches only that host, and `*.example.com` matches its subdomains but not the apex. These entries allow ports 80 and 443. `allowedTcp` holds exact `host:port` entries for anything else, such as `github.com:22`. IP literals are rejected.
+
+Only Docker enforces `restricted`, and only with `SANDBOX_SCREEN_NETWORK=isolated`, the Compose default. Other providers report the `egress` capability as unsupported, and their `provision` refuses a restricted policy. A computer whose provider changed after the policy was saved therefore fails to boot instead of running open.
+
+On Docker, a restricted computer sits on an internal network. Its only route out is a small HTTP proxy that the supervisor runs as a sidecar from its own image (`infra/sandboxes/supervisor/src/egress-proxy.ts`). The sidecar has no Docker socket, no capabilities, and a read-only root, and it sits alone on its own outbound bridge. It accepts CONNECT tunnels and plain HTTP requests only to allowed hosts. It also refuses a name that resolves to a private, loopback, link-local, or metadata address. The computer gets `HTTP_PROXY`/`HTTPS_PROXY`, Chromium gets `--proxy-server`, and git over SSH tunnels through `rakazo-connect`. Package managers that honor proxy variables (pip, uv, npm, git over HTTPS) work for allowed registries. Denied requests get a 403 that names the host, and the sidecar logs an `egress.denied` line.
+
+The policy covers the computer only. Web search and fetch tools run in the API or worker process, so a restricted bot can still research.
+
 ## Terminal and files
 
 The web and desktop computer view opens a terminal and a file browser from a dock over the screen. The dock's browser button hides those windows, keeping their sessions, so the whole screen is visible again.

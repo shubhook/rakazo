@@ -23,13 +23,18 @@ import {
   assertVolumeSubpathSupport,
   COMPUTER_IMAGE,
   computerBridgeNameFor,
+  computerEgressProxyEnv,
   computerHomeStorage,
   computerNetworkCreateOptions,
+  computerNetworkMatches,
   computerNetworkNameFor,
   computerNetworkNamesForCleanup,
   containerCreateOptions,
   containerNameFor,
   controlPortPublicationMatches,
+  egressPolicyDigest,
+  egressProxyCreateOptions,
+  egressProxyNetworkCreateOptions,
   homeVolumeMatches,
   hostComputerUser,
   legacyNetworkOwnedSolelyBy,
@@ -1744,5 +1749,72 @@ describe("computer home storage", () => {
     );
     // Steady state waits on Xvfb instead of polling, so the trap runs immediately.
     expect(start).toMatch(/^wait "\$XVFB_PID"$/m);
+  });
+});
+
+describe("restricted computer egress spec", () => {
+  const policy = { mode: "restricted" as const, allowedDomains: ["pypi.org"], allowedTcp: [] };
+
+  it("requires the internal flag to match the computer's policy", () => {
+    expect(computerNetworkMatches({ Internal: true, Options: {} }, "bot", "open", true)).toBe(true);
+    expect(computerNetworkMatches({ Internal: false, Options: {} }, "bot", "open", true)).toBe(
+      false,
+    );
+    expect(computerNetworkMatches({ Internal: true, Options: {} }, "bot", "open", false)).toBe(
+      false,
+    );
+    expect(computerNetworkMatches(undefined, "bot", "open", false)).toBe(false);
+    expect(
+      computerNetworkMatches(
+        {
+          Internal: true,
+          Options: { "com.docker.network.bridge.name": computerBridgeNameFor("bot") },
+        },
+        "bot",
+        "restricted",
+        true,
+      ),
+    ).toBe(true);
+    expect(computerNetworkMatches({ Internal: true, Options: {} }, "bot", "restricted", true)).toBe(
+      false,
+    );
+  });
+
+  it("names the proxy bridge for the host ruleset only when host egress is restricted", () => {
+    expect(egressProxyNetworkCreateOptions("bot", "open")).not.toHaveProperty("Options");
+    const bridge = egressProxyNetworkCreateOptions("bot", "restricted").Options?.[
+      "com.docker.network.bridge.name"
+    ];
+    expect(bridge).toMatch(/^rakazo-c[0-9a-f]{7}$/);
+    expect(bridge).not.toBe(computerBridgeNameFor("bot"));
+  });
+
+  it("runs the proxy unprivileged with the policy as its only input", () => {
+    const options = egressProxyCreateOptions({ botId: "bot", image: "sha256:sup", policy });
+    expect(options.Cmd).toEqual(["src/egress-proxy.ts", JSON.stringify(policy)]);
+    expect(options.Labels).not.toHaveProperty("rakazo.managed");
+    expect(options.Labels).not.toHaveProperty("rakazo.botId");
+    expect(options.HostConfig).toMatchObject({
+      ReadonlyRootfs: true,
+      CapDrop: ["ALL"],
+      SecurityOpt: ["no-new-privileges:true"],
+    });
+    expect(options.HostConfig).not.toHaveProperty("Binds");
+  });
+
+  it("changes the digest when the allowlist changes", () => {
+    expect(egressPolicyDigest(policy)).not.toBe(
+      egressPolicyDigest({ ...policy, allowedDomains: ["pypi.org", "github.com"] }),
+    );
+  });
+
+  it("keeps loopback direct and tunnels git over SSH", () => {
+    expect(computerEgressProxyEnv()).toEqual(
+      expect.arrayContaining([
+        "https_proxy=http://egress-proxy:3128",
+        "NO_PROXY=localhost,127.0.0.1,::1",
+        "GIT_SSH_COMMAND=ssh -o ProxyCommand='rakazo-connect %h %p'",
+      ]),
+    );
   });
 });

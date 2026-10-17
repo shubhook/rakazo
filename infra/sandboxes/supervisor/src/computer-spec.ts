@@ -1,7 +1,9 @@
 import { createHash } from "node:crypto";
 import path from "node:path";
+import type { ComputerEgressPolicy } from "@milo/contracts";
 import { MAX_DESKTOP_DISPLAY, screenPorts } from "@milo/core/node/desktop-runtime";
 import type Docker from "dockerode";
+import { EGRESS_PROXY_PORT } from "./egress-proxy.js";
 
 export const COMPUTER_IMAGE = process.env.RAKAZO_COMPUTER_IMAGE ?? "rakazo/computer:local";
 export const COMPUTER_UID = 1000;
@@ -179,16 +181,128 @@ export function computerBridgeNameFor(botId: string) {
   return `rakazo-c${hash}`;
 }
 
-/** docker.createNetwork payload for a bot's computer network. */
-export function computerNetworkCreateOptions(botId: string, egress: ComputerEgressMode = "open") {
+/**
+ * docker.createNetwork payload for a bot's computer network. A computer with a restricted
+ * policy gets an internal network: no route out except the egress proxy attached to it.
+ */
+export function computerNetworkCreateOptions(
+  botId: string,
+  egress: ComputerEgressMode = "open",
+  internal = false,
+) {
   return {
     Name: computerNetworkNameFor(botId),
     Driver: "bridge",
     CheckDuplicate: true,
+    ...(internal ? { Internal: true } : {}),
     ...(egress === "restricted"
       ? { Options: { "com.docker.network.bridge.name": computerBridgeNameFor(botId) } }
       : {}),
   };
+}
+
+/** Whether an existing computer network has the bridge name and internal flag it needs. */
+export function computerNetworkMatches(
+  network: Pick<Docker.NetworkInspectInfo, "Options" | "Internal"> | undefined,
+  botId: string,
+  egress: ComputerEgressMode,
+  internal: boolean,
+) {
+  if (!network) return false;
+  if (Boolean(network.Internal) !== internal) return false;
+  return (
+    egress !== "restricted" ||
+    network.Options?.["com.docker.network.bridge.name"] === computerBridgeNameFor(botId)
+  );
+}
+
+/** The restricted computer reaches its proxy by this name on its internal network. */
+export const EGRESS_PROXY_ALIAS = "egress-proxy";
+export const COMPUTER_EGRESS_LABEL = "rakazo.egress";
+export const EGRESS_PROXY_LABEL = "rakazo.egressProxyFor";
+export const EGRESS_POLICY_LABEL = "rakazo.egressPolicy";
+
+export function egressProxyContainerNameFor(botId: string) {
+  return `rakazo-egress-${sanitizeIdentifier(botId)}`;
+}
+
+/** The proxy's own outbound network; nothing else joins it. */
+export function egressProxyNetworkNameFor(botId: string) {
+  const hash = createHash("sha256").update(botId).digest("hex").slice(0, 32);
+  return `rakazo-egress-${sanitizeIdentifier(botId).slice(0, 32)}-${hash}`;
+}
+
+/**
+ * The proxy's bridge also uses the rakazo-c prefix, so the host ruleset from
+ * SANDBOX_COMPUTER_EGRESS=restricted keeps it off the host, LAN, and metadata too.
+ */
+export function egressProxyNetworkCreateOptions(botId: string, egress: ComputerEgressMode) {
+  const bridge = `rakazo-c${createHash("sha256").update(`egress:${botId}`).digest("hex").slice(0, 7)}`;
+  return {
+    Name: egressProxyNetworkNameFor(botId),
+    Driver: "bridge",
+    CheckDuplicate: true,
+    ...(egress === "restricted" ? { Options: { "com.docker.network.bridge.name": bridge } } : {}),
+  };
+}
+
+/** Stable digest of a normalized policy, so a changed allowlist replaces the proxy. */
+export function egressPolicyDigest(policy: ComputerEgressPolicy) {
+  return createHash("sha256").update(JSON.stringify(policy)).digest("hex");
+}
+
+/**
+ * The sidecar runs the supervisor image's proxy entrypoint with no Docker socket, no
+ * capabilities, and a read-only root. The policy is its only input.
+ */
+export function egressProxyCreateOptions(input: {
+  botId: string;
+  image: string;
+  policy: ComputerEgressPolicy;
+}) {
+  return {
+    Image: input.image,
+    name: egressProxyContainerNameFor(input.botId),
+    User: COMPUTER_USER,
+    Entrypoint: ["node_modules/.bin/tsx"],
+    Cmd: ["src/egress-proxy.ts", JSON.stringify(input.policy)],
+    WorkingDir: "/app/infra/sandboxes/supervisor",
+    Env: ["NODE_ENV=production"],
+    // Not "rakazo.managed": the proxy is not a computer and must never match computer lookups.
+    Labels: {
+      [EGRESS_PROXY_LABEL]: input.botId,
+      [EGRESS_POLICY_LABEL]: egressPolicyDigest(input.policy),
+    },
+    HostConfig: {
+      NetworkMode: egressProxyNetworkNameFor(input.botId),
+      ReadonlyRootfs: true,
+      Tmpfs: { "/tmp": "rw,noexec,nosuid,size=16m" },
+      CapDrop: ["ALL"],
+      SecurityOpt: ["no-new-privileges:true"],
+      Memory: 128 * 1024 ** 2,
+      MemorySwap: 128 * 1024 ** 2,
+      PidsLimit: 128,
+      RestartPolicy: { Name: "on-failure" as const },
+    },
+  };
+}
+
+/** Proxy settings for a restricted computer. Loopback stays direct for CDP and the desktop. */
+export function computerEgressProxyEnv() {
+  const proxy = `http://${EGRESS_PROXY_ALIAS}:${EGRESS_PROXY_PORT}`;
+  const noProxy = "localhost,127.0.0.1,::1";
+  return [
+    `HTTP_PROXY=${proxy}`,
+    `HTTPS_PROXY=${proxy}`,
+    `http_proxy=${proxy}`,
+    `https_proxy=${proxy}`,
+    `NO_PROXY=${noProxy}`,
+    `no_proxy=${noProxy}`,
+    // Node's fetch ignores proxy variables unless asked to read them.
+    "NODE_USE_ENV_PROXY=1",
+    // git over SSH needs an explicit tunnel; allowedTcp decides which hosts it reaches.
+    "GIT_SSH_COMMAND=ssh -o ProxyCommand='rakazo-connect %h %p'",
+  ];
 }
 
 export function hostComputerUser(uid = process.getuid?.(), gid = process.getgid?.()): string {
@@ -267,6 +381,8 @@ export interface ComputerCreateInput {
   controlToken?: string;
   networkMode?: string;
   publishControlPort?: boolean;
+  /** Route all outbound traffic through the computer's egress proxy. */
+  restrictedEgress?: boolean;
 }
 
 interface PointerInput {
@@ -296,11 +412,13 @@ export function containerCreateOptions(input: ComputerCreateInput) {
       "NPM_CONFIG_PREFIX=/home/rakazo/.local",
       "PIP_USER=1",
       ...(input.controlToken ? [`RAKAZO_COMPUTER_CONTROL_TOKEN=${input.controlToken}`] : []),
+      ...(input.restrictedEgress ? computerEgressProxyEnv() : []),
     ],
     Labels: {
       "rakazo.managed": "true",
       "rakazo.botId": input.botId,
       "rakazo.spaceId": input.spaceId,
+      ...(input.restrictedEgress ? { [COMPUTER_EGRESS_LABEL]: "restricted" } : {}),
     },
     ExposedPorts: ports.ExposedPorts,
     HostConfig: {

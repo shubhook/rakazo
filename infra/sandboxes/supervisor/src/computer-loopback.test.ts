@@ -1193,3 +1193,101 @@ describe("screen registry across run boundaries", () => {
     expect(resets()).toBe(1);
   });
 });
+
+describe("restricted computer egress", () => {
+  const policy = {
+    mode: "restricted",
+    allowedDomains: ["pypi.org"],
+    allowedTcp: ["github.com:22"],
+  };
+
+  async function provision(egress: unknown) {
+    const { supervisorApp } = await import("./index.js");
+    return supervisorApp.request("/computers", {
+      method: "POST",
+      headers: {
+        authorization: `Bearer ${resolveSupervisorToken(process.env)}`,
+        "content-type": "application/json",
+        "x-rakazo-bot-id": "bot",
+        "x-rakazo-space-id": "space",
+      },
+      body: JSON.stringify({
+        botId: "bot",
+        spaceId: "space",
+        homePath: path.join(process.env.DATA_DIR!, "homes", "bot"),
+        egress,
+      }),
+    });
+  }
+
+  it("refuses a restricted policy outside per-bot Compose networks", async () => {
+    const response = await provision(policy);
+    expect(response.status).toBe(400);
+    expect(await response.json()).toEqual({
+      error: "Restricted network access needs SANDBOX_SCREEN_NETWORK=isolated",
+    });
+    expect(mocks.docker.createContainer).not.toHaveBeenCalled();
+  });
+
+  it("starts the proxy on an internal network before the computer", async () => {
+    vi.stubEnv("SANDBOX_SCREEN_NETWORK", "isolated");
+    vi.stubEnv("HOSTNAME", "supervisor");
+    const supervisor = {
+      Id: "supervisor-id",
+      Image: "sha256:supervisor",
+      Config: { Labels: {} },
+      NetworkSettings: { Networks: { default: {} } },
+      Mounts: [],
+    };
+    const missing = Object.assign(new Error("no such container"), { statusCode: 404 });
+    mocks.docker.getContainer.mockImplementation((id: string) => ({
+      inspect: vi.fn(() =>
+        id === "supervisor" ? Promise.resolve(supervisor) : Promise.reject(missing),
+      ),
+    }));
+    mocks.docker.getImage.mockReturnValue({ inspect: vi.fn().mockResolvedValue({ Id: "image" }) });
+    mocks.docker.listContainers.mockResolvedValue([]);
+    const network = {
+      inspect: vi.fn().mockRejectedValue(missing),
+      connect: vi.fn().mockResolvedValue(undefined),
+      remove: vi.fn().mockResolvedValue(undefined),
+    };
+    mocks.docker.getNetwork.mockReturnValue(network);
+    mocks.docker.createNetwork.mockResolvedValue(network);
+    const proxy = { id: "proxy-id", start: vi.fn().mockResolvedValue(undefined) };
+    const computer = {
+      id: "computer-id",
+      start: vi.fn().mockResolvedValue(undefined),
+      remove: vi.fn().mockResolvedValue(undefined),
+    };
+    mocks.docker.createContainer.mockResolvedValueOnce(proxy).mockResolvedValueOnce(computer);
+
+    const response = await provision(policy);
+    expect(response.status).toBe(200);
+    expect(await response.json()).toMatchObject({ id: "computer-id", resumed: false });
+
+    expect(mocks.docker.createNetwork).toHaveBeenCalledWith(
+      expect.objectContaining({ Name: computerNetworkNameFor("bot"), Internal: true }),
+    );
+    const [proxyOptions] = mocks.docker.createContainer.mock.calls[0]!;
+    expect(proxyOptions).toMatchObject({
+      Image: "sha256:supervisor",
+      name: "rakazo-egress-bot",
+      Cmd: ["src/egress-proxy.ts", JSON.stringify(policy)],
+      HostConfig: { ReadonlyRootfs: true, CapDrop: ["ALL"] },
+    });
+    expect(proxyOptions.HostConfig.NetworkMode).not.toBe(computerNetworkNameFor("bot"));
+    expect(proxyOptions.HostConfig.Binds).toBeUndefined();
+    expect(network.connect).toHaveBeenCalledWith({
+      Container: "proxy-id",
+      EndpointConfig: { Aliases: ["egress-proxy"] },
+    });
+    const [computerOptions] = mocks.docker.createContainer.mock.calls[1]!;
+    expect(computerOptions.HostConfig.NetworkMode).toBe(computerNetworkNameFor("bot"));
+    expect(computerOptions.Labels).toMatchObject({ "rakazo.egress": "restricted" });
+    expect(computerOptions.Env).toContain("HTTPS_PROXY=http://egress-proxy:3128");
+    expect(proxy.start.mock.invocationCallOrder[0]).toBeLessThan(
+      computer.start.mock.invocationCallOrder[0]!,
+    );
+  });
+});

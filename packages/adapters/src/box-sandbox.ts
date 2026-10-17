@@ -25,6 +25,8 @@ import type {
   ScreenSession,
   TerminalRequest,
 } from "@milo/adapter-kit";
+import { assertSandboxEgress } from "@milo/adapter-kit";
+import type { ComputerEgressPolicy } from "@milo/contracts";
 import { boundedSandboxCommandTimeoutMs } from "@milo/core";
 import { boxResponseError, wrapBoxCall } from "./box-errors.js";
 import { normalizeWorkspacePath, shellQuote, workspacePath } from "./computer-support.js";
@@ -133,6 +135,7 @@ export class BoxSandboxProvider implements SandboxProvider {
         takeover: true,
         persistentHome: true,
         multiScreen: true,
+        egress: false,
       },
     };
   }
@@ -143,9 +146,11 @@ export class BoxSandboxProvider implements SandboxProvider {
       homePath: string;
       providerRef?: string;
       providerKind?: ComputerRef["kind"];
+      egress?: ComputerEgressPolicy;
     },
     context: AdapterContext,
   ): Promise<ComputerRef> {
+    assertSandboxEgress(this, request.egress);
     const reconnecting = request.providerRef && request.providerKind === "box";
     const key = reconnecting ? request.providerRef! : `new:${request.botId}`;
     const pending = this.pendingProvisions.get(key);

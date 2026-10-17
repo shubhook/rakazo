@@ -23,7 +23,7 @@ import {
   isIdleOwnComputerTakeover,
   revokeScreenControl,
 } from "./computer-control.js";
-import { toComputerRef } from "./computer-support.js";
+import { computerEgressPolicy, toComputerRef } from "./computer-support.js";
 import {
   checkpointComputerWorkspace,
   ensureComputerWorkspaceLayout,
@@ -277,6 +277,10 @@ export async function provisionComputer(
       id: computerId,
       ...claimWhere,
       maintenanceId: existing.maintenanceId ?? null,
+      // Boot under the policy read above, not one saved while we waited.
+      egressMode: existing.egressMode,
+      egressAllowedDomains: { equals: existing.egressAllowedDomains },
+      egressAllowedTcp: { equals: existing.egressAllowedTcp },
       ...(context.botId ? { bots: { some: { id: context.botId, archivedAt: null } } } : {}),
     },
     data: { state: "booting", updatedAt: claimStamp },
@@ -291,6 +295,7 @@ export async function provisionComputer(
         homePath,
         providerRef: existing.providerRef ?? undefined,
         providerKind: existing.kind as ComputerRef["kind"],
+        egress: computerEgressPolicy(existing),
       },
       context,
     );

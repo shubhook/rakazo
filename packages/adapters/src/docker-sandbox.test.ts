@@ -24,6 +24,24 @@ describe("Docker sandbox", () => {
     vi.unstubAllGlobals();
   });
 
+  it("sends the computer's egress policy with provision, defaulting to open", async () => {
+    const fetchMock = vi.fn(async (_input: string | URL | Request, _init?: RequestInit) =>
+      Response.json({ id: "computer" }),
+    );
+    vi.stubGlobal("fetch", fetchMock);
+    const provider = new DockerSandboxProvider("http://supervisor.test", "test-token");
+    const egress = { mode: "restricted" as const, allowedDomains: ["pypi.org"], allowedTcp: [] };
+
+    await provider.provision({ botId: "bot", homePath: "/data/homes/bot", egress }, context);
+    await provider.provision({ botId: "bot", homePath: "/data/homes/bot" }, context);
+
+    const bodies = fetchMock.mock.calls.map((call) => JSON.parse(String(call[1]?.body)));
+    expect(bodies[0]).toMatchObject({ egress });
+    expect(bodies[1]).toMatchObject({
+      egress: { mode: "open", allowedDomains: [], allowedTcp: [] },
+    });
+  });
+
   it("sends the bounded timeout to the supervisor and preserves its honest result", async () => {
     const fetchMock = vi.fn(async (_input: string | URL | Request, _init?: RequestInit) =>
       Response.json({

@@ -84,6 +84,7 @@ import {
   VoiceInfoSchema,
   VoiceStatusSchema,
 } from "./domain.js";
+import { ComputerEgressPolicySchema, ComputerEgressSchema } from "./egress.js";
 import { ComputerCommandSchema, ProductEventSchema } from "./events.js";
 import { Id, IsoDate } from "./ids.js";
 import {
@@ -432,6 +433,12 @@ export const appContract = {
       .output(z.array(ComputerCommandSchema.extend({ createdAt: z.string() }))),
     screenUrl: oc.input(botId).output(z.object({ url: z.string().nullable() })),
     heartbeat: oc.input(botId).output(z.object({ ok: z.literal(true) })),
+    /** Owner-only. */
+    egress: oc.input(botId).output(ComputerEgressSchema),
+    /** Owner-only. The computer must be stopped; the policy applies when it next starts. */
+    setEgress: oc
+      .input(z.object({ botId: Id, policy: ComputerEgressPolicySchema }))
+      .output(ComputerEgressSchema),
   },
   memory: {
     list: oc

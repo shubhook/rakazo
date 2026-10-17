@@ -2,10 +2,14 @@ import { mkdtempSync, readFileSync, rmSync, symlinkSync, writeFileSync } from "n
 import { tmpdir } from "node:os";
 import path from "node:path";
 import type { ComputerRef, ProcessEvent, SandboxProvider } from "@milo/adapter-kit";
-import { describe, expect, it } from "vitest";
+import { EgressUnsupportedError } from "@milo/adapter-kit";
+import { OPEN_COMPUTER_EGRESS } from "@milo/contracts";
+import { describe, expect, it, vi } from "vitest";
 import { BoxSandboxEmulator } from "./box-emulator.js";
+import { CreateOSSandboxProvider } from "./createos-sandbox.js";
 import { DaytonaSandboxEmulator } from "./daytona-emulator.js";
 import { DesktopSandboxProvider } from "./desktop-sandbox.js";
+import { DockerSandboxProvider } from "./docker-sandbox.js";
 import { ManagedSandboxEmulator } from "./e2b-emulator.js";
 import { FakeSandboxProvider } from "./fake-sandbox.js";
 import { provisionPrepared } from "./sandbox-test-support.js";
@@ -276,5 +280,47 @@ describe("sandbox conformance", () => {
 
     await desktop.destroy(computer, ctx);
     rmSync(root, { recursive: true, force: true });
+  });
+  it("refuses a restricted egress policy unless the provider reports the capability", async () => {
+    const restricted = {
+      mode: "restricted" as const,
+      allowedDomains: ["pypi.org"],
+      allowedTcp: [],
+    };
+    const createosFetch = vi.fn<typeof fetch>();
+    const createos = new CreateOSSandboxProvider({ apiKey: "test-key", fetch: createosFetch });
+    const emulated: SandboxProvider[] = [
+      new FakeSandboxProvider(),
+      new ManagedSandboxEmulator(),
+      new DaytonaSandboxEmulator(),
+      new BoxSandboxEmulator(),
+      new DesktopSandboxProvider(),
+    ];
+    for (const [index, provider] of [...emulated, createos].entries()) {
+      expect(provider.describe().capabilities.egress).toBe(false);
+      await expect(
+        provider.provision(
+          { botId: `egress-${index}`, homePath: `/tmp/egress-${index}`, egress: restricted },
+          ctx,
+        ),
+      ).rejects.toBeInstanceOf(EgressUnsupportedError);
+    }
+    // The refusal happens before any provider request.
+    expect(createosFetch).not.toHaveBeenCalled();
+    for (const [index, provider] of emulated.entries()) {
+      const computer = await provisionPrepared(
+        provider,
+        {
+          botId: `egress-open-${index}`,
+          homePath: `/tmp/egress-open-${index}`,
+          egress: OPEN_COMPUTER_EGRESS,
+        },
+        ctx,
+      );
+      await provider.destroy(computer, ctx);
+    }
+    expect(
+      new DockerSandboxProvider("http://supervisor.test", "token").describe().capabilities.egress,
+    ).toBe(true);
   });
 });

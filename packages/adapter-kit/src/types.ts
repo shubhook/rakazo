@@ -215,6 +215,8 @@ export interface SandboxCapabilities {
   persistentHome: boolean;
   /** Distinct graphical screens for concurrent Team bots on one computer. */
   multiScreen?: boolean;
+  /** Enforces a restricted `ComputerEgressPolicy` on the computer's outbound network. */
+  egress?: boolean;
 }
 
 export interface ConnectorTool {
