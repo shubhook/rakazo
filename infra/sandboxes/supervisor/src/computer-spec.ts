@@ -44,9 +44,8 @@ export function resolveSpaceComputerLimit(
  * agent that decides for itself what to open. #343 gave these containers a
  * pids ceiling, but Memory and NanoCpus are still unset, so one runaway page is
  * a host-wide memory and CPU event that takes every other bot and the Milo
- * services down with it. Every service in docker-compose.prod.yml already
- * carries mem_limit; this applies the same discipline to the containers that
- * actually run untrusted page content.
+ * services down with it. This caps the containers that actually run untrusted
+ * page content.
  *
  * Defaults are a starting point for the Docker computer topology: generous enough
  * for real browsing, small enough that one computer cannot starve the host or
