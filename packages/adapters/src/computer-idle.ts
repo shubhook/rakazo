@@ -81,7 +81,7 @@ export const CANCEL_COMPUTER_RUN_WORK = [
 /**
  * Kill the primary browser session without matching chromium-screen-* profiles.
  * Covers Docker (--user-data-dir=.../chromium) and portable launches that only
- * use the symlinked primary profile (E2B desktop.launch / Daytona nohup).
+ * use the symlinked primary profile.
  */
 export const CANCEL_PRIMARY_BROWSER_WORK = [
   "pkill -TERM -f -- '--user-data-dir=.*/.browser-profiles/chromium$' || true",

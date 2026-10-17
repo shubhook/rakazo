@@ -3,18 +3,15 @@ import { mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { loadRootEnv } from "@milo/core/node/load-root-env";
 import { PostgreSqlContainer } from "@testcontainers/postgresql";
-import type { createApp } from "../../../../apps/api/src/app.ts";
 import { runProcess } from "./process.js";
 
 loadRootEnv();
 
 const integration = process.argv.includes("--integration");
 const e2e = process.argv.includes("--e2e");
-const sandboxArg = process.argv.find((arg) => arg.startsWith("--sandbox="));
 const specArg = process.argv.find((arg) => arg.startsWith("--spec="));
 const grepArg = process.argv.find((arg) => arg.startsWith("--grep="));
 const runtimeArg = process.argv.find((arg) => arg.startsWith("--runtime="));
-const sandboxProvider = sandboxArg?.slice("--sandbox=".length) ?? "fake";
 const e2eSpec = specArg?.slice("--spec=".length);
 const e2eGrep = grepArg?.slice("--grep=".length);
 const agentRuntime = runtimeArg?.slice("--runtime=".length) ?? "scripted";
@@ -22,23 +19,8 @@ const agentRuntime = runtimeArg?.slice("--runtime=".length) ?? "scripted";
 if (Number(integration) + Number(e2e) !== 1) {
   throw new Error("Pass exactly one of --integration or --e2e");
 }
-if (!["fake", "e2b", "daytona", "box"].includes(sandboxProvider)) {
-  throw new Error('Sandbox must be "fake", "e2b", "daytona", or "box"');
-}
-if (integration && sandboxProvider !== "fake") {
-  throw new Error("Integration tests only support the fake sandbox");
-}
 if (agentRuntime !== "pi" && agentRuntime !== "scripted") {
   throw new Error('Runtime must be "pi" or "scripted"');
-}
-if (sandboxProvider === "e2b" && !process.env.E2B_API_KEY) {
-  throw new Error("E2B_API_KEY is required when --sandbox=e2b");
-}
-if (sandboxProvider === "daytona" && !process.env.DAYTONA_API_KEY) {
-  throw new Error("DAYTONA_API_KEY is required when --sandbox=daytona");
-}
-if (sandboxProvider === "box" && !process.env.BOX_API_KEY) {
-  throw new Error("BOX_API_KEY is required when --sandbox=box");
 }
 
 async function main() {
@@ -56,7 +38,7 @@ async function main() {
     process.env.REALTIME_DATABASE_URL = databaseUrl;
     process.env.VERIFY_DATABASE = "1";
     process.env.WAKEUP_DRIVER = "memory";
-    process.env.SANDBOX_PROVIDER = sandboxProvider;
+    process.env.SANDBOX_PROVIDER = "fake";
     process.env.AGENT_RUNTIME = agentRuntime;
     // Playwright/E2E force the offline cloud-agent emulator; clear Cursor keys so cards never hit a live VM.
     process.env.CLOUD_AGENT_PROVIDER = "emulator";
@@ -241,60 +223,15 @@ async function main() {
         webPort,
       });
     } finally {
-      const cleanupErrors: unknown[] = [];
-      const computers = await managedComputers(handles).catch((error) => {
-        cleanupErrors.push(error);
-        return [];
-      });
       await new Promise<void>((resolve) => server.close(() => resolve()));
       if (activeRequests > 0) {
         await new Promise<void>((resolve) => requestWaiters.add(resolve));
       }
       await handles.stop().catch(() => undefined);
-      for (let index = 0; index < computers.length; index += 4) {
-        const results = await Promise.allSettled(
-          computers.slice(index, index + 4).map((computer) =>
-            handles.sandbox.destroy(
-              {
-                id: computer.providerRef!,
-                botId: computer.homeKey,
-                kind: computer.kind as "e2b" | "daytona" | "box",
-                providerRef: computer.providerRef!,
-              },
-              {
-                operationId: "e2e-cleanup",
-                traceId: "e2e-cleanup",
-                spaceId: computer.spaceId,
-                userId: computer.userId,
-                signal: new AbortController().signal,
-              },
-            ),
-          ),
-        );
-        for (const result of results) {
-          if (result.status === "rejected") cleanupErrors.push(result.reason);
-        }
-      }
-      if (cleanupErrors.length) {
-        console.error(
-          new AggregateError(cleanupErrors, "Could not destroy every managed test sandbox"),
-        );
-        process.exitCode = 1;
-      }
     }
   } finally {
     await container.stop().catch(() => undefined);
   }
-}
-
-type AppHandles = Awaited<ReturnType<typeof createApp>>;
-
-async function managedComputers(handles: AppHandles) {
-  if (!["e2b", "daytona", "box"].includes(sandboxProvider)) return [];
-  return handles.prisma.computer.findMany({
-    where: { providerRef: { not: null } },
-    select: { homeKey: true, kind: true, providerRef: true, userId: true, spaceId: true },
-  });
 }
 
 async function writeSummary(reportDir: string, summary: Record<string, unknown>) {

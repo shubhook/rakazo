@@ -1079,7 +1079,6 @@ describe("dockerComputerToolInstruction", () => {
     expect(dockerComputerToolInstruction("docker")).toContain("uv tool install <package>");
     expect(dockerComputerToolInstruction("docker")).toContain("without sudo");
     expect(dockerComputerToolInstruction("desktop")).toBeUndefined();
-    expect(dockerComputerToolInstruction("e2b")).toBeUndefined();
   });
 
   it("documents gh CLI device-flow login without token injection", () => {

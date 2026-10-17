@@ -19,7 +19,6 @@ required secrets, and startup commands.
 | `pnpm test:pi` | Real Pi against a local HTTP model fixture: streaming, tool round trips, failures and cancellation. No keys. |
 | `pnpm test:computer-replay` | Real Pi and Docker Chromium against a local model fixture. Needs the computer image; no keys or Electron windows. |
 | `pnpm test:evals --list` | List agent-quality cases. Add `--live` and a model connection to measure repeated real-model task success. |
-| `pnpm test:computer` | Real vision model + E2B desktop. Needs keys; see [computer verification](docs/computer-runtime.md#verification). Not PR CI. |
 | `pnpm check` | TypeScript (`tsc`) across the monorepo. |
 | `pnpm lint` | Biome lint and format check. |
 
@@ -48,18 +47,6 @@ instead of assuming the web catalog covers them.
 See [agent verification](docs/agent-verification.md) for the distinction between
 deterministic execution tests, computer replay, and real-model quality evals.
 
-## Optional live-provider checks
-
-The default Playwright suite uses the fake sandbox. To run the same scripted-agent suite against
-real computers, set the matching `E2B_API_KEY`, `DAYTONA_API_KEY`, or `BOX_API_KEY` and choose a provider:
-
-```bash
-pnpm test:e2e -- --sandbox=e2b
-pnpm test:e2e -- --sandbox=daytona
-pnpm test:e2e -- --sandbox=box
-```
-
-The Playwright workflow also accepts these providers through its manual **Sandbox provider** input.
 These runs provision real machines and destroy them after the suite. Automatic runs use `fake`.
 For the separate real-model desktop acceptance test, see
 [computer verification](docs/computer-runtime.md#verification).

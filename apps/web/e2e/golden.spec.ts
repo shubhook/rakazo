@@ -1,12 +1,5 @@
 import { expect, type Page, test } from "@playwright/test";
-import {
-  activeBotId,
-  captureScreenshot,
-  completeOnboarding,
-  realSandboxTimeout,
-  rpc,
-  signup,
-} from "./helpers";
+import { activeBotId, captureScreenshot, completeOnboarding, rpc, signup } from "./helpers";
 
 function sidebarBotButton(page: Page, name: RegExp | string) {
   return page.locator("[data-sidebar-group] [data-roster-bot-id]").filter({
@@ -59,10 +52,10 @@ test("takeover, routine, plugins, and export are reachable", async ({ page }, te
   await page.keyboard.press("Enter");
   await expect(
     page.getByText(/handing you the computer|sign in to continue|protected input/i).first(),
-  ).toBeVisible({ timeout: realSandboxTimeout(90_000, 30_000) });
+  ).toBeVisible({ timeout: 30_000 });
   await expect
     .poll(() => threadRunStatus(page), {
-      timeout: realSandboxTimeout(90_000, 30_000),
+      timeout: 30_000,
       message: "the protected-input run must be ready for takeover",
     })
     .toBe("waiting_takeover");
@@ -75,19 +68,18 @@ test("takeover, routine, plugins, and export are reachable", async ({ page }, te
   await expect(page.getByRole("button", { name: "Close computer" })).toBeVisible();
   await expect(page.getByRole("button", { name: "Skip", exact: true }).last()).toBeVisible();
   await expect(page.getByRole("button", { name: "I’m done", exact: true }).last()).toBeVisible();
-  if (process.env.SANDBOX_PROVIDER === "box") await waitForBoxFramebuffer(page);
   await captureScreenshot(page, testInfo, "09-computer-takeover-outcomes");
   await page.getByRole("button", { name: "I’m done", exact: true }).last().click();
   await expect(page.getByRole("button", { name: "Close computer" })).toBeHidden();
   await expect(page.getByText(/signed in|session stays/i).first()).toBeVisible({
-    timeout: realSandboxTimeout(90_000, 30_000),
+    timeout: 30_000,
   });
 
   await composer.fill("sign in again so I can skip this time");
   await page.keyboard.press("Enter");
   await expect
     .poll(() => threadRunStatus(page), {
-      timeout: realSandboxTimeout(90_000, 30_000),
+      timeout: 30_000,
       message: "the second protected-input run must be ready for takeover",
     })
     .toBe("waiting_takeover");
@@ -114,7 +106,7 @@ test("takeover, routine, plugins, and export are reachable", async ({ page }, te
   await page.getByRole("button", { name: "Skip", exact: true }).last().click();
   await expect(page.getByRole("button", { name: "Close computer" })).toBeHidden();
   await expect(page.getByText(/login was skipped/i).last()).toBeVisible({
-    timeout: realSandboxTimeout(90_000, 30_000),
+    timeout: 30_000,
   });
   await captureScreenshot(page, testInfo, "09a-computer-takeover-skipped");
 
@@ -477,27 +469,4 @@ async function threadRunStatus(page: Page) {
     botId: activeBotId(page),
   });
   return result.run?.status ?? "idle";
-}
-
-async function waitForBoxFramebuffer(page: Page) {
-  await expect
-    .poll(
-      async () => {
-        for (const frame of page.frames()) {
-          if (frame === page.mainFrame()) continue;
-          const canvas = frame.locator("canvas").first();
-          if ((await canvas.count()) === 0) continue;
-          const ready = await canvas
-            .evaluate((element) => {
-              const framebuffer = element as HTMLCanvasElement;
-              return framebuffer.width > 0 && framebuffer.height > 0;
-            })
-            .catch(() => false);
-          if (ready) return true;
-        }
-        return false;
-      },
-      { timeout: 60_000, message: "the Box noVNC framebuffer must be ready" },
-    )
-    .toBe(true);
 }

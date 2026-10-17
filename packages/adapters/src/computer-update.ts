@@ -157,8 +157,8 @@ export async function queueComputerUpdate(
   });
 
   if (prepared.handback?.leaseId) {
-    // Provider release is optional. CreateOS ignores a non-interactive release, and a host
-    // whose provider has no release method resolves. Only a thrown release rolls the claim back.
+    // Provider release is optional: a host whose provider has no release method resolves.
+    // Only a thrown release rolls the claim back.
     // Bound: provider methods use `this`, and a detached call throws before releasing.
     const releaseScreen = prepared.handback.providerRef
       ? deps.sandbox?.setScreenControl?.bind(deps.sandbox)

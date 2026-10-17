@@ -46,7 +46,6 @@ import {
   resolvePiSessionRoot,
   resolveSandboxProvider,
   SpaceMemoryProviderResolver,
-  sandboxProviderOptionsFromEnv,
 } from "@milo/adapters";
 import { resolveEncryptionKey, resolveSupervisorToken } from "@milo/core";
 import {
@@ -100,7 +99,6 @@ async function main() {
   const { key: deploymentModelKey } = resolveDeploymentModel();
   const sandboxProvider = resolveSandboxProvider(process.env);
   const sandbox = createRunSandbox(sandboxProvider, {
-    ...sandboxProviderOptionsFromEnv(process.env),
     supervisorUrl: process.env.SANDBOX_SUPERVISOR_URL ?? "http://127.0.0.1:7091",
     supervisorToken: sandboxProvider === "docker" ? resolveSupervisorToken(process.env) : undefined,
     dataDir,

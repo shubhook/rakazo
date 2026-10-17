@@ -24,7 +24,7 @@ This policy covers the Rakazo self-hosted product in **this repository**.
 Out of scope:
 
 - Third-party AI models and their APIs
-- Composio, E2B, and other external services
+- Composio and other external services
 - Operator misconfiguration (exposed secrets, open databases, weak passwords)
 
 ## Supported versions

@@ -1,6 +1,7 @@
 import { computerSupportsTerminal, computerSupportsUpdate } from "@milo/adapters";
 import type { ComputerStatus } from "@milo/contracts";
-import { ACTIVE_RUN_STATUSES, computerScreenSize } from "@milo/core";
+import { SandboxKind } from "@milo/contracts";
+import { ACTIVE_RUN_STATUSES, DEFAULT_COMPUTER_SCREEN } from "@milo/core";
 import type { PrismaClient } from "@milo/db";
 
 /** Mirrors computer.takeover: an execution lease blocks user control unless a takeover is pending. */
@@ -74,8 +75,9 @@ export function toComputerStatus(
           computer?.state === "error"
         ? computer.state
         : "stopped";
-  const screen = computerScreenSize(computer?.kind);
-  const kind = (computer?.kind ?? "fake") as ComputerStatus["kind"];
+  const screen = DEFAULT_COMPUTER_SCREEN;
+  // A row from a removed provider reads as fake until the next boot reprovisions it.
+  const kind = SandboxKind.safeParse(computer?.kind).data ?? "fake";
   return {
     botId,
     mode: computer?.scope === "dedicated" ? "dedicated" : "team",

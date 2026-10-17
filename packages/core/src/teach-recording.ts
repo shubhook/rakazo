@@ -29,7 +29,7 @@ export function teachCaptureKey(
 }
 
 // Browser key names are not X11 keysyms. Anything sent as a `key` input ends up in
-// `xdotool key <name>` (or the e2b equivalent), which silently drops names it cannot resolve.
+// `xdotool key <name>`, which silently drops names it cannot resolve.
 const X11_KEYSYM_BY_DOM_KEY: Record<string, string> = {
   Enter: "Return",
   Backspace: "BackSpace",
@@ -57,14 +57,6 @@ export function computerInputForDomKey(
 }
 
 export const DEFAULT_COMPUTER_SCREEN = { width: 1280, height: 800 } as const;
-export const BOX_COMPUTER_SCREEN = { width: 1920, height: 1080 } as const;
-
-export function computerScreenSize(kind: string | null | undefined): {
-  width: number;
-  height: number;
-} {
-  return kind === "box" ? BOX_COMPUTER_SCREEN : DEFAULT_COMPUTER_SCREEN;
-}
 
 function clamp(value: number, max: number): number {
   return Math.min(Math.max(value, 0), max);

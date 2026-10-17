@@ -160,8 +160,6 @@ function performanceEnvironment(databaseUrl: string): NodeJS.ProcessEnv {
     AGENT_RUNTIME: "scripted",
     COMPOSIO_API_KEY: "",
     OPENROUTER_API_KEY: "",
-    E2B_API_KEY: "",
-    DAYTONA_API_KEY: "",
     BETTER_AUTH_SECRET: "rakazo-benchmark-auth-secret-over-32-characters",
     ENCRYPTION_KEY: "rakazo-benchmark-encryption-key-over-32-characters",
     SANDBOX_SUPERVISOR_TOKEN: "rakazo-benchmark-supervisor-token-over-32-characters",

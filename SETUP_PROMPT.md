@@ -25,7 +25,6 @@ Before making changes, ask me these concise questions:
    - Add a deployment-wide `OPENROUTER_API_KEY` to `.env`.
    - Connect during Milo onboarding with a provider API key or with ChatGPT Plus/Pro, GitHub Copilot, or SuperGrok / X Premium.
    - Defer model setup and verify infrastructure only. Make clear that bots cannot answer until a model is connected.
-3. Do I want remote computers instead of local Docker? If yes, choose E2B (`E2B_API_KEY`), Daytona (`DAYTONA_API_KEY`), or Box (`BOX_API_KEY`) and set `SANDBOX_PROVIDER` accordingly. If no, keep the default `SANDBOX_PROVIDER=docker` (local computers via the in-stack supervisor).
 
 Do not ask me to invent secrets; generate strong random values with openssl yourself.
 
@@ -46,8 +45,8 @@ Setup:
    Optional: set `RAKAZO_DOWNLOAD_BASE` to a generic mirror of `infra/compose`, and/or use
    `--local` / `RAKAZO_DOWNLOAD_SKIP_EXISTING=1` when Compose files are already present locally.
    See docs/self-host.md (Restricted networks / mirror downloads).
-4. Preserve existing values. Keep `SANDBOX_PROVIDER=docker` unless I chose a remote computer
-   provider, and add only the provider or model keys I selected.
+4. Preserve existing values. Keep `SANDBOX_PROVIDER=docker`, and add only the model keys I
+   selected.
    If I use mirrored Postgres/busybox images, require digest-qualified references and follow
    `docs/self-host-restricted-network.md#digest-verified-hub-mirror-startup`; use that section's
    explicit pull, digest-check, and no-repull start sequence instead of Setup step 5.
@@ -56,7 +55,7 @@ Setup:
 
 Verification:
 
-- Request `http://127.0.0.1:3100/internal/health`. Require `ok: true` and `sandbox: "docker"` (or the remote provider you configured). A missing `SANDBOX_SUPERVISOR_TOKEN` is a setup failure: Compose will not start the supervisor; restore the token and recreate the stack. Do not treat `sandbox: "none"` as success for this path.
+- Request `http://127.0.0.1:3100/internal/health`. Require `ok: true` and `sandbox: "docker"`. A missing `SANDBOX_SUPERVISOR_TOKEN` is a setup failure: Compose will not start the supervisor; restore the token and recreate the stack. Do not treat `sandbox: "none"` as success for this path.
 - Open `http://127.0.0.1:5173`, create a local test account with fake data, and complete first-run onboarding.
 - If a model is connected, send a harmless test message. Open the Agent computer pane and confirm the Docker computer reaches `running` and renders its desktop.
 

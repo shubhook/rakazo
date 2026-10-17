@@ -459,7 +459,7 @@ export async function destroyBot(
       force: true,
     }).catch(() => undefined);
   }
-  await removeTeamBrowserProfile(deps, bot.id, sharedComputer, context);
+  await removeTeamBrowserProfile(deps, bot.id, sharedComputer);
   const artifactStore = deps.artifacts;
   if (artifactStore) {
     await removeStoredArtifacts(artifactStore, deletion.artifactKeys, context);
@@ -624,89 +624,20 @@ async function sharedTeamComputer(
   return computer;
 }
 
-const REMOTE_TEAM_SANDBOX_KINDS = new Set(["e2b", "daytona", "box", "createos"]);
-
-const REMOVE_CONTAINED_BROWSER_PROFILE = [
-  'parent="$1"',
-  'name="$2"',
-  'if [ "$parent" != ".browser-profiles" ]; then echo "browser profile escapes the team home" >&2; exit 1; fi',
-  'if [[ ! "$name" =~ ^chromium-bot-[0-9a-f]{32}$ ]]; then echo "browser profile escapes the team home" >&2; exit 1; fi',
-  'if [ -L "$parent" ]; then echo "browser profile escapes the team home" >&2; exit 1; fi',
-  'target="$parent/$name"',
-  'if [ ! -e "$target" ] && [ ! -L "$target" ]; then exit 0; fi',
-  'if [ -L "$target" ]; then rm -- "$target"; exit 0; fi',
-  'if [ ! -d "$target" ]; then echo "browser profile escapes the team home" >&2; exit 1; fi',
-  'resolved_parent=$(cd -- "$parent" && pwd -P)',
-  'resolved_target=$(cd -- "$target" && pwd -P)',
-  'case "$resolved_target" in',
-  '  "$resolved_parent/$name") ;;',
-  '  *) echo "browser profile escapes the team home" >&2; exit 1 ;;',
-  "esac",
-  'rm -rf -- "$target"',
-].join("\n");
-
 async function removeTeamBrowserProfile(
   deps: BotLifecycleDeps,
   botId: string,
-  computer: { scope: string; homeKey: string; kind: string; providerRef: string | null } | null,
-  context: AdapterContext,
+  computer: { scope: string; homeKey: string } | null,
 ) {
   if (computer?.scope !== "team") return;
   const name = browserProfileName(botId);
   if (!name) return;
-  const profileContext = { ...context, botId, screenLeaseId: undefined };
-  if (
-    computer.providerRef &&
-    deps.sandbox.releaseScreen &&
-    REMOTE_TEAM_SANDBOX_KINDS.has(computer.kind)
-  ) {
-    await removeRemoteBrowserProfile(
-      deps,
-      { homeKey: computer.homeKey, kind: computer.kind, providerRef: computer.providerRef },
-      name,
-      profileContext,
-    ).catch((error) => {
-      getLogger().error("team browser profile cleanup", error);
-    });
-  }
   const homeDir = resolveAgentHomePath(deps.home, computer.homeKey, deps.dataDir ?? "./data");
   await removeContainedDirectory(homeDir, path.join(homeDir, ".browser-profiles", name)).catch(
     (error) => {
       getLogger().error("team browser profile cleanup", error);
     },
   );
-}
-
-async function removeRemoteBrowserProfile(
-  deps: BotLifecycleDeps,
-  computer: { homeKey: string; kind: string; providerRef: string },
-  name: string,
-  context: AdapterContext,
-) {
-  let exitCode: number | undefined;
-  let stderr = "";
-  for await (const event of deps.sandbox.execute(
-    toComputerRef(computer),
-    {
-      argv: [
-        "bash",
-        "-eu",
-        "-c",
-        REMOVE_CONTAINED_BROWSER_PROFILE,
-        "bash",
-        ".browser-profiles",
-        name,
-      ],
-      cwd: ".",
-    },
-    context,
-  )) {
-    if (event.type === "stderr") stderr += event.data;
-    if (event.type === "exit") exitCode = event.code;
-  }
-  if (exitCode !== 0) {
-    throw new Error(stderr.trim() || "browser profile cleanup failed");
-  }
 }
 
 function browserProfileName(botId: string) {

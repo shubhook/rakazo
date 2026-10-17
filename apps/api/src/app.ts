@@ -63,7 +63,6 @@ import {
   removePiUserSessions,
   SmtpEmailProvider,
   SpaceMemoryProviderResolver,
-  sandboxProviderOptionsFromEnv,
   toTeamChatInbound,
 } from "@milo/adapters";
 import { createAuth, isBlockedAuthPath, isLoopbackOrigin, loopbackTwinOrigins } from "@milo/auth";
@@ -254,15 +253,8 @@ export async function createApp(
   const sandbox: SandboxProvider =
     sandboxOverride ??
     createRunSandbox(env.sandboxProvider, {
-      ...sandboxProviderOptionsFromEnv(),
       supervisorUrl: env.sandboxSupervisorUrl,
       supervisorToken: env.sandboxSupervisorToken,
-      e2bApiKey: env.e2bApiKey,
-      daytonaApiKey: env.daytonaApiKey,
-      daytonaApiUrl: env.daytonaApiUrl,
-      daytonaTarget: env.daytonaTarget,
-      boxApiKey: env.boxApiKey,
-      boxApiUrl: env.boxApiUrl,
       dataDir: env.dataDir,
       prisma,
     });

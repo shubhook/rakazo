@@ -284,7 +284,7 @@ describe("recordTeachingInputEvent", () => {
     const computer = {
       id: "computer-1",
       homeKey: "bot-1",
-      kind: "e2b",
+      kind: "docker",
       providerRef: "box-1",
       controlHolder: "user",
       controlBotId: "bot-1",
@@ -323,7 +323,7 @@ describe("recordTeachingInputEvent", () => {
         computer: {
           id: "computer-1",
           homeKey: "bot-1",
-          kind: "e2b",
+          kind: "docker",
           providerRef: "box-1",
           controlHolder: "user",
           controlBotId: "bot-1",
@@ -361,7 +361,7 @@ describe("recordTeachingInputEvent", () => {
       computer: {
         id: "computer-1",
         homeKey: "bot-1",
-        kind: "e2b",
+        kind: "docker",
         providerRef: "box-1",
         controlHolder: "user",
         controlBotId: "bot-1",
@@ -387,7 +387,7 @@ describe("recordTeachingInputEvent", () => {
     const computer = {
       id: "computer-1",
       homeKey: "bot-1",
-      kind: "e2b",
+      kind: "docker",
       providerRef: "box-1",
       controlHolder: "user",
       controlBotId: "bot-1",
@@ -433,7 +433,7 @@ describe("recordTeachingInputEvent", () => {
     const computer = {
       id: "computer-1",
       homeKey: "bot-1",
-      kind: "e2b",
+      kind: "docker",
       providerRef: "box-1",
       controlHolder: "user",
       controlBotId: "bot-1",
@@ -464,7 +464,7 @@ describe("recordTeachingInputEvent", () => {
     const computer = {
       id: "computer-1",
       homeKey: "bot-1",
-      kind: "e2b",
+      kind: "docker",
       providerRef: "box-1",
       controlHolder: "user",
       controlBotId: "bot-1",
@@ -540,7 +540,7 @@ describe("recordTeachingInputEvent", () => {
 describe("applyTeachingDesktopInput", () => {
   const computer = {
     homeKey: "bot-1",
-    kind: "e2b",
+    kind: "docker",
     providerRef: "box-1",
     controlLeaseId: "lease-1",
   };

@@ -3,14 +3,13 @@
 Milo keeps the agent runtime and the computer runtime separate:
 
 ```text
-chat/API -> one Pi agent session -> Milo computer tools -> SandboxProvider -> E2B / Daytona / Box
-                                                   |-> Docker
-                                                   |-> desktop/fake
+chat/API -> one Pi agent session -> Milo computer tools -> SandboxProvider -> Docker
+                                                                                  |-> desktop/fake
 
 SandboxProvider workspace <-> AgentHomeStore <-> Milo-owned DATA_DIR
 ```
 
-Pi runs in the Milo API/worker process. It is not installed in, or executed by, E2B. The built-in tools are ordinary Pi tools, not Claude- or MCP-specific tools, so any model exposed through Pi can call them. Screen operation still requires a model that can accept image tool results and reason about screenshots.
+Pi runs in the Milo API/worker process. It is not installed in, or executed by, the computer. The built-in tools are ordinary Pi tools, not Claude- or MCP-specific tools, so any model exposed through Pi can call them. Screen operation still requires a model that can accept image tool results and reason about screenshots.
 
 ## Computer contract
 
@@ -18,7 +17,7 @@ Each workspace gets one Team Computer by default. Bots share its files and insta
 
 Each active Team bot gets its own X display and Chrome process, with a persistent Chrome profile keyed to the bot's identity. Logins, cookies, and browser history are independent. Profiles are never cloned from another bot, merged, or deleted when a desktop is released. Both bots keep their changes; reopening a bot uses its existing profile even when its display slot changes. Team runs use fenced per-bot database leases: different bots can operate concurrently, and one bot has only one computer driver at a time.
 
-Docker, E2B, Daytona, and Box use the same Linux desktop lifecycle commands. Remote adapters share allocation, observation, actions, and control handling; provider code supplies command execution, persistent workspace paths, and screen URLs. Box exposes the shared runtime through protected `host <port> --private` routes instead of its default desktop API. View and control use separate revocable websocket capabilities; teardown disconnects clients before a display slot is reused. A failed teardown keeps the slot reserved for retry.
+View and control use separate revocable websocket capabilities; teardown disconnects clients before a display slot is reused. A failed teardown keeps the slot reserved for retry.
 
 Desktop stacks start lazily when a bot uses graphical tools. There is no configured desktop cap by default; a computer can host 100 or more bot profiles, and simultaneous desktops are bounded by its RAM, CPU, process capacity, and available local debugger ports. Docker operators can set a positive `SANDBOX_TEAM_SCREEN_LIMIT` to cap active desktops (`0` leaves it unset). Requests beyond an explicit limit return `MULTI_SCREEN_UNAVAILABLE`; shell and file tools remain available. All desktops share one token-protected screen gateway, so adding desktops does not require publishing more ports. Each view/control capability targets a unique local Unix socket; recycling a display cannot redirect an old connection to its next bot. Inactive bots do not each run Chrome. Closing a viewer leaves the desktop intact. Run completion releases that bot's desktop, and whole-computer idle shutdown stops remaining processes while preserving the workspace. There is no separate inactivity timer per desktop. Persistent profiles consume disk but do not require a running Chrome process.
 
@@ -52,9 +51,9 @@ The web and desktop computer view opens a terminal and a file browser from a doc
 - Without control (for example after it was released or expired), an "Open shell" button takes control again and switches to the shell.
 - A user holding control also gets a Shell tab with an interactive shell. It starts on first use, stays connected across tab switches, and reconnects to a fresh shell if the connection drops. `computer.terminalUrl` starts a small PTY server in the computer beside the screen gateway.
   - It is bound to the display's control token and reached through the same sealed capability and gateway as the control screen. Later sessions under the same lease (another tab, a reopened window) join that server with their own shell, so open shells keep running.
-  - It runs as the computer's workspace user (never root), with the same environment as the bot's `shell` tool. Docker execs inherit the container's non-root user; E2B, Daytona, and Box use the same command runner as `shell`. When the computer runs as a host uid without a passwd entry (Docker on macOS), the terminal names it `rakazo` through nss_wrapper for its own session, so prompts and `whoami` work; `/etc/passwd` stays unchanged.
+  - It runs as the computer's workspace user (never root), with the same environment as the bot's `shell` tool. Docker execs inherit the container's non-root user. When the computer runs as a host uid without a passwd entry (Docker on macOS), the terminal names it `rakazo` through nss_wrapper for its own session, so prompts and `whoami` work; `/etc/passwd` stays unchanged.
   - Releasing control, expiry, or screen teardown stops it, disconnects every shell, and removes its session files.
-- Providers opt in through `SandboxProvider.connectTerminal`. Docker, E2B, Daytona, and Box support it. Host (`desktop`) computers never expose a browser shell; other computers without it show only Activity.
+- Providers opt in through `SandboxProvider.connectTerminal`. Docker supports it. Host (`desktop`) computers never expose a browser shell; other computers without it show only Activity.
 - The fake provider serves an emulated shell from a loopback websocket gateway that speaks the same frame protocol. Tests can then drive the browser terminal through the sealed capability and web proxy without exposing a host shell.
 
 **Files**
@@ -69,27 +68,17 @@ The web service logs `screen.proxy.target_rejected`, `screen.proxy.http_failed`,
 
 When the screen shows a connection error, check whether `computer.screenUrl` succeeded in the API logs, then inspect web-service `screen.proxy.*` events around the same time. On `screen.proxy.target_rejected`, read `reason`: `invalid_path` is not a session path (API not contacted); `authority_rejected` is a non-OK API response (expired, revoked, or an API error); `invalid_authority_response` is an OK response with an invalid or malformed target body; `authority_unavailable` is a request, connectivity, or timeout failure. An upstream error or non-101 handshake points to the provider screen gateway. An upgraded connection that closes quickly points to a transport drop after the handshake. If the API issued a URL but no web-service event appears, inspect the browser Network panel and its WebSocket request. Do not paste the full capability URL into an issue or log.
 
-## E2B backend
-
-The E2B adapter uses `@e2b/desktop` for machine lifecycle, shell commands, files, and port URLs. Every bot desktop uses the shared Linux runtime, including the first bot. Its X display, screenshots, input, and view/control transports follow the same lifecycle as the other managed providers.
-
-## Daytona backend
+## Provider references
 
 The database stores the provider kind and opaque `providerRef`. That reference is an acceleration path, not durable data. It is passed back only to the same provider kind. A missing machine or a provider-kind change creates a replacement and restores its workspace through the provider-neutral contract.
 
-## Box backend
-
-The Box adapter uses ASCII's official TypeScript SDK for lifecycle, command, and file operations. It creates and resumes boxes with `noEnv: true`, as required when a third party supplies the API key, and keeps a two-hour TTL refreshed while the computer is active. The shared runtime creates each bot's display and noVNC transports, exposed through protected Box port hosting. Milo's encrypted screen capability proxy binds the view/control policy and keeps the provider credentials out of browser-visible URLs. Observations and actions target the assigned bot display.
-
-Box stop archives the machine and resume reconnects the same opaque box id. Each bot’s Chrome profile lives under the portable workspace and is included in checkpoint/export. The Box emulator uses the same multi-screen contract as the other managed-provider emulators.
-
 ## Persistence
 
-The portable computer workspace is the durable boundary. E2B uses `/home/user/rakazo-home`; Docker and local providers expose the equivalent home. Browser profiles are rooted under `.browser-profiles` in that workspace on E2B. Milo checkpoints transferred workspaces into `AgentHomeStore` at run completion or failure, before explicit stop, and before idle suspension. Docker mounts the Milo-owned home directly and only advances its revision marker at those boundaries. New or replacement machines import the latest stored workspace before use.
+The portable computer workspace is the durable boundary. Browser profiles are rooted under `.browser-profiles` in that workspace. Milo checkpoints transferred workspaces into `AgentHomeStore` at run completion or failure, before explicit stop, and before idle suspension. Docker mounts the Milo-owned home directly and only advances its revision marker at those boundaries. New or replacement machines import the latest stored workspace before use.
 
-`LocalAgentHomeStore` currently keeps the latest workspace under `DATA_DIR/homes/<computer-home-key>` and checkpoint metadata separately under `DATA_DIR/home-revisions`. Replacements are staged before the current copy is swapped, and checkpoints are serialized per computer. This implementation is latest-only rather than an immutable revision archive. Production deployments must put `DATA_DIR` on a Milo-owned persistent volume, encrypt that volume at rest, and include it in off-host backups. The storage interface is deliberately independent of E2B so an object-store-backed implementation can replace the local volume without changing agent tools or sandbox providers.
+`LocalAgentHomeStore` currently keeps the latest workspace under `DATA_DIR/homes/<computer-home-key>` and checkpoint metadata separately under `DATA_DIR/home-revisions`. Replacements are staged before the current copy is swapped, and checkpoints are serialized per computer. This implementation is latest-only rather than an immutable revision archive. Production deployments must put `DATA_DIR` on a Milo-owned persistent volume, encrypt that volume at rest, and include it in off-host backups. The storage interface is deliberately independent of the sandbox provider so an object-store-backed implementation can replace the local volume without changing agent tools or sandbox providers.
 
-Before exporting a remote workspace, remote backends quiesce desktop browsers so profile databases and login state are copied consistently. Run checkpoints defer while another bot holds an execution or user-control lease; the last finishing run or idle job saves the shared workspace. Idle shutdown claims the computer before exporting, preventing a new bot from starting during the snapshot. They exclude only transient cache/lock files inside `.browser-profiles`; similarly named project files remain durable.
+Before exporting a workspace, backends quiesce desktop browsers so profile databases and login state are copied consistently. Run checkpoints defer while another bot holds an execution or user-control lease; the last finishing run or idle job saves the shared workspace. Idle shutdown claims the computer before exporting, preventing a new bot from starting during the snapshot. They exclude only transient cache/lock files inside `.browser-profiles`; similarly named project files remain durable.
 
 The disposable OS image is not a portable disk snapshot. System packages installed outside the workspace are lost when moving to another provider; durable machine customization should be represented by a reproducible image or setup recipe. This is what makes a future backend switch practical instead of trying to translate vendor-specific VM snapshots.
 
@@ -99,22 +88,13 @@ Docker computers include `uv` for rootless Python CLI installs. Run `uv tool ins
 
 The [agent verification guide](agent-verification.md) also describes a deterministic
 contacts-export replay through real Pi, with either a stateful fake computer or
-real Docker Chromium. It requires no inference and complements the vision
-acceptance test below.
+real Docker Chromium. It requires no inference.
 
-Offline tests cover tool-result images, action parsing, provider conformance (including the page-browser adapter and computer_act fallback), workspace checkpoint/restore, provider SDK translation, lifecycle integration, and multi-screen managed-provider emulators. They never call a model or live sandbox.
-
-The explicit acceptance test requires Docker (for temporary Postgres), `E2B_API_KEY`, `OPENROUTER_API_KEY`, and a vision-capable OpenRouter model id:
-
-```bash
-COMPUTER_E2E_MODEL=<vision-capable-openrouter-model-id> pnpm test:computer
-```
-
-It starts the full API, provisions a real E2B desktop, serves a deterministic page inside the sandbox, and asks a real model to observe and click a button. The button creates a server-side marker; the test then requires the model to use terminal and file tools and verifies both the marker and recorded tool calls. Finally, it destroys the provider machine, boots a replacement through the stale provider reference, and verifies that the external checkpoint restored the model-created file. The command is opt-in and is not run by `pnpm test` or CI unless invoked explicitly.
+Offline tests cover tool-result images, action parsing, provider conformance (including the page-browser adapter and computer_act fallback), workspace checkpoint/restore, and lifecycle integration. They never call a model or live sandbox.
 
 ### Docker desktop lifecycle regression
 
-Build the computer image, then run `VERIFY_DOCKER_TEAM_SCREENS=1 pnpm exec vitest run infra/sandboxes/supervisor/src/team-desktops.docker.test.ts`. Set `RAKAZO_COMPUTER_IMAGE` to select a prebuilt image. The test uses an isolated Docker container with networking disabled and fake browser state; it verifies parallel Chrome desktops visiting local fixture sites, independent cookies, profile persistence after release, transport teardown, and rejection of old view/control tokens after slot reuse. It runs both Docker supervision and the command path used by remote providers. Default unit tests exercise profile persistence, allocation, and lease fencing offline without Docker.
+Build the computer image, then run `VERIFY_DOCKER_TEAM_SCREENS=1 pnpm exec vitest run infra/sandboxes/supervisor/src/team-desktops.docker.test.ts`. Set `RAKAZO_COMPUTER_IMAGE` to select a prebuilt image. The test uses an isolated Docker container with networking disabled and fake browser state; it verifies parallel Chrome desktops visiting local fixture sites, independent cookies, profile persistence after release, transport teardown, and rejection of old view/control tokens after slot reuse. Default unit tests exercise profile persistence, allocation, and lease fencing offline without Docker.
 
 ## Computer maintenance
 

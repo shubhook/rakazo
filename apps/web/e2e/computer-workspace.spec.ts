@@ -1,13 +1,6 @@
 import { readFile } from "node:fs/promises";
 import { expect, type Page, test } from "@playwright/test";
-import {
-  activeBotId,
-  captureScreenshot,
-  completeOnboarding,
-  realSandboxTimeout,
-  rpc,
-  signup,
-} from "./helpers";
+import { activeBotId, captureScreenshot, completeOnboarding, rpc, signup } from "./helpers";
 
 async function openComputer(page: Page) {
   const screenUrl = "https://screen.example/vnc.html";
@@ -190,7 +183,7 @@ test("the terminal shows the bot's shell commands and file actions live and afte
       async () =>
         (await rpc<{ run: { status: string } | null }>(page, "threads/get", { botId })).run
           ?.status ?? "idle",
-      { timeout: realSandboxTimeout(90_000, 30_000) },
+      { timeout: 30_000 },
     )
     .toBe("idle");
   // File tools show up too, not only shell commands.

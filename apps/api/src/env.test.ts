@@ -43,19 +43,7 @@ describe("loadEnv", () => {
     ).toBe("https://catalog.example.test/feed");
   });
 
-  it("falls back to none when a remote provider key is missing", () => {
-    expect(
-      loadEnv({
-        ...base,
-        SANDBOX_PROVIDER: "e2b",
-      }).sandboxProvider,
-    ).toBe("none");
-    expect(
-      loadEnv({
-        ...base,
-        SANDBOX_PROVIDER: "createos",
-      }).sandboxProvider,
-    ).toBe("none");
+  it("keeps explicit and empty none", () => {
     expect(
       loadEnv({
         ...base,
@@ -68,36 +56,6 @@ describe("loadEnv", () => {
         SANDBOX_PROVIDER: "",
       }).sandboxProvider,
     ).toBe("none");
-  });
-
-  it("loads provider-specific Daytona configuration", () => {
-    const env = loadEnv({
-      ...base,
-      SANDBOX_PROVIDER: "daytona",
-      DAYTONA_API_KEY: "test-daytona-key",
-      DAYTONA_API_URL: "https://daytona.test/api",
-      DAYTONA_TARGET: "test-target",
-    });
-    expect(env).toMatchObject({
-      sandboxProvider: "daytona",
-      daytonaApiKey: "test-daytona-key",
-      daytonaApiUrl: "https://daytona.test/api",
-      daytonaTarget: "test-target",
-    });
-  });
-
-  it("loads provider-specific Box configuration", () => {
-    const env = loadEnv({
-      ...base,
-      SANDBOX_PROVIDER: "box",
-      BOX_API_KEY: "test-box-key",
-      BOX_API_URL: "https://box.test/api/v1",
-    });
-    expect(env).toMatchObject({
-      sandboxProvider: "box",
-      boxApiKey: "test-box-key",
-      boxApiUrl: "https://box.test/api/v1",
-    });
   });
 
   it("throws when production omits secrets", () => {
@@ -129,7 +87,7 @@ describe("loadEnv", () => {
       BETTER_AUTH_SECRET: "prod-auth-secret-with-enough-length",
       ENCRYPTION_KEY: "prod-encryption-key-with-enough-length",
       SCREEN_PROXY_SECRET: "prod-screen-proxy-secret-with-enough-length",
-      SANDBOX_PROVIDER: "e2b",
+      SANDBOX_PROVIDER: "none",
       API_HOST: "0.0.0.0",
     });
     expect(env.authSecret).toBe("prod-auth-secret-with-enough-length");

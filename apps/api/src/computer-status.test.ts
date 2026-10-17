@@ -43,7 +43,7 @@ describe("toComputerStatus", () => {
     ).toBe(false);
     expect(
       toComputerStatus("bot-1", {
-        kind: "e2b",
+        kind: "docker",
         state: "running",
         scope: "team",
         controlHolder: "none",

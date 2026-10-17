@@ -797,7 +797,7 @@ describe("computer provisioning", () => {
         id: "computer-1",
         homeKey: "bot-1",
         providerRef: "provider-1",
-        kind: "box",
+        kind: "desktop",
         scope: "dedicated",
         state: "running",
         controlLeaseId: null,
@@ -806,7 +806,7 @@ describe("computer provisioning", () => {
       const ref = {
         id: "provider-2",
         botId: "bot-1",
-        kind: "e2b" as const,
+        kind: "fake" as const,
         providerRef: "provider-2",
         fresh: true,
       };
@@ -859,14 +859,14 @@ describe("computer provisioning", () => {
             id: "computer-1",
             state: "booting",
             providerRef: "provider-1",
-            kind: "box",
+            kind: "desktop",
             updatedAt: expect.any(Date),
           },
           data: { state: "running" },
         });
         expect(original).toMatchObject({
           state: "running",
-          kind: "box",
+          kind: "desktop",
           providerRef: "provider-1",
         });
       } finally {
@@ -882,7 +882,7 @@ describe("computer provisioning", () => {
       id: "computer-1",
       homeKey: "bot-1",
       providerRef: "provider-1",
-      kind: "box",
+      kind: "desktop",
       scope: "dedicated",
       state: "running",
       controlLeaseId: null,
@@ -891,7 +891,7 @@ describe("computer provisioning", () => {
     const ref = {
       id: "provider-2",
       botId: "bot-1",
-      kind: "e2b" as const,
+      kind: "fake" as const,
       providerRef: "provider-2",
       fresh: false,
     };
@@ -936,10 +936,10 @@ describe("computer provisioning", () => {
   });
 
   it.each([
-    { kind: "e2b" as const, providerRef: "provider-2", fresh: true },
-    { kind: "box" as const, providerRef: "provider-2", fresh: false },
-    { kind: "e2b" as const, providerRef: "provider-1", fresh: false },
-    { kind: "box" as const, providerRef: "provider-1", fresh: true },
+    { kind: "fake" as const, providerRef: "provider-2", fresh: true },
+    { kind: "desktop" as const, providerRef: "provider-2", fresh: false },
+    { kind: "fake" as const, providerRef: "provider-1", fresh: false },
+    { kind: "desktop" as const, providerRef: "provider-1", fresh: true },
   ])(
     "restores saved files before reconnecting to $kind/$providerRef (fresh=$fresh)",
     async (next) => {
@@ -961,7 +961,7 @@ describe("computer provisioning", () => {
             id: "computer-1",
             homeKey: "bot-1",
             providerRef: "provider-1",
-            kind: "box",
+            kind: "desktop",
             scope: "dedicated",
             state: "running",
             controlLeaseId: null,
@@ -1001,7 +1001,7 @@ describe("computer provisioning", () => {
             id: "computer-1",
             state: "booting",
             providerRef: "provider-1",
-            kind: "box",
+            kind: "desktop",
             updatedAt: expect.any(Date),
             bots: { some: { id: "bot-1", archivedAt: null } },
           },
@@ -1149,7 +1149,7 @@ describe("computer provisioning", () => {
     const ref = {
       id: "new-provider-1",
       botId: "bot-1",
-      kind: "e2b" as const,
+      kind: "fake" as const,
       providerRef: "new-provider-1",
       fresh: true,
     };
@@ -1160,7 +1160,7 @@ describe("computer provisioning", () => {
           id: "computer-1",
           homeKey: "bot-1",
           providerRef: null,
-          kind: "e2b",
+          kind: "fake",
           scope: "dedicated",
           state: "stopped",
           controlLeaseId: null,
@@ -1197,13 +1197,13 @@ describe("computer provisioning", () => {
           id: "computer-1",
           state: "booting",
           providerRef: null,
-          kind: "e2b",
+          kind: "fake",
           updatedAt: expect.any(Date),
         },
         data: {
           state: "error",
           providerRef: "new-provider-1",
-          kind: "e2b",
+          kind: "fake",
         },
       });
     } finally {
@@ -1284,7 +1284,7 @@ describe("computer provisioning", () => {
     const ref = {
       id: "provider-2",
       botId: "bot-1",
-      kind: "createos" as const,
+      kind: "fake" as const,
       providerRef: "provider-2",
       fresh: true,
     };
@@ -1297,7 +1297,7 @@ describe("computer provisioning", () => {
           id: "computer-1",
           homeKey: "bot-1",
           providerRef: "provider-1",
-          kind: "createos",
+          kind: "fake",
           scope: "dedicated",
           state: "running",
           controlLeaseId: null,
@@ -1337,7 +1337,7 @@ describe("computer provisioning", () => {
           data: expect.objectContaining({
             state: "running",
             providerRef: "provider-2",
-            kind: "createos",
+            kind: "fake",
           }),
         }),
       );
@@ -1796,7 +1796,7 @@ function leasePrisma(options: {
 
 describe("computer replacement", () => {
   it("exposes update availability by sandbox kind", () => {
-    expect(computerSupportsUpdate("e2b")).toBe(true);
+    expect(computerSupportsUpdate("docker")).toBe(true);
     expect(computerSupportsUpdate("desktop")).toBe(false);
   });
 

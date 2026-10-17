@@ -29,8 +29,8 @@ import {
   ensureComputerWorkspaceLayout,
   restoreComputerWorkspace,
 } from "./computer-workspace.js";
-import { isSandboxGoneError } from "./e2b-sandbox.js";
 import { resolveAgentHomePath } from "./home.js";
+import { isSandboxGoneError } from "./sandbox-gone.js";
 
 type ComputerUpdateProgress = (
   stage: Exclude<ComputerUpdate["stage"], "preparing">,
@@ -584,9 +584,7 @@ export function computerSupportsUpdate(kind: string): boolean {
 
 /** Kinds whose provider opens a user terminal through the shared Linux screen gateway. */
 export function computerSupportsTerminal(kind: string): boolean {
-  return (
-    kind === "docker" || kind === "e2b" || kind === "daytona" || kind === "box" || kind === "fake"
-  );
+  return kind === "docker" || kind === "fake";
 }
 
 export async function replaceComputer(

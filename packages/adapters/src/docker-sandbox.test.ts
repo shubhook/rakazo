@@ -6,7 +6,7 @@ import {
   MAX_SANDBOX_SUCCESS_RESPONSE_BYTES,
   SCREEN_RELEASE_TIMEOUT_MS,
 } from "./docker-sandbox.js";
-import { isSandboxGoneError } from "./e2b-sandbox.js";
+import { isSandboxGoneError } from "./sandbox-gone.js";
 
 const context = {
   operationId: "docker-test",

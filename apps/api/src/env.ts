@@ -39,12 +39,6 @@ export interface AppEnv {
   cursorApiKey: string | undefined;
   agentRuntime: string;
   deploymentModelKey: string | undefined;
-  e2bApiKey: string | undefined;
-  daytonaApiKey: string | undefined;
-  daytonaApiUrl: string | undefined;
-  daytonaTarget: string | undefined;
-  boxApiKey: string | undefined;
-  boxApiUrl: string | undefined;
   composioApiKey: string | undefined;
   /** Optional integrations.sh-compatible catalog base URL. */
   integrationsCatalogUrl: string | undefined;
@@ -130,12 +124,6 @@ export function loadEnv(source: NodeJS.ProcessEnv = process.env): AppEnv {
     agentRuntime: source.AGENT_RUNTIME ?? DEFAULT_AGENT_RUNTIME,
     // Provider, model and key resolve together: see resolveDeploymentModel.
     deploymentModelKey: deploymentModel.key,
-    e2bApiKey: source.E2B_API_KEY,
-    daytonaApiKey: source.DAYTONA_API_KEY,
-    daytonaApiUrl: source.DAYTONA_API_URL,
-    daytonaTarget: source.DAYTONA_TARGET,
-    boxApiKey: source.BOX_API_KEY,
-    boxApiUrl: source.BOX_API_URL ?? source.BOX_BASE_URL,
     composioApiKey: source.COMPOSIO_API_KEY,
     integrationsCatalogUrl: optional(source.INTEGRATIONS_CATALOG_URL),
     pipedreamClientId: optional(source.PIPEDREAM_CLIENT_ID),

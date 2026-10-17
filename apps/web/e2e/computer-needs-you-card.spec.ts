@@ -5,7 +5,6 @@ import {
   captureScreenshot,
   completeOnboarding,
   createNamedBot,
-  realSandboxTimeout,
   rpc,
   signup,
 } from "./helpers";
@@ -29,7 +28,7 @@ test("needs-you computer card opens the computer", async ({ page }, testInfo) =>
         return snapshot.run?.status ?? null;
       },
       {
-        timeout: realSandboxTimeout(90_000, 30_000),
+        timeout: 30_000,
         message: "the protected-input run must be ready for takeover",
       },
     )

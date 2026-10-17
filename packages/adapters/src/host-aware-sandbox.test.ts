@@ -139,7 +139,7 @@ describe("host-aware sandbox", () => {
   it("only switches docker deployments onto this Mac", () => {
     expect(sandboxKindForBot("docker", "this-mac")).toBe("desktop");
     expect(sandboxKindForBot("docker", "docker")).toBe("docker");
-    expect(sandboxKindForBot("e2b", "this-mac")).toBe("e2b");
+    expect(sandboxKindForBot("desktop", "docker")).toBe("desktop");
     expect(sandboxKindForBot("fake", "this-mac")).toBe("fake");
   });
 

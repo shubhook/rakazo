@@ -12,7 +12,6 @@ import {
   sandboxIdleMs,
   sleepComputerIfIdle,
 } from "./computer-idle.js";
-import { e2bCreateOptions } from "./e2b-sandbox.js";
 
 describe("sandbox idle", () => {
   it("defaults to ten minutes when SANDBOX_IDLE_MS is unset", () => {
@@ -446,15 +445,6 @@ describe("CANCEL_PRIMARY_BROWSER_WORK", () => {
   });
 });
 
-describe("e2b create options", () => {
-  it("pauses on timeout instead of killing the sandbox", () => {
-    const opts = e2bCreateOptions("bot-1", "e2b_test");
-    expect(opts.lifecycle).toEqual({ onTimeout: "pause", autoResume: false });
-    expect(opts.timeoutMs).toBe(sandboxIdleMs());
-    expect(opts.metadata.botId).toBe("bot-1");
-  });
-});
-
 function idleHarness(
   options: {
     backgroundWorkProbeCode?: number;
@@ -470,7 +460,7 @@ function idleHarness(
     homeKey: "team-workspace",
     homeRevision: "rev-before",
     providerRef: "computer",
-    kind: "e2b",
+    kind: "fake",
     state: "running",
     spaceId: "workspace",
     userId: "user",

@@ -1068,7 +1068,7 @@ describe("computer screen url", () => {
   const computerRow = {
     id: "computer-1",
     screenGeneration: 3,
-    kind: "e2b",
+    kind: "docker",
     scope: "team",
     state: "running",
     providerRef: "sandbox-ref-1",
@@ -1102,7 +1102,7 @@ describe("computer screen url", () => {
         defaultModel: "fake-model",
         webOrigin: "http://127.0.0.1:5173",
         screenProxySecret: "fake-test-secret",
-        sandboxProvider: "e2b",
+        sandboxProvider: "docker",
       },
       dataDir: "/tmp/rakazo-router-test",
     } as unknown as RouterDeps;
@@ -1118,7 +1118,7 @@ describe("computer screen url", () => {
     return { response, updateMany };
   };
 
-  it("issues lifecycle-bound capabilities for managed-provider screens too", async () => {
+  it("issues lifecycle-bound capabilities for provider screens", async () => {
     const { response } = await callScreenUrl(async () => ({
       url: "https://screen.example/vnc.html?token=fake-token",
     }));
